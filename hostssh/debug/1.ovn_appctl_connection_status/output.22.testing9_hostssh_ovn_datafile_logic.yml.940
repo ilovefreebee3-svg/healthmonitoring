@@ -1,0 +1,105 @@
+
+---------------------------------
+22.testing9_hostssh_ovn_datafile_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 1. Run diagnostic commands on all CVMs
+  hosts: corecvm
+#  hosts: engrcvm
+#  hosts: pecvm
+#  hosts: allcvms
+  gather_facts: false
+  serial: 1
+
+  vars:
+    cmd_list:
+      - name: hostssh ovn-appctl connection-status
+        argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#      - name: hostssh_ovn_appctl_connection_status
+#        argv: ["hostssh_ovn_appctl_connection_status"]
+
+  tasks:
+    - name: 2. Execute commands
+      include_tasks: subr.22.testing9_hostssh_ovn_datafile_logic.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+
+    - name: 3. Display hostssh sudo ovn_appctl connection-status output
+      ansible.builtin.debug:
+        msg: "{{ input_filter }}" 
+
+    - name: 4. Split lines
+      set_fact:
+        lines: "{{ (input_filter.stdout).split('\n') | map('trim') | reject('equalto','') | list }}"
+
+    - name: 5. Initialize results
+      set_fact:
+        num_disconnected: 0
+        remark: ""
+
+    - name: 6. Process IP entries safely
+      set_fact:
+        num_disconnected: "{{ (num_disconnected | default(0) | int) + (1 if status != 'connected' else 0) }}"
+        remark: >-
+          {{
+            remark +
+            (ip ~ ' - ' ~ status ~ '; ' if status != 'connected' else '')
+          }}
+      loop: "{{ range(0, lines | length) | list }}"
+      vars:
+        current: "{{ lines[item] }}"
+        next_line: "{{ lines[item + 1] if item + 1 < (lines | length) else '' }}"
+        is_ip: "{{ current is search('=+\\s*[0-9.]+\\s*=+') }}"
+        next_is_ip: "{{ next_line is search('=+') }}"
+        ip: "{{ current | regex_search('([0-9.]+)') }}"
+        status: >-
+          {{
+            (next_line if not next_is_ip else '')
+          }}
+      when: is_ip
+
+    - name: Final answer
+      set_fact:
+        answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
+
+    - debug:
+        msg:
+          num_disconnected: "{{ num_disconnected }}"
+          remark: "{{ remark }}"
+          answer: "{{ answer }}"
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+
+------------------------------------------------------------------
+
+
+aph 22.testing9_hostssh_ovn_datafile_logic.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/debug/1.ovn_appctl_connection_status/subr.22.testing9_hostssh_ovn_datafile_logic.yml for corecvm => (item={'name': 'hostssh ovn-appctl connection-status', 'argv': ['hostssh', 'ovn-appctl', 'connection-status']})
+
+TASK [11. Display host and command] ********************************************
+ok: [corecvm] => {
+    "msg": [
+        "Host    : corecvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [13. Mimic 'cat' register output using lookup] ****************************
+fatal: [corecvm]: FAILED! => {"msg": "An unhandled exception occurred while running the lookup plugin 'file'. Error was a <class 'ansible.errors.AnsibleError'>, original message: could not locate file in lookup:  data.hostssh_ovn_appctl_connection_status.txt. could not locate file in lookup:  data.hostssh_ovn_appctl_connection_status.txt"}
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=2    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
+

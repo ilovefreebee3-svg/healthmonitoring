@@ -1,0 +1,1046 @@
+
+---------------------------------
+04.testing10_hostssh_allcvms_dbus_hostssh_commands.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 1. Run diagnostic commands on all CVMs
+#  hosts: corecvm
+  hosts: allcvms
+  gather_facts: false
+  serial: 1
+
+  tasks:
+
+    - name: 1. Declare variables
+      set_fact:
+        answer: "Healthy"
+        remark: "No failures or errors detected."
+        cmd_list:
+#          - name: hostssh ovn-appctl connection-status
+#            argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#          - name: hostssh nvidia-smi
+#            argv: ["hostssh", "nvidia-smi"]
+
+#          - name: hostssh systemctl status nvidia-vgpu-mgr
+#            argv: ["hostssh", "systemctl", "status","nvidia-vgpu-mgr"]
+
+#          - name: hostssh systemctl list-units --type=service --no-pager
+#            argv: ["hostssh", "systemctl", "list-units", "--type=service", "--no-pager"]
+
+          - name: hostssh systemctl status dbus
+            argv: ["hostssh", "systemctl", "status","dbus"]
+
+    - name: 2. Execute commands
+      include_tasks: subr.03.testing10_hostssh_dbus_hostssh_commands.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+
+#    - name: 3. Mimic 'cat' register output using lookup
+#      set_fact:
+#        input_result:
+#          stdout: "{{ lookup('file', 'data.hostssh_systemctl_status_dbus_hostssh_commands.txt') }}"
+#          stdout_lines: "{{ lookup('file', 'data.hostssh_systemctl_status_dbus_hostssh_commands.txt').splitlines() }}"
+#          rc: 0
+#          failed: false
+#          changed: false
+
+    - name: 4. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 5. Display input_result.stdout
+      ansible.builtin.debug:
+        var: input_result.stdout
+
+    - name: 6. Display input_result.stderr
+      ansible.builtin.debug:
+        var: input_result.stderr
+
+    - name: 7. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+
+    - set_fact:
+        svc_list: >-
+          {{
+            input_result.stdout | regex_findall(
+            '={1,20}\s*([0-9.]+)\s*={1,20}.*?\n.*?(dbus\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            multiline=True
+            )
+          }}
+    
+    - name: 9. Determine svc_list
+      debug:
+        var: svc_list
+
+    - set_fact:
+        answer: "None"
+      when: svc_list | length == 0
+    
+    - set_fact:
+        inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
+      when: svc_list | length > 0
+    
+    - set_fact:
+        answer: >-
+          {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
+        remark: >-
+          {{ inactive_list if inactive_list | length > 0 else '' }}
+      when: svc_list | length > 0
+
+    - name: 10. Display answer and remark
+      debug:
+        msg: "{{ answer }} {{ remark }} "
+
+    - name: 11. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+
+------------------------------------------------------------------
+
+
+aph 04.testing10_hostssh_allcvms_dbus_hostssh_commands.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [calmcvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.03.testing10_hostssh_dbus_hostssh_commands.yml for calmcvm => (item={'name': 'hostssh systemctl status dbus', 'argv': ['hostssh', 'systemctl', 'status', 'dbus']})
+
+TASK [11. Display host and command] ********************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Host    : calmcvm",
+        "Command : hostssh systemctl status dbus"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [calmcvm]
+
+TASK [13. Debug the captured output] *******************************************
+ok: [calmcvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [14. Display the captured output] *****************************************
+ok: [calmcvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [15. Display ['hostssh', 'systemctl', 'status', 'dbus'] command output] ***
+ok: [calmcvm] => {
+    "msg": "==================================================\nHost    : calmcvm\nCommand : hostssh systemctl status dbus\nRC      : 1\n\nSTDOUT:\n[]\n\nSTDERR:\nCRITICAL:root:No valid hosts found\n==================================================\n"
+}
+
+TASK [16. Log output on control node] ******************************************
+changed: [calmcvm -> localhost]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [5. Display input_result.stdout] ******************************************
+ok: [calmcvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [6. Display input_result.stderr] ******************************************
+ok: [calmcvm] => {
+    "input_result.stderr": "CRITICAL:root:No valid hosts found"
+}
+
+TASK [7. Display input_result.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "msg": []
+}
+
+TASK [set_fact] ****************************************************************
+ok: [calmcvm]
+
+TASK [9. Determine svc_list] ***************************************************
+ok: [calmcvm] => {
+    "svc_list": []
+}
+
+TASK [set_fact] ****************************************************************
+ok: [calmcvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [calmcvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [calmcvm]
+
+TASK [10. Display answer and remark] *******************************************
+ok: [calmcvm] => {
+    "msg": "None No failures or errors detected. "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [calmcvm -> localhost]
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.03.testing10_hostssh_dbus_hostssh_commands.yml for corecvm => (item={'name': 'hostssh systemctl status dbus', 'argv': ['hostssh', 'systemctl', 'status', 'dbus']})
+
+TASK [11. Display host and command] ********************************************
+ok: [corecvm] => {
+    "msg": [
+        "Host    : corecvm",
+        "Command : hostssh systemctl status dbus"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [corecvm]
+
+TASK [13. Debug the captured output] *******************************************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.10.3 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.4 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.2 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 4.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.1 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.7 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6982 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.6 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+    ]
+}
+
+TASK [14. Display the captured output] *****************************************
+ok: [corecvm] => {
+    "input_result.stdout": "============= 188.185.10.3 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6737 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 6.0M\n   CGroup: /system.slice/dbus.service\n           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.4 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6779 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.3M\n   CGroup: /system.slice/dbus.service\n           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.2 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6773 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 4.9M\n   CGroup: /system.slice/dbus.service\n           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.1 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6814 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.6M\n   CGroup: /system.slice/dbus.service\n           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.7 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6982 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.6M\n   CGroup: /system.slice/dbus.service\n           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.6 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 7002 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.9M\n   CGroup: /system.slice/dbus.service\n           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+}
+
+TASK [15. Display ['hostssh', 'systemctl', 'status', 'dbus'] command output] ***
+ok: [corecvm] => {
+    "msg": "==================================================\nHost    : corecvm\nCommand : hostssh systemctl status dbus\nRC      : 0\n\nSTDOUT:\n['============= 188.185.10.3 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 6737 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 6.0M', '   CGroup: /system.slice/dbus.service', '           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.', '============= 188.185.10.4 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 6779 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 5.3M', '   CGroup: /system.slice/dbus.service', '           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.', '============= 188.185.10.2 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 6773 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 4.9M', '   CGroup: /system.slice/dbus.service', '           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.', '============= 188.185.10.1 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 6814 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 5.6M', '   CGroup: /system.slice/dbus.service', '           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.', '============= 188.185.10.7 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 6982 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 5.6M', '   CGroup: /system.slice/dbus.service', '           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.', '============= 188.185.10.6 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 7002 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 5.9M', '   CGroup: /system.slice/dbus.service', '           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.']\n\nSTDERR:\n\n==================================================\n"
+}
+
+TASK [16. Log output on control node] ******************************************
+changed: [corecvm -> localhost]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.10.3 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.4 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.2 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 4.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.1 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.7 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6982 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.6 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+    ]
+}
+
+TASK [5. Display input_result.stdout] ******************************************
+ok: [corecvm] => {
+    "input_result.stdout": "============= 188.185.10.3 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6737 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 6.0M\n   CGroup: /system.slice/dbus.service\n           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.4 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6779 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.3M\n   CGroup: /system.slice/dbus.service\n           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.2 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6773 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 4.9M\n   CGroup: /system.slice/dbus.service\n           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.1 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6814 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.6M\n   CGroup: /system.slice/dbus.service\n           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.7 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6982 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.6M\n   CGroup: /system.slice/dbus.service\n           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.10.6 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 7002 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.9M\n   CGroup: /system.slice/dbus.service\n           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+}
+
+TASK [6. Display input_result.stderr] ******************************************
+ok: [corecvm] => {
+    "input_result.stderr": ""
+}
+
+TASK [7. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "msg": [
+        "============= 188.185.10.3 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.4 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.2 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 4.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.1 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.7 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6982 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.10.6 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [9. Determine svc_list] ***************************************************
+ok: [corecvm] => {
+    "svc_list": [
+        [
+            "188.185.10.3",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.4",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.2",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.1",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.7",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.6",
+            "dbus.service",
+            "active"
+        ]
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [10. Display answer and remark] *******************************************
+ok: [corecvm] => {
+    "msg": "All active  "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+ok: [corecvm -> localhost]
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [engrcvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.03.testing10_hostssh_dbus_hostssh_commands.yml for engrcvm => (item={'name': 'hostssh systemctl status dbus', 'argv': ['hostssh', 'systemctl', 'status', 'dbus']})
+
+TASK [11. Display host and command] ********************************************
+ok: [engrcvm] => {
+    "msg": [
+        "Host    : engrcvm",
+        "Command : hostssh systemctl status dbus"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [engrcvm]
+
+TASK [13. Debug the captured output] *******************************************
+ok: [engrcvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.20.2 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5056 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.1M",
+        "        CPU: 1h 23min 3.584s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete.",
+        "============= 188.185.20.1 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.1M",
+        "        CPU: 1h 19min 34.150s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete.",
+        "============= 188.185.20.3 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5091 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 21min 19.683s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete."
+    ]
+}
+
+TASK [14. Display the captured output] *****************************************
+ok: [engrcvm] => {
+    "input_result.stdout": "============= 188.185.20.2 ============\n● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5056 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.1M\n        CPU: 1h 23min 3.584s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit\n\nNotice: journal has been rotated since unit was started, output may be incomplete.\n============= 188.185.20.1 ============\n● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5066 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.1M\n        CPU: 1h 19min 34.150s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit\n\nNotice: journal has been rotated since unit was started, output may be incomplete.\n============= 188.185.20.3 ============\n● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5091 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.4M\n        CPU: 1h 21min 19.683s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit\n\nNotice: journal has been rotated since unit was started, output may be incomplete."
+}
+
+TASK [15. Display ['hostssh', 'systemctl', 'status', 'dbus'] command output] ***
+ok: [engrcvm] => {
+    "msg": "==================================================\nHost    : engrcvm\nCommand : hostssh systemctl status dbus\nRC      : 0\n\nSTDOUT:\n['============= 188.185.20.2 ============', '● dbus-broker.service - D-Bus System Message Bus', '     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)', '     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago', 'TriggeredBy: ● dbus.socket', '       Docs: man:dbus-broker-launch(1)', '   Main PID: 5056 (dbus-broker-lau)', '      Tasks: 2 (limit: 3355442)', '     Memory: 3.1M', '        CPU: 1h 23min 3.584s', '     CGroup: /system.slice/dbus-broker.service', '             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit', '             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit', '', 'Notice: journal has been rotated since unit was started, output may be incomplete.', '============= 188.185.20.1 ============', '● dbus-broker.service - D-Bus System Message Bus', '     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)', '     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago', 'TriggeredBy: ● dbus.socket', '       Docs: man:dbus-broker-launch(1)', '   Main PID: 5066 (dbus-broker-lau)', '      Tasks: 2 (limit: 3355442)', '     Memory: 3.1M', '        CPU: 1h 19min 34.150s', '     CGroup: /system.slice/dbus-broker.service', '             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit', '             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit', '', 'Notice: journal has been rotated since unit was started, output may be incomplete.', '============= 188.185.20.3 ============', '● dbus-broker.service - D-Bus System Message Bus', '     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)', '     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago', 'TriggeredBy: ● dbus.socket', '       Docs: man:dbus-broker-launch(1)', '   Main PID: 5091 (dbus-broker-lau)', '      Tasks: 2 (limit: 3355442)', '     Memory: 3.4M', '        CPU: 1h 21min 19.683s', '     CGroup: /system.slice/dbus-broker.service', '             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit', '             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit', '', 'Notice: journal has been rotated since unit was started, output may be incomplete.']\n\nSTDERR:\n\n==================================================\n"
+}
+
+TASK [16. Log output on control node] ******************************************
+changed: [engrcvm -> localhost]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [engrcvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.20.2 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5056 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.1M",
+        "        CPU: 1h 23min 3.584s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete.",
+        "============= 188.185.20.1 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.1M",
+        "        CPU: 1h 19min 34.150s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete.",
+        "============= 188.185.20.3 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5091 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 21min 19.683s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete."
+    ]
+}
+
+TASK [5. Display input_result.stdout] ******************************************
+ok: [engrcvm] => {
+    "input_result.stdout": "============= 188.185.20.2 ============\n● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5056 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.1M\n        CPU: 1h 23min 3.584s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit\n\nNotice: journal has been rotated since unit was started, output may be incomplete.\n============= 188.185.20.1 ============\n● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5066 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.1M\n        CPU: 1h 19min 34.150s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit\n\nNotice: journal has been rotated since unit was started, output may be incomplete.\n============= 188.185.20.3 ============\n● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5091 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.4M\n        CPU: 1h 21min 19.683s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit\n\nNotice: journal has been rotated since unit was started, output may be incomplete."
+}
+
+TASK [6. Display input_result.stderr] ******************************************
+ok: [engrcvm] => {
+    "input_result.stderr": ""
+}
+
+TASK [7. Display input_result.stdout_lines] ************************************
+ok: [engrcvm] => {
+    "msg": [
+        "============= 188.185.20.2 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5056 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.1M",
+        "        CPU: 1h 23min 3.584s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete.",
+        "============= 188.185.20.1 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.1M",
+        "        CPU: 1h 19min 34.150s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete.",
+        "============= 188.185.20.3 ============",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5091 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 21min 19.683s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "Notice: journal has been rotated since unit was started, output may be incomplete."
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [engrcvm]
+
+TASK [9. Determine svc_list] ***************************************************
+ok: [engrcvm] => {
+    "svc_list": []
+}
+
+TASK [set_fact] ****************************************************************
+ok: [engrcvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [engrcvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [engrcvm]
+
+TASK [10. Display answer and remark] *******************************************
+ok: [engrcvm] => {
+    "msg": "None No failures or errors detected. "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [engrcvm -> localhost]
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [pccvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.03.testing10_hostssh_dbus_hostssh_commands.yml for pccvm => (item={'name': 'hostssh systemctl status dbus', 'argv': ['hostssh', 'systemctl', 'status', 'dbus']})
+
+TASK [11. Display host and command] ********************************************
+ok: [pccvm] => {
+    "msg": [
+        "Host    : pccvm",
+        "Command : hostssh systemctl status dbus"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [pccvm]
+
+TASK [13. Debug the captured output] *******************************************
+ok: [pccvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [14. Display the captured output] *****************************************
+ok: [pccvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [15. Display ['hostssh', 'systemctl', 'status', 'dbus'] command output] ***
+ok: [pccvm] => {
+    "msg": "==================================================\nHost    : pccvm\nCommand : hostssh systemctl status dbus\nRC      : 1\n\nSTDOUT:\n[]\n\nSTDERR:\nCRITICAL:root:No valid hosts found\n==================================================\n"
+}
+
+TASK [16. Log output on control node] ******************************************
+changed: [pccvm -> localhost]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [pccvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [5. Display input_result.stdout] ******************************************
+ok: [pccvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [6. Display input_result.stderr] ******************************************
+ok: [pccvm] => {
+    "input_result.stderr": "CRITICAL:root:No valid hosts found"
+}
+
+TASK [7. Display input_result.stdout_lines] ************************************
+ok: [pccvm] => {
+    "msg": []
+}
+
+TASK [set_fact] ****************************************************************
+ok: [pccvm]
+
+TASK [9. Determine svc_list] ***************************************************
+ok: [pccvm] => {
+    "svc_list": []
+}
+
+TASK [set_fact] ****************************************************************
+ok: [pccvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [pccvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [pccvm]
+
+TASK [10. Display answer and remark] *******************************************
+ok: [pccvm] => {
+    "msg": "None No failures or errors detected. "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [pccvm -> localhost]
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [pecvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.03.testing10_hostssh_dbus_hostssh_commands.yml for pecvm => (item={'name': 'hostssh systemctl status dbus', 'argv': ['hostssh', 'systemctl', 'status', 'dbus']})
+
+TASK [11. Display host and command] ********************************************
+ok: [pecvm] => {
+    "msg": [
+        "Host    : pecvm",
+        "Command : hostssh systemctl status dbus"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [pecvm]
+
+TASK [13. Debug the captured output] *******************************************
+ok: [pecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.13.2 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4329 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.2M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.13.1 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.13.3 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4296 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 2.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+    ]
+}
+
+TASK [14. Display the captured output] *****************************************
+ok: [pecvm] => {
+    "input_result.stdout": "============= 188.185.13.2 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4329 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 3.2M\n   CGroup: /system.slice/dbus.service\n           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.13.1 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4377 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 3.0M\n   CGroup: /system.slice/dbus.service\n           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.13.3 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4296 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 2.8M\n   CGroup: /system.slice/dbus.service\n           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+}
+
+TASK [15. Display ['hostssh', 'systemctl', 'status', 'dbus'] command output] ***
+ok: [pecvm] => {
+    "msg": "==================================================\nHost    : pecvm\nCommand : hostssh systemctl status dbus\nRC      : 0\n\nSTDOUT:\n['============= 188.185.13.2 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 4329 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 3.2M', '   CGroup: /system.slice/dbus.service', '           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.', '============= 188.185.13.1 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 4377 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 3.0M', '   CGroup: /system.slice/dbus.service', '           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.', '============= 188.185.13.3 ============', '● dbus.service - D-Bus System Message Bus', '   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)', '   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago', '     Docs: man:dbus-daemon(1)', ' Main PID: 4296 (dbus-daemon)', '    Tasks: 2 (limit: 3355442)', '   Memory: 2.8M', '   CGroup: /system.slice/dbus.service', '           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only', '', 'Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.']\n\nSTDERR:\n\n==================================================\n"
+}
+
+TASK [16. Log output on control node] ******************************************
+changed: [pecvm -> localhost]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [pecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.13.2 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4329 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.2M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.13.1 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.13.3 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4296 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 2.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+    ]
+}
+
+TASK [5. Display input_result.stdout] ******************************************
+ok: [pecvm] => {
+    "input_result.stdout": "============= 188.185.13.2 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4329 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 3.2M\n   CGroup: /system.slice/dbus.service\n           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.13.1 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4377 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 3.0M\n   CGroup: /system.slice/dbus.service\n           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.\n============= 188.185.13.3 ============\n● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4296 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 2.8M\n   CGroup: /system.slice/dbus.service\n           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n\nWarning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+}
+
+TASK [6. Display input_result.stderr] ******************************************
+ok: [pecvm] => {
+    "input_result.stderr": ""
+}
+
+TASK [7. Display input_result.stdout_lines] ************************************
+ok: [pecvm] => {
+    "msg": [
+        "============= 188.185.13.2 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4329 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.2M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.13.1 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable.",
+        "============= 188.185.13.3 ============",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4296 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 2.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Warning: Journal has been rotated since unit was started. Log output is incomplete or unavailable."
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [pecvm]
+
+TASK [9. Determine svc_list] ***************************************************
+ok: [pecvm] => {
+    "svc_list": [
+        [
+            "188.185.13.2",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.13.1",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.13.3",
+            "dbus.service",
+            "active"
+        ]
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+skipping: [pecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [pecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [pecvm]
+
+TASK [10. Display answer and remark] *******************************************
+ok: [pecvm] => {
+    "msg": "All active  "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [pecvm -> localhost]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=17   changed=2    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+corecvm                    : ok=18   changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+engrcvm                    : ok=17   changed=2    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+pccvm                      : ok=17   changed=2    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+pecvm                      : ok=18   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

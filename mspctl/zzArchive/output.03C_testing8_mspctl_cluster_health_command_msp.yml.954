@@ -1,0 +1,148 @@
+
+---------------------------------
+03C_testing8_mspctl_cluster_health_command_msp.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: how to run mspctl cluster health
+  hosts: pccvm
+  gather_facts: false
+  vars:
+#    cluster: "S3"
+    cluster: "msp"
+#    cluster: "prism-central"
+
+  tasks:
+    - name: 0. Run mspctl cluster health with command module
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            mspctl cluster health {{ cluster }}
+      register: input_result
+      changed_when: false
+      failed_when: false
+
+    - name: 1. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 2. Display input_result.stdout
+      ansible.builtin.debug:
+        var: input_result.stdout
+
+    - name: 3. Display input_result.stderr
+      ansible.builtin.debug:
+        var: input_result.stderr
+
+    - name: 4. Mimic 'cat' register output using lookup
+      set_fact:
+        num_unhealthy: 0
+        remark: ""
+#        input_result:
+#          stdout: "{{ lookup('file', 'mspctl_cluster_health.txt') }}"
+#          stdout_lines: "{{ lookup('file', 'mspctl_cluster_health.txt').splitlines() }}"
+#          rc: 0
+#          failed: false
+#          changed: false
+
+    - name: 5. Process each line
+      set_fact:
+        num_unhealthy: "{{ num_unhealthy | int + (1 if healthy | lower != 'true' else 0) }}"
+        remark: >-
+          {{ remark +
+             (component ~ ':' ~ healthy ~ ' ' if healthy | lower != 'true' else '') }}
+      loop: "{{ input_result.stdout_lines }}"
+      vars:
+        line: "{{ item | trim }}"
+        is_valid: "{{ line != '' and not line.startswith('COMPONENT') }}"
+        parsed: "{{ line | regex_findall('^(\\S+)\\s+(\\S+)\\s+(.*)$') }}"
+        component: "{{ parsed[0][0] if parsed else '' }}"
+        healthy: "{{ parsed[0][1] if parsed else '' }}"
+      when: is_valid and parsed | length > 0
+
+    - name: Final answer
+      set_fact:
+        answer: "{{ 'Unhealthy' if (num_unhealthy | int) > 0 else 'Healthy' }}"
+    
+    - name: 6. Show results
+      debug:
+        msg:
+          num_unhealthy: "{{ num_unhealthy }}"
+          remark: "{{ remark }}"
+          answer: "{{ answer }}"
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+------------------------------------------------------------------
+
+
+aph 03C_testing8_mspctl_cluster_health_command_msp.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [how to run mspctl cluster health] ****************************************
+
+TASK [0. Run mspctl cluster health with command module] ************************
+ok: [pccvm]
+
+TASK [1. Display input_result.stdout_lines] ************************************
+ok: [pccvm] => {
+    "input_result.stdout_lines": [
+        "COMPONENT      \tHEALTHY\tDESCRIPTION                ",
+        "",
+        "Node           \ttrue   \tNode is healthy           \t",
+        "LB             \ttrue   \tLB is healthy             \t",
+        "ClusterWorkflow\ttrue   \tClusterWorkflow is healthy\t",
+        "Core           \ttrue   \tCore is healthy           \t",
+        "Addons         \ttrue   \tAddons is healthy         \t",
+        "Extensions     \ttrue   \tExtensions is healthy     \t"
+    ]
+}
+
+TASK [2. Display input_result.stdout] ******************************************
+ok: [pccvm] => {
+    "input_result.stdout": "COMPONENT      \tHEALTHY\tDESCRIPTION                \n\nNode           \ttrue   \tNode is healthy           \t\nLB             \ttrue   \tLB is healthy             \t\nClusterWorkflow\ttrue   \tClusterWorkflow is healthy\t\nCore           \ttrue   \tCore is healthy           \t\nAddons         \ttrue   \tAddons is healthy         \t\nExtensions     \ttrue   \tExtensions is healthy     \t"
+}
+
+TASK [3. Display input_result.stderr] ******************************************
+ok: [pccvm] => {
+    "input_result.stderr": ""
+}
+
+TASK [4. Mimic 'cat' register output using lookup] *****************************
+ok: [pccvm]
+
+TASK [5. Process each line] ****************************************************
+skipping: [pccvm] => (item=COMPONENT      	HEALTHY	DESCRIPTION                ) 
+skipping: [pccvm] => (item=) 
+ok: [pccvm] => (item=Node           	true   	Node is healthy           	)
+ok: [pccvm] => (item=LB             	true   	LB is healthy             	)
+ok: [pccvm] => (item=ClusterWorkflow	true   	ClusterWorkflow is healthy	)
+ok: [pccvm] => (item=Core           	true   	Core is healthy           	)
+ok: [pccvm] => (item=Addons         	true   	Addons is healthy         	)
+ok: [pccvm] => (item=Extensions     	true   	Extensions is healthy     	)
+
+TASK [Final answer] ************************************************************
+ok: [pccvm]
+
+TASK [6. Show results] *********************************************************
+ok: [pccvm] => {
+    "msg": {
+        "answer": "Healthy",
+        "num_unhealthy": "0",
+        "remark": ""
+    }
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [pccvm -> localhost]
+
+PLAY RECAP *********************************************************************
+pccvm                      : ok=9    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

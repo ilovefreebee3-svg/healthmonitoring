@@ -1,0 +1,5 @@
+---
+# defaults file for r_ssh_calm_policy_gg
+description: ssh into Calm Policy VM , ssh <calm policy vm> df -kh
+idx: idx103
+role: r_ssh_calm_policy_gg

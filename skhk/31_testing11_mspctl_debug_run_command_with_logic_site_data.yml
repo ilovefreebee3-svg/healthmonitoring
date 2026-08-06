@@ -1,0 +1,129 @@
+---
+- name: how to run mspctl
+  hosts: calmcvm
+#  hosts: pccvm
+  gather_facts: no
+
+  vars:
+    read_from_file: false 
+
+  tasks:
+    - name: 1. Run mspctl debug with command module
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            mspctl debug run --log_stdout 
+      register: input_filter
+      changed_when: false
+      failed_when: false
+      when: not ( read_from_file | bool )
+
+#    - name: 2. Execute a remote script
+#      ansible.builtin.command: name_of_remote_script
+#      register: input_filter
+#      changed_when: false
+#      ignore_errors: true
+
+    - name: 3. Read from hardcoded file
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.31_testing11_mspctl_debug_run_command_with_logic_site_data.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.31_testing11_mspctl_debug_run_command_with_logic_site_data.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 4. Display input_filter.stdout_lines
+      ansible.builtin.debug:
+        var: input_filter.stdout_lines
+
+#    - name: 5. Display input_filter.stdout
+#      ansible.builtin.debug:
+#        var: input_filter.stdout
+
+    - name: 6. Display the stderr
+      ansible.builtin.debug:
+        var: input_filter.stderr
+
+    - name: 7. Remove ANSI color codes
+      ansible.builtin.set_fact:
+        Xinput_filter_msg: >-
+          {{
+            input_filter.stdout_lines
+            | map('regex_replace', '\x1B\[[0-9;]*[A-Za-z]', '')
+            | list
+          }}
+    
+    - name: 8. Display cleaned output
+      ansible.builtin.debug:
+        var: Xinput_filter_msg
+
+#    - name: 9. Display input_filter.stdout_lines
+#      ansible.builtin.debug:
+#        msg:
+#          - "V: {{ input_filter.stdout_lines }}"
+
+#    - name: 10. Display Xinput_Result msg
+#      ansible.builtin.debug:
+#        msg:
+#          - "X: {{ Xinput_filter_msg }}"
+
+    - name: 11. Initialize variables
+      set_fact:
+        current_name: ""
+        failures: []
+        test_results: []
+
+    - name: 12. Parse in ONE loop (correct pairing)
+      set_fact:
+        current_name: >-
+          {{
+          log_line.split(':', 1)[1] | trim
+          if log_line is search('^Test Name:')
+          else current_name
+          }}
+        test_results: >-
+          {{
+          test_results + [ {'name': current_name, 'status': log_line.split(':',1)[1] | trim} ]
+          if log_line is search('^STATUS:')
+          else test_results
+          }}
+        failures: >-
+          {{
+          failures + [ {'name': current_name, 'status': log_line.split(':',1)[1] | trim} ]
+          if (log_line is search('^STATUS:') and (log_line.split(':',1)[1] | trim) != 'SUCCESS')
+          else failures
+          }}
+      loop: "{{ Xinput_filter_msg }}"
+      loop_control:
+        loop_var: log_line
+
+    - name: 13. Compute summary
+      set_fact:
+        num_failure: "{{ failures | length }}"
+        remark: >-
+          {{
+            failures
+            | map(attribute='name')
+            | zip(failures | map(attribute='status'))
+            | map('join', ' -> ')
+            | join(' -- ')
+          }}
+        answer: "{{ 'STATUS Not Success' if (failures | length) > 0 else 'STATUS SUCCESS' }}"
+
+    - debug:
+        msg:
+          - "Failures: {{ num_failure }}"
+          - "Remark: {{ remark }}"
+          - "Answer: {{ answer }}"
+
+    - name: 14. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common

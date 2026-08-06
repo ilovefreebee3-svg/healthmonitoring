@@ -1,0 +1,75 @@
+
+---------------------------------
+20C.testing8_hostssh_fdisk_commands_sudo_become.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check nvidia_vgpu_mgr Status across AHV Hosts
+  hosts: corecvm
+  gather_facts: false
+#  become: true
+  vars:
+    remote_user_name: nutanix
+
+  tasks:
+    - name: Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: Process each AHV host dynamically
+      ansible.builtin.include_tasks: subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when: ahv_hosts | length > 0
+
+------------------------------------------------------------------
+
+
+aph 20C.testing8_hostssh_fdisk_commands_sudo_become.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Pseudo hostssh - Check nvidia_vgpu_mgr Status across AHV Hosts] **********
+
+TASK [Get AHV host IP addresses] ***********************************************
+ok: [corecvm]
+
+TASK [Parse IP addresses into a clean list] ************************************
+ok: [corecvm]
+
+TASK [Process each AHV host dynamically] ***************************************
+included: /home/liamhuat/proj/ansible/hm/testing8/hostssh/subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml for corecvm => (item=188.185.10.1)
+included: /home/liamhuat/proj/ansible/hm/testing8/hostssh/subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml for corecvm => (item=188.185.10.2)
+included: /home/liamhuat/proj/ansible/hm/testing8/hostssh/subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml for corecvm => (item=188.185.10.3)
+included: /home/liamhuat/proj/ansible/hm/testing8/hostssh/subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml for corecvm => (item=188.185.10.4)
+included: /home/liamhuat/proj/ansible/hm/testing8/hostssh/subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml for corecvm => (item=188.185.10.6)
+included: /home/liamhuat/proj/ansible/hm/testing8/hostssh/subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml for corecvm => (item=188.185.10.7)
+
+TASK [Check reachability for 188.185.10.1] *************************************
+ok: [corecvm]
+
+TASK [Test basic connection] ***************************************************
+ok: [corecvm]
+
+TASK [Run commands sequentially on the target host] ****************************
+failed: [corecvm -> 188.185.10.1] (item=fdisk -l) => {"ansible_loop_var": "current_command", "current_command": "fdisk -l", "msg": "Failed to connect to the host via ssh: Nutanix AHV\nnutanix@188.185.10.1: Permission denied (publickey,password).", "unreachable": true}
+fatal: [corecvm -> {{ current_host }}]: UNREACHABLE! => {"changed": false, "msg": "All items completed", "results": [{"ansible_loop_var": "current_command", "current_command": "fdisk -l", "msg": "Failed to connect to the host via ssh: Nutanix AHV\nnutanix@188.185.10.1: Permission denied (publickey,password).", "unreachable": true}]}
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=10   changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0   
+

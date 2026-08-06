@@ -1,0 +1,78 @@
+    - name: Parse output and evaluate backup status
+      ansible.builtin.set_fact:
+        remark: >-
+          {%- set context = {'current_ip': '', 'has_error': false, 'file_count': 0, 'logs': [], 'has_incomplete': false} -%}
+          {%- set lines = input_result.stdout.split('\n') -%}
+          
+          {# Local macro to evaluate a block before transitioning to a new IP or ending #}
+          {%- macro evaluate_block(ctx) -%}
+            {%- if ctx.current_ip != '' -%}
+              {%- if ctx.has_error -%}
+                {%- set _ = ctx.logs.append(ctx.current_ip ~ ' - cannot access') -%}
+              {%- elif ctx.file_count != no_of_files | int -%}
+                {%- set _ = ctx.logs.append(ctx.current_ip ~ ' -  incomplete backup') -%}
+                {%- set _ = ctx.update({'has_incomplete': true}) -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endmacro -%}
+
+          {# Loop through lines sequentially #}
+          {%- for line in lines -%}
+            {%- if '==========' in line -%}
+              {{ evaluate_block(context) }}
+              {%- set clean_ip = line | regex_replace('=+', '') | trim -%}
+              {%- set _ = context.update({'current_ip': clean_ip, 'has_error': false, 'file_count': 0}) -%}
+            {%- else -%}
+              {%- if 'cannot access' in line -%}
+                {%- set _ = context.update({'has_error': true}) -%}
+              {%- endif -%}
+              {%- if line.startswith('-') or line.startswith('l') -%}
+                {%- set _ = context.update({'file_count': context.context_file_count | default(context.file_count) + 1}) -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          
+          {# Evaluate the final block #}
+          {{ evaluate_block(context) }}
+          
+          {# Output the results separating logs with your custom delimiter #}
+          {{ context.logs | join(' --- ') }}
+
+        answer: >-
+          {%- set context = {'current_ip': '', 'has_error': false, 'file_count': 0, 'has_incomplete': false} -%}
+          {%- set lines = input_result.stdout.split('\n') -%}
+          
+          {%- macro check_incomplete(ctx) -%}
+            {%- if ctx.current_ip != '' and not ctx.has_error and ctx.file_count != no_of_files | int -%}
+              {%- set _ = ctx.update({'has_incomplete': true}) -%}
+            {%- endif -%}
+          {%- endmacro -%}
+
+          {%- for line in lines -%}
+            {%- if '==========' in line -%}
+              {{ check_incomplete(context) }}
+              {%- set clean_ip = line | regex_replace('=+', '') | trim -%}
+              {%- set _ = context.update({'current_ip': clean_ip, 'has_error': false, 'file_count': 0}) -%}
+            {%- else -%}
+              {%- if 'cannot access' in line -%}
+                {%- set _ = context.update({'has_error': true}) -%}
+              {%- endif -%}
+              {%- if line.startswith('-') or line.startswith('l') -%}
+                {%- set _ = context.update({'file_count': context.file_count + 1}) -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ check_incomplete(context) }}
+          
+          {{ 'Incomplete backup' if context.has_incomplete else 'Complete backup' }}
+
+    - name: Debug results
+      ansible.builtin.debug:
+        msg:
+          - "Remark: {{ remark }}"
+          - "Answer: {{ answer }}"
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+
+    

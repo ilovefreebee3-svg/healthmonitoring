@@ -1,0 +1,181 @@
+
+---------------------------------
+dynamic_role_s2.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+- name: Run roles dynamically
+  hosts: server_2
+  gather_facts: no
+
+  tasks:
+    - name: Include roles per host
+      include_role:
+        name: "{{ item }}"
+      loop: "{{ host_roles }}"
+------------------------------------------------------------------
+
+
+aphe dynamic_role_s2.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Run roles dynamically] ***************************************************
+
+TASK [Include roles per host] **************************************************
+
+TASK [r_ncc_health_checks_run_all_gg : 1. Declare variables] *******************
+ok: [server_2]
+
+TASK [r_ncc_health_checks_run_all_gg : 2. Check if the log file exists] ********
+ok: [server_2]
+
+TASK [r_ncc_health_checks_run_all_gg : 3. Handle missing log file] *************
+skipping: [server_2]
+
+TASK [r_ncc_health_checks_run_all_gg : Fetch the log file to the Ansible control node] ***
+ok: [server_2]
+
+TASK [r_ncc_health_checks_run_all_gg : Isolate the last TIMESTAMP block using awk] ***
+ok: [server_2]
+
+TASK [r_ncc_health_checks_run_all_gg : Parse and cast the trimmed log counters strictly] ***
+ok: [server_2]
+
+TASK [r_ncc_health_checks_run_all_gg : Evaluate final cluster health parameters] ***
+ok: [server_2]
+
+TASK [r_ncc_health_checks_run_all_gg : Ensure CSV report directory exists on control node] ***
+ok: [server_2 -> localhost]
+
+TASK [r_ncc_health_checks_run_all_gg : Ensure CSV header line is present on control node] ***
+ok: [server_2 -> localhost]
+
+TASK [r_ncc_health_checks_run_all_gg : Append current host status summary to CSV file] ***
+ok: [server_2 -> localhost]
+
+TASK [r_ncc_health_checks_run_all_gg : Debug variables to verify results] ******
+ok: [server_2] => {
+    "msg": [
+        "Answer: Unhealthy",
+        "Remark: Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55)"
+    ]
+}
+
+TASK [99. Include common role] *************************************************
+
+TASK [common : Append result to CSV (local)] ***********************************
+changed: [server_2 -> localhost]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 1. Declare variables] ******
+ok: [server_2]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 2. Execute commands] *******
+included: /home/user1/proj/ansible/hm/testing11/roles/r_hostssh_sudo_ovn_appctl_connection_status/tasks/subr.40.testing11_hostssh_ovn_lab_logic.yml for server_2 => (item={'name': 'hostssh ovn-appctl connection-status', 'argv': ['hostssh', 'ovn-appctl', 'connection-status']})
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 11. Display host and command] ***
+ok: [server_2] => {
+    "msg": [
+        "Host    : server_2",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 12. Run command] ***********
+ok: [server_2]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 13. Declare variables] *****
+ok: [server_2]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 15. Return code] ***********
+ok: [server_2] => {
+    "input_filter.rc": "127"
+}
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 16. Debug the captured output] ***
+ok: [server_2] => {
+    "input_filter.stdout_lines": []
+}
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 17. Display the captured output] ***
+ok: [server_2] => {
+    "input_filter.stdout": ""
+}
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 18. Display ['hostssh', 'ovn-appctl', 'connection-status'] command output] ***
+ok: [server_2] => {
+    "msg": "==================================================\nHost    : server_2\nCommand : hostssh ovn-appctl connection-status\nRC      : 127\n\nSTDOUT:\n[]\n\nSTDERR:\n/bin/bash: line 1: hostssh: command not found\n==================================================\n"
+}
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 19. Log output on control node] ***
+changed: [server_2 -> localhost]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 3. Read from hardcoded file] ***
+ok: [server_2]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 4. Display hostssh sudo ovn_appctl connection-status output] ***
+ok: [server_2] => {
+    "msg": {
+        "changed": false,
+        "failed": false,
+        "rc": 0,
+        "stdout": "============= 188.185.10.3 ============\nconnected\n============= 188.185.10.4 ============\nconnected\n============= 188.185.10.2 ============\nconnected\n============= 188.185.10.1 ============\ndisconnected\n============= 188.185.10.7 ============\nconnected\n============= 188.185.10.6 ============\nconnected",
+        "stdout_lines": [
+            "============= 188.185.10.3 ============",
+            "connected",
+            "============= 188.185.10.4 ============",
+            "connected",
+            "============= 188.185.10.2 ============",
+            "connected",
+            "============= 188.185.10.1 ============",
+            "disconnected",
+            "============= 188.185.10.7 ============",
+            "connected",
+            "============= 188.185.10.6 ============",
+            "connected"
+        ]
+    }
+}
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 5. Split lines] ************
+ok: [server_2]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 6. Initialize results] *****
+ok: [server_2]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 7. Process IP entries safely] ***
+ok: [server_2] => (item=0)
+ok: [server_2] => (item=1)
+ok: [server_2] => (item=2)
+ok: [server_2] => (item=3)
+ok: [server_2] => (item=4)
+ok: [server_2] => (item=5)
+ok: [server_2] => (item=6)
+ok: [server_2] => (item=7)
+ok: [server_2] => (item=8)
+ok: [server_2] => (item=9)
+ok: [server_2] => (item=10)
+ok: [server_2] => (item=11)
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : 8. Final answer] ***********
+ok: [server_2]
+
+TASK [r_hostssh_sudo_ovn_appctl_connection_status : debug] *********************
+ok: [server_2] => {
+    "msg": {
+        "answer": "Disconnected",
+        "num_disconnected": "1",
+        "remark": "188.185.10.1 - disconnected; "
+    }
+}
+
+TASK [99. Include common role] *************************************************
+
+TASK [common : Append result to CSV (local)] ***********************************
+changed: [server_2 -> localhost]
+
+PLAY RECAP *********************************************************************
+server_2                   : ok=29   changed=3    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

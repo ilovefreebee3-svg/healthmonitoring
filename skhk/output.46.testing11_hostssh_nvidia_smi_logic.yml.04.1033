@@ -1,0 +1,336 @@
+
+---------------------------------
+46.testing11_hostssh_nvidia_smi_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# 46.testing11_hostssh_nvidia_smi_logic.yml
+---
+- name: Pseudo hostssh - nvidia-smi across AHV Hosts
+  hosts: corecvm
+  gather_facts: false
+
+  vars:
+    read_from_file: false 
+
+
+  tasks:
+    - name: 0. Declare variables
+      set_fact:
+        remote_user_name: nutanix
+
+    - name: 1. Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: 2. Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: Initialize the empty input_filter structures
+      ansible.builtin.set_fact:
+        input_filter_stdout_list: []
+        input_filter_lines_list: []
+
+    - name: 3. Process each AHV host dynamically
+      ansible.builtin.include_tasks: subr.46.testing11_hostssh_nvidia_smi_logic.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when:
+        - ahv_hosts | length > 0
+        - not (read_from_file | bool)
+
+    - name: 4. Construct final input_filter dictionary
+      ansible.builtin.set_fact:
+        input_filter:
+          stdout: "{{ input_filter_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_filter_lines_list }}"
+
+    - name: 5. Mimic 'cat' register output using lookup
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.46.testing11_hostssh_nvidia_smi_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.46.testing11_hostssh_nvidia_smi_logic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+    
+    - name: 6. Display input_filter.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+    
+    - name: Parse lines sequentially by scanning next-neighbor index lines cleanly
+      vars:
+        raw_remark: >-
+          {% set storage_remarks = [] %}
+          {% set temp_remarks = [] %}
+          {% set ns = namespace(current_ip='') %}
+          {% set lines = input_filter.stdout.split('\n') %}
+          {% for i in range(lines | length) %}
+            {% set s_line = lines[i] | trim %}
+            {% if s_line.startswith('===') %}
+              {% set ns.current_ip = s_line | replace('=', '') | trim %}
+            {% elif 'NVIDIA A100-SXM' in s_line and (i + 1) < (lines | length) %}
+              {% set gpu_tokens = s_line | replace('|', ' ') | split() %}
+              {% set metrics_tokens = lines[i+1] | replace('|', ' ') | replace('/', ' ') | split() %}
+              {% if gpu_tokens | length > 0 and metrics_tokens | length >= 4 and ns.current_ip != '' %}
+                {% set gpu_idx = gpu_tokens[0] | trim %}
+                
+                {# Locate temperature token (ending with C) and memory tokens (ending with MiB) #}
+                {% set ns_tokens = namespace(t_val='', u_val=0.0, t_val_mem=1.0) %}
+                {% for tok in metrics_tokens %}
+                  {% if tok.endswith('C') %}
+                    {% set ns_tokens.t_val = tok | trim %}
+                  {% endif %}
+                {% endfor %}
+                
+                {# Extract raw memory strings cleanly via index search loop #}
+                {% set m_indices = [] %}
+                {% for j in range(metrics_tokens | length) %}
+                  {% if 'MiB' in metrics_tokens[j] %}
+                    {% set _ = m_indices.append(j) %}
+                  {% endif %}
+                {% endfor %}
+                
+                {% if m_indices | length >= 2 %}
+                  {% set used_str = metrics_tokens[m_indices[0]] | replace('MiB', '') | trim %}
+                  {% set total_str = metrics_tokens[m_indices[1]] | replace('MiB', '') | trim %}
+                  {% set ratio_val = (used_str | float) / (total_str | float) %}
+                  {% set rounded_ratio = "%.2f" | format(ratio_val) | float %}
+                  
+                  {% set _ = storage_remarks.append({'ip': ns.current_ip, 'gpu_index': gpu_idx, 'storage_ratio': rounded_ratio}) %}
+                  {% set _ = temp_remarks.append({'ip': ns.current_ip, 'gpu_index': gpu_idx, 'temperature': ns_tokens.t_val}) %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ (storage_remarks + temp_remarks) | to_json }}
+      ansible.builtin.set_fact:
+        remark: "{{ raw_remark | from_json }}"
+
+    - name: Evaluate threshold indicators cleanly using compressed lists
+      vars:
+        raw_answer: >-
+          {% if remark | length == 0 %}
+            {{ ['None'] | to_json }}
+          {% else %}
+            {% set ns_ans = namespace(has_storage_nok=false, has_temp_nok=false) %}
+            {% for item in remark %}
+              {% if item.storage_ratio is defined and item.storage_ratio | float >= 0.9 %}
+                {% set ns_ans.has_storage_nok = true %}
+              {% endif %}
+              {% if item.temperature is defined %}
+                {% set item_t = item.temperature | replace('C','') | trim | int %}
+                {% if item_t >= 50 %}
+                  {% set ns_ans.has_temp_nok = true %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ [ (ns_ans.has_storage_nok | ternary('Storage NOK', 'Storage OK')), (ns_ans.has_temp_nok | ternary('Temperature NOK', 'Temperature OK')) ] | to_json }}
+          {% endif %}
+      ansible.builtin.set_fact:
+        answer: "{{ raw_answer | from_json }}"
+
+    - name: Debug verified output profiles
+      ansible.builtin.debug:
+        msg:
+          - "REMARK: {{ remark }}"
+          - "ANSWER: {{ answer }}"
+
+    - name: 11. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+------------------------------------------------------------------
+
+
+aph 46.testing11_hostssh_nvidia_smi_logic.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Pseudo hostssh - nvidia-smi across AHV Hosts] ****************************
+
+TASK [0. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [1. Get AHV host IP addresses] ********************************************
+ok: [corecvm]
+
+TASK [2. Parse IP addresses into a clean list] *********************************
+ok: [corecvm]
+
+TASK [Initialize the empty input_filter structures] ****************************
+ok: [corecvm]
+
+TASK [3. Process each AHV host dynamically] ************************************
+included: /home/user1/proj/ansible/hm/testing11/skhk/subr.46.testing11_hostssh_nvidia_smi_logic.yml for corecvm => (item=130.8.20.24)
+included: /home/user1/proj/ansible/hm/testing11/skhk/subr.46.testing11_hostssh_nvidia_smi_logic.yml for corecvm => (item=130.8.20.25)
+included: /home/user1/proj/ansible/hm/testing11/skhk/subr.46.testing11_hostssh_nvidia_smi_logic.yml for corecvm => (item=130.8.20.21)
+included: /home/user1/proj/ansible/hm/testing11/skhk/subr.46.testing11_hostssh_nvidia_smi_logic.yml for corecvm => (item=130.8.20.22)
+included: /home/user1/proj/ansible/hm/testing11/skhk/subr.46.testing11_hostssh_nvidia_smi_logic.yml for corecvm => (item=130.8.20.23)
+
+TASK [Check reachability for 130.8.20.24] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.24] *************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@130.8.20.24 'nvidia-smi'", "delta": "0:00:00.192765", "end": "2026-08-04 16:14:08.851896", "msg": "non-zero return code", "rc": 127, "start": "2026-08-04 16:14:08.659131", "stderr": "bash: nvidia-smi: command not found", "stderr_lines": ["bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 130.8.20.24] **************
+ok: [corecvm] => {
+    "msg": "HOST 130.8.20.24 FAILED. STDERR: bash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 130.8.20.25] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.25] *************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@130.8.20.25 'nvidia-smi'", "delta": "0:00:00.187414", "end": "2026-08-04 16:14:09.439453", "msg": "non-zero return code", "rc": 127, "start": "2026-08-04 16:14:09.252039", "stderr": "bash: nvidia-smi: command not found", "stderr_lines": ["bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 130.8.20.25] **************
+ok: [corecvm] => {
+    "msg": "HOST 130.8.20.25 FAILED. STDERR: bash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 130.8.20.21] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.21] *************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@130.8.20.21 'nvidia-smi'", "delta": "0:00:00.183967", "end": "2026-08-04 16:14:09.987306", "msg": "non-zero return code", "rc": 127, "start": "2026-08-04 16:14:09.803339", "stderr": "bash: nvidia-smi: command not found", "stderr_lines": ["bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 130.8.20.21] **************
+ok: [corecvm] => {
+    "msg": "HOST 130.8.20.21 FAILED. STDERR: bash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 130.8.20.22] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.22] *************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@130.8.20.22 'nvidia-smi'", "delta": "0:00:00.191569", "end": "2026-08-04 16:14:10.539609", "msg": "non-zero return code", "rc": 127, "start": "2026-08-04 16:14:10.348040", "stderr": "bash: nvidia-smi: command not found", "stderr_lines": ["bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 130.8.20.22] **************
+ok: [corecvm] => {
+    "msg": "HOST 130.8.20.22 FAILED. STDERR: bash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 130.8.20.23] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.23] *************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@130.8.20.23 'nvidia-smi'", "delta": "0:00:00.183818", "end": "2026-08-04 16:14:11.087395", "msg": "non-zero return code", "rc": 127, "start": "2026-08-04 16:14:10.903577", "stderr": "bash: nvidia-smi: command not found", "stderr_lines": ["bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 130.8.20.23] **************
+ok: [corecvm] => {
+    "msg": "HOST 130.8.20.23 FAILED. STDERR: bash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [4. Construct final input_filter dictionary] ******************************
+ok: [corecvm]
+
+TASK [5. Mimic 'cat' register output using lookup] *****************************
+skipping: [corecvm]
+
+TASK [6. Display input_filter.stdout_lines] ************************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 130.8.20.22 ====================",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 130.8.20.23 ====================",
+        "bash: nvidia-smi: command not found",
+        ""
+    ]
+}
+
+TASK [Parse lines sequentially by scanning next-neighbor index lines cleanly] ***
+ok: [corecvm]
+
+TASK [Evaluate threshold indicators cleanly using compressed lists] ************
+ok: [corecvm]
+
+TASK [Debug verified output profiles] ******************************************
+ok: [corecvm] => {
+    "msg": [
+        "REMARK: []",
+        "ANSWER: ['None']"
+    ]
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [corecvm -> localhost]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=45   changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=5   
+

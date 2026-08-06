@@ -1,0 +1,360 @@
+
+---------------------------------
+40.testing8_hostssh_misc.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check hostips across across all CVMs
+  hosts: allcvms
+  gather_facts: false
+  vars:
+    remote_user_name: nutanix
+
+  tasks:
+    - name: Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: Process each AHV host dynamically
+      ansible.builtin.include_tasks: subr.40.testing8_hostssh_misc.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when: ahv_hosts | length > 0
+
+------------------------------------------------------------------
+
+
+aph 40.testing8_hostssh_misc.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Pseudo hostssh - Check hostips across across all CVMs] *******************
+
+TASK [Get AHV host IP addresses] ***********************************************
+ok: [engrcvm]
+ok: [pccvm]
+ok: [pecvm]
+ok: [calmcvm]
+ok: [corecvm]
+
+TASK [Parse IP addresses into a clean list] ************************************
+ok: [calmcvm]
+ok: [corecvm]
+ok: [pccvm]
+ok: [engrcvm]
+ok: [pecvm]
+
+TASK [Process each AHV host dynamically] ***************************************
+skipping: [calmcvm]
+skipping: [pccvm]
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for pecvm => (item=188.185.13.1)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for pecvm => (item=188.185.13.2)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for pecvm => (item=188.185.13.3)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for engrcvm => (item=188.185.20.1)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for engrcvm => (item=188.185.20.2)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for engrcvm => (item=188.185.20.3)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for corecvm => (item=188.185.10.1)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for corecvm => (item=188.185.10.2)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for corecvm => (item=188.185.10.3)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for corecvm => (item=188.185.10.4)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for corecvm => (item=188.185.10.6)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.40.testing8_hostssh_misc.yml for corecvm => (item=188.185.10.7)
+
+TASK [Check reachability for 188.185.13.1] *************************************
+ok: [pecvm]
+
+TASK [Display execution results for 188.185.13.1] ******************************
+ok: [pecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.13.1"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.13.1] ************************************
+ok: [pecvm]
+
+TASK [Display execution results for 188.185.13.1] ******************************
+ok: [pecvm] => {
+    "msg": [
+        "HOST: 188.185.13.1",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4377 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 4.0M\n   CGroup: /system.slice/dbus.service\n           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.13.2] *************************************
+ok: [pecvm]
+
+TASK [Display execution results for 188.185.13.2] ******************************
+ok: [pecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.13.2"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.13.2] ************************************
+ok: [pecvm]
+
+TASK [Display execution results for 188.185.13.2] ******************************
+ok: [pecvm] => {
+    "msg": [
+        "HOST: 188.185.13.2",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4329 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 3.5M\n   CGroup: /system.slice/dbus.service\n           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.13.3] *************************************
+ok: [pecvm]
+
+TASK [Display execution results for 188.185.13.3] ******************************
+ok: [pecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.13.3"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.13.3] ************************************
+ok: [pecvm]
+
+TASK [Display execution results for 188.185.13.3] ******************************
+ok: [pecvm] => {
+    "msg": [
+        "HOST: 188.185.13.3",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 4296 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 3.1M\n   CGroup: /system.slice/dbus.service\n           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.20.1] *************************************
+ok: [engrcvm]
+
+TASK [Display execution results for 188.185.20.1] ******************************
+ok: [engrcvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.20.1"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.20.1] ************************************
+ok: [engrcvm]
+
+TASK [Display execution results for 188.185.20.1] ******************************
+ok: [engrcvm] => {
+    "msg": [
+        "HOST: 188.185.20.1",
+        "STDOUT: ● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 3 weeks 3 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5066 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.3M\n        CPU: 1h 8min 8.800s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.20.2] *************************************
+ok: [engrcvm]
+
+TASK [Display execution results for 188.185.20.2] ******************************
+ok: [engrcvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.20.2"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.20.2] ************************************
+ok: [engrcvm]
+
+TASK [Display execution results for 188.185.20.2] ******************************
+ok: [engrcvm] => {
+    "msg": [
+        "HOST: 188.185.20.2",
+        "STDOUT: ● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 3 weeks 3 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5056 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.9M\n        CPU: 1h 11min 40.771s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.20.3] *************************************
+ok: [engrcvm]
+
+TASK [Display execution results for 188.185.20.3] ******************************
+ok: [engrcvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.20.3"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.20.3] ************************************
+ok: [engrcvm]
+
+TASK [Display execution results for 188.185.20.3] ******************************
+ok: [engrcvm] => {
+    "msg": [
+        "HOST: 188.185.20.3",
+        "STDOUT: ● dbus-broker.service - D-Bus System Message Bus\n     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)\n     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 3 weeks 3 days ago\nTriggeredBy: ● dbus.socket\n       Docs: man:dbus-broker-launch(1)\n   Main PID: 5091 (dbus-broker-lau)\n      Tasks: 2 (limit: 3355442)\n     Memory: 3.4M\n        CPU: 1h 9min 46.430s\n     CGroup: /system.slice/dbus-broker.service\n             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit\n             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.10.1] *************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.1] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.10.1"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.10.1] ************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.1] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "HOST: 188.185.10.1",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6814 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.8M\n   CGroup: /system.slice/dbus.service\n           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.10.2] *************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.2] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.10.2"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.10.2] ************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.2] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "HOST: 188.185.10.2",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6773 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.4M\n   CGroup: /system.slice/dbus.service\n           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.10.3] *************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.3] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.10.3"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.10.3] ************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.3] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "HOST: 188.185.10.3",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6737 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 6.5M\n   CGroup: /system.slice/dbus.service\n           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.10.4] *************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.4] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.10.4"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.10.4] ************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.4] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "HOST: 188.185.10.4",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6779 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.0M\n   CGroup: /system.slice/dbus.service\n           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.10.6] *************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.6] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.10.6"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.10.6] ************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.6] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "HOST: 188.185.10.6",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 7002 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.9M\n   CGroup: /system.slice/dbus.service\n           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+TASK [Check reachability for 188.185.10.7] *************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.7] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "REMOTE_USER: nutanix",
+        "CURRENT_HOST: 188.185.10.7"
+    ]
+}
+
+TASK [Run systemctl status on 188.185.10.7] ************************************
+ok: [corecvm]
+
+TASK [Display execution results for 188.185.10.7] ******************************
+ok: [corecvm] => {
+    "msg": [
+        "HOST: 188.185.10.7",
+        "STDOUT: ● dbus.service - D-Bus System Message Bus\n   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)\n   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 4 weeks 0 days ago\n     Docs: man:dbus-daemon(1)\n Main PID: 6982 (dbus-daemon)\n    Tasks: 2 (limit: 3355442)\n   Memory: 5.6M\n   CGroup: /system.slice/dbus.service\n           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "STDERR: None"
+    ]
+}
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=2    changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+corecvm                    : ok=32   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+engrcvm                    : ok=17   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+pccvm                      : ok=2    changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+pecvm                      : ok=17   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

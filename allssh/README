@@ -1,0 +1,26 @@
+05_testing5_allssh_curl_get_catalog_k_P1ASEC018.yml  (server_5)
+cannot run; could not resolve host
+
+06_testing5_allssh_curl_get_catalog_k_P1SMG025.yml (server_5)
+cannot run; could not resolve host
+
+07_testing5_allssh_df_h_sdb3_gg.yml (server_5)
+No such file or directory
+
+09_testing5_allssh_df_kh_grep_elastic_sdb3_gg.yml (server_5)
+Elastic function not found
+
+10_testing5_allssh_docker_ps_a_exited_up_no_sudo_gg (server_5)
+docker command not found
+
+10_testing5_allssh_docker_ps_a_exited_up_gg.yml (server_5)
+docker command not found
+
+11_testing5_allssh_ll_calm_backup_gg.yml (server_5)
+cannot access '/home/nutanix/tmp/calm-bkup
+
+12_testing5_allssh_ls_larth_iam_backup_gg.yml (server_5)
+cannot access '/usr/local/nutanix/iam-backup
+
+13_testing5_allssh_sudo_kubectl_get_pods_a_gg.yml
+ubectl: command not found"

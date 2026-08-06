@@ -1,0 +1,241 @@
+
+---------------------------------
+45.testing8_hostssh_nvidia_smi.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - nvidia-smi across AHV Hosts
+  hosts: corecvm
+  gather_facts: false
+  vars:
+    remote_user_name: nutanix
+
+  tasks:
+    - name: Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: Initialize the empty input_filter structures
+      ansible.builtin.set_fact:
+        input_filter_stdout_list: []
+        input_filter_lines_list: []
+
+    - name: Process each AHV host dynamically
+      ansible.builtin.include_tasks: subr.45.testing8_hostssh_nvidia_smi.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when: ahv_hosts | length > 0
+
+    - name: Construct final input_filter dictionary
+      ansible.builtin.set_fact:
+        input_filter:
+          stdout: "{{ input_filter_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_filter_lines_list }}"
+
+    - name: Debug and display aggregate input_filter outputs
+      ansible.builtin.debug:
+        var: input_filter.stdout_lines
+
+------------------------------------------------------------------
+
+
+aph 45.testing8_hostssh_nvidia_smi.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Pseudo hostssh - nvidia-smi across AHV Hosts] ****************************
+
+TASK [Get AHV host IP addresses] ***********************************************
+ok: [corecvm]
+
+TASK [Parse IP addresses into a clean list] ************************************
+ok: [corecvm]
+
+TASK [Initialize the empty input_filter structures] ****************************
+ok: [corecvm]
+
+TASK [Process each AHV host dynamically] ***************************************
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.45.testing8_hostssh_nvidia_smi.yml for corecvm => (item=188.185.10.1)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.45.testing8_hostssh_nvidia_smi.yml for corecvm => (item=188.185.10.2)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.45.testing8_hostssh_nvidia_smi.yml for corecvm => (item=188.185.10.3)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.45.testing8_hostssh_nvidia_smi.yml for corecvm => (item=188.185.10.4)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.45.testing8_hostssh_nvidia_smi.yml for corecvm => (item=188.185.10.6)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.45.testing8_hostssh_nvidia_smi.yml for corecvm => (item=188.185.10.7)
+
+TASK [Check reachability for 188.185.10.1] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.1] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.1 'nvidia-smi'", "delta": "0:00:00.394908", "end": "2026-07-24 15:39:31.834158", "msg": "non-zero return code", "rc": 127, "start": "2026-07-24 15:39:31.439250", "stderr": "Nutanix AHV\nbash: nvidia-smi: command not found", "stderr_lines": ["Nutanix AHV", "bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.1] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.1 FAILED. STDERR: Nutanix AHV\nbash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 188.185.10.2] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.2] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.2 'nvidia-smi'", "delta": "0:00:00.350891", "end": "2026-07-24 15:39:33.442682", "msg": "non-zero return code", "rc": 127, "start": "2026-07-24 15:39:33.091791", "stderr": "Nutanix AHV\nbash: nvidia-smi: command not found", "stderr_lines": ["Nutanix AHV", "bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.2] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.2 FAILED. STDERR: Nutanix AHV\nbash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 188.185.10.3] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.3] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.3 'nvidia-smi'", "delta": "0:00:00.342441", "end": "2026-07-24 15:39:35.277819", "msg": "non-zero return code", "rc": 127, "start": "2026-07-24 15:39:34.935378", "stderr": "Nutanix AHV\nbash: nvidia-smi: command not found", "stderr_lines": ["Nutanix AHV", "bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.3] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.3 FAILED. STDERR: Nutanix AHV\nbash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 188.185.10.4] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.4] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.4 'nvidia-smi'", "delta": "0:00:00.342230", "end": "2026-07-24 15:39:37.305284", "msg": "non-zero return code", "rc": 127, "start": "2026-07-24 15:39:36.963054", "stderr": "Nutanix AHV\nbash: nvidia-smi: command not found", "stderr_lines": ["Nutanix AHV", "bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.4] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.4 FAILED. STDERR: Nutanix AHV\nbash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 188.185.10.6] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.6] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.6 'nvidia-smi'", "delta": "0:00:00.304150", "end": "2026-07-24 15:39:39.264278", "msg": "non-zero return code", "rc": 127, "start": "2026-07-24 15:39:38.960128", "stderr": "Nutanix AHV\nbash: nvidia-smi: command not found", "stderr_lines": ["Nutanix AHV", "bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.6] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.6 FAILED. STDERR: Nutanix AHV\nbash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Check reachability for 188.185.10.7] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.7] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.7 'nvidia-smi'", "delta": "0:00:00.378137", "end": "2026-07-24 15:39:41.222160", "msg": "non-zero return code", "rc": 127, "start": "2026-07-24 15:39:40.844023", "stderr": "Nutanix AHV\nbash: nvidia-smi: command not found", "stderr_lines": ["Nutanix AHV", "bash: nvidia-smi: command not found"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.7] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.7 FAILED. STDERR: Nutanix AHV\nbash: nvidia-smi: command not found"
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [Construct final input_filter dictionary] *********************************
+ok: [corecvm]
+
+TASK [Debug and display aggregate input_filter outputs] ************************
+ok: [corecvm] => {
+    "input_filter.stdout_lines": [
+        "==================== 188.185.10.1 ====================",
+        "Nutanix AHV",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "Nutanix AHV",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "Nutanix AHV",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "Nutanix AHV",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "Nutanix AHV",
+        "bash: nvidia-smi: command not found",
+        "",
+        "==================== 188.185.10.7 ====================",
+        "Nutanix AHV",
+        "bash: nvidia-smi: command not found",
+        ""
+    ]
+}
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=47   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=6   
+

@@ -1,0 +1,20 @@
+================== 111.222.10.33 =================
+
+ls: cannot access '/usr/local/nutanix/iam-backup': No such file or directory
+================== 111.222.10.34 =================
+
+ls: cannot access '/usr/local/nutanix/iam-backup': No such file or directory
+================== 111.222.10.35 =================
+
+ls: cannot access '/usr/local/nutanix/iam-backup': No such file or directory
+================== 111.222.10.36 =================
+
+ls: cannot access '/usr/local/nutanix/iam-backup': No such file or directory
+================== 111.222.10.38 =================
+
+drwxrwxr-x 2 user1 user1 4096 Jul 28 10:24 ./
+drwxrwxr-x 3 user1 user1 4096 Jul 28 10:24 ../
+================== 111.222.10.39 =================
+
+ls: cannot access '/usr/local/nutanix/iam-backup': No such file or directory
+

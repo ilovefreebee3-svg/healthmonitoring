@@ -1,0 +1,4 @@
+host_roles:
+  - r_ncc_health_checks_run_all_gg
+
+vpc: "OSIT Object PE"

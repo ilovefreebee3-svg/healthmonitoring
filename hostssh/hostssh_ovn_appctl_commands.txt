@@ -1,0 +1,175 @@
+
+---------------------------------
+01.testing8_hostssh_commands.yml
+---------------------------------
+hostssh systemctl status dbus
+
+ok: [corecvm]
+ok: [engrcvm] 
+ok: [pecvm] 
+
+pccvm not ok
+calmcvm not ok
+
+
+TASK [11. Display host and command] ********************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Host    : calmcvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [calmcvm]
+
+TASK [Debug the captured output] ***********************************************
+ok: [calmcvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [Display the captured output] *********************************************
+ok: [calmcvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [Display ['hostssh'] command output] **************************************
+ok: [calmcvm] => {
+    "msg": "==================================================\nHost    : calmcvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 1\n\nSTDOUT:\n[]\n\nSTDERR:\nCRITICAL:root:No valid hosts found\n==================================================\n"
+}
+
+
+TASK [11. Display host and command] ********************************************
+ok: [corecvm] => {
+    "msg": [
+        "Host    : corecvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [corecvm]
+
+TASK [Debug the captured output] ***********************************************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.10.3 ============",
+        "connected",
+        "============= 188.185.10.4 ============",
+        "connected",
+        "============= 188.185.10.2 ============",
+        "connected",
+        "============= 188.185.10.1 ============",
+        "connected",
+        "============= 188.185.10.7 ============",
+        "connected",
+        "============= 188.185.10.6 ============",
+        "connected"
+    ]
+}
+
+TASK [Display the captured output] *********************************************
+ok: [corecvm] => {
+    "input_result.stdout": "============= 188.185.10.3 ============\nconnected\n============= 188.185.10.4 ============\nconnected\n============= 188.185.10.2 ============\nconnected\n============= 188.185.10.1 ============\nconnected\n============= 188.185.10.7 ============\nconnected\n============= 188.185.10.6 ============\nconnected"
+}
+
+TASK [Display ['hostssh'] command output] **************************************
+ok: [corecvm] => {
+    "msg": "==================================================\nHost    : corecvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 0\n\nSTDOUT:\n['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']\n\nSTDERR:\n\n==================================================\n"
+}
+
+
+TASK [11. Display host and command] ********************************************
+ok: [engrcvm] => {
+    "msg": [
+        "Host    : engrcvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [engrcvm]
+
+TASK [Debug the captured output] ***********************************************
+ok: [engrcvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.20.2 ============",
+        "connected",
+        "============= 188.185.20.1 ============",
+        "connected",
+        "============= 188.185.20.3 ============",
+        "connected"
+    ]
+}
+
+TASK [Display the captured output] *********************************************
+ok: [engrcvm] => {
+    "input_result.stdout": "============= 188.185.20.2 ============\nconnected\n============= 188.185.20.1 ============\nconnected\n============= 188.185.20.3 ============\nconnected"
+}
+
+TASK [Display ['hostssh'] command output] **************************************
+ok: [engrcvm] => {
+    "msg": "==================================================\nHost    : engrcvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 0\n\nSTDOUT:\n['============= 188.185.20.2 ============', 'connected', '============= 188.185.20.1 ============', 'connected', '============= 188.185.20.3 ============', 'connected']\n\nSTDERR:\n\n==================================================\n"
+}
+
+
+TASK [11. Display host and command] ********************************************
+ok: [pccvm] => {
+    "msg": [
+        "Host    : pccvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [pccvm]
+
+TASK [Debug the captured output] ***********************************************
+ok: [pccvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [Display the captured output] *********************************************
+ok: [pccvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [Display ['hostssh'] command output] **************************************
+ok: [pccvm] => {
+    "msg": "==================================================\nHost    : pccvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 1\n\nSTDOUT:\n[]\n\nSTDERR:\nCRITICAL:root:No valid hosts found\n==================================================\n"
+}
+
+
+TASK [11. Display host and command] ********************************************
+ok: [pecvm] => {
+    "msg": [
+        "Host    : pecvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [pecvm]
+
+TASK [Debug the captured output] ***********************************************
+ok: [pecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.13.2 ============",
+        "connected",
+        "============= 188.185.13.1 ============",
+        "connected",
+        "============= 188.185.13.3 ============",
+        "connected"
+    ]
+}
+
+TASK [Display the captured output] *********************************************
+ok: [pecvm] => {
+    "input_result.stdout": "============= 188.185.13.2 ============\nconnected\n============= 188.185.13.1 ============\nconnected\n============= 188.185.13.3 ============\nconnected"
+}
+
+TASK [Display ['hostssh'] command output] **************************************
+ok: [pecvm] => {
+    "msg": "==================================================\nHost    : pecvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 0\n\nSTDOUT:\n['============= 188.185.13.2 ============', 'connected', '============= 188.185.13.1 ============', 'connected', '============= 188.185.13.3 ============', 'connected']\n\nSTDERR:\n\n==================================================\n"
+}
+

@@ -1,0 +1,106 @@
+
+---------------------------------
+19_testing8_others_all_hostips_svmips_commands.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Run diagnostic commands on all AHVs
+  hosts: pccvm
+  gather_facts: false
+  serial: 1
+
+  vars:
+    cmd_list:
+      - name: hostips
+        argv: ["hostips"]
+
+      - name: svmips
+        argv: ["svmips"]
+
+  tasks:
+    - name: Execute commands
+      include_tasks:  subr.19_testing8_others_all_hostips_svmips_commands.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+------------------------------------------------------------------
+
+
+aph 19_testing8_others_all_hostips_svmips_commands.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Run diagnostic commands on all AHVs] *************************************
+
+TASK [Execute commands] ********************************************************
+included: /home/liamhuat/proj/ansible/hm/testing8/others/subr.19_testing8_others_all_hostips_svmips_commands.yml for pccvm => (item={'name': 'hostips', 'argv': ['hostips']})
+included: /home/liamhuat/proj/ansible/hm/testing8/others/subr.19_testing8_others_all_hostips_svmips_commands.yml for pccvm => (item={'name': 'svmips', 'argv': ['svmips']})
+
+TASK [Display host and command] ************************************************
+ok: [pccvm] => {
+    "msg": [
+        "Host    : pccvm",
+        "Command : hostips"
+    ]
+}
+
+TASK [2. Run command] **********************************************************
+ok: [pccvm]
+
+TASK [3. Debug the captured output] ********************************************
+ok: [pccvm] => {
+    "input_result.stdout_lines": [
+        "  "
+    ]
+}
+
+TASK [4. Display the captured output] ******************************************
+ok: [pccvm] => {
+    "input_result.stdout": "  "
+}
+
+TASK [5. Display ['hostips'] command output] ***********************************
+ok: [pccvm] => {
+    "msg": "==================================================\nHost    : pccvm\nCommand : hostips\nRC      : 0\n\nSTDOUT:\n['  ']\n\nSTDERR:\n\n==================================================\n"
+}
+
+TASK [6. Log output on control node] *******************************************
+changed: [pccvm -> localhost]
+
+TASK [Display host and command] ************************************************
+ok: [pccvm] => {
+    "msg": [
+        "Host    : pccvm",
+        "Command : svmips"
+    ]
+}
+
+TASK [2. Run command] **********************************************************
+ok: [pccvm]
+
+TASK [3. Debug the captured output] ********************************************
+ok: [pccvm] => {
+    "input_result.stdout_lines": [
+        "188.185.14.1 188.185.14.2 188.185.14.3"
+    ]
+}
+
+TASK [4. Display the captured output] ******************************************
+ok: [pccvm] => {
+    "input_result.stdout": "188.185.14.1 188.185.14.2 188.185.14.3"
+}
+
+TASK [5. Display ['svmips'] command output] ************************************
+ok: [pccvm] => {
+    "msg": "==================================================\nHost    : pccvm\nCommand : svmips\nRC      : 0\n\nSTDOUT:\n['188.185.14.1 188.185.14.2 188.185.14.3']\n\nSTDERR:\n\n==================================================\n"
+}
+
+TASK [6. Log output on control node] *******************************************
+changed: [pccvm -> localhost]
+
+PLAY RECAP *********************************************************************
+pccvm                      : ok=14   changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

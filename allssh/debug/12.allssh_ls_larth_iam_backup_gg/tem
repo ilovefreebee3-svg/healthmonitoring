@@ -1,0 +1,9 @@
+    - name: Mimic 'cat' register output using lookup
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.allssh_ls_larth_iam_backup_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.allssh_ls_larth_iam_backup_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+

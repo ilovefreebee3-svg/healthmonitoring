@@ -1,0 +1,165 @@
+---
+- name: Parse Custom nvidia-smi Clusters Data Correctly
+  hosts: localhost
+  gather_facts: false
+  vars:
+    input_text: |
+      ============= 111.222.1.1 ============
+      Wed Jan 20 15 02:30:34 2026
+      +-----------------------------------------------------------------------------
+
+      | NVIDIA-SMI 535.113.01 Driver Version: 535.113.01 CUDA Version: 12.2 |
+      |-------------------------------+----------------------+----------------------+
+
+      | GPU Name Persistence-M| Bus-Id Disp.A | Volatile Uncorr. ECC |
+      | Fan Temp Perf Pwr:Usage/Cap| Memory-Usage | GPU-Util Compute M. |
+      | | | MIG M. |
+      |===============================+======================+======================|
+      | 0 NVIDIA A100-SXM... On | 00000000:00:00.0 Off | 0 |
+      | N/A 35C P0 60W / 400W | 40009MiB / 40960MiB | 0% Default |
+      | | | Disabled |
+      +-------------------------------+----------------------+----------------------+
+
+      | 1 NVIDIA A100-SXM... On | 00000000:00:00.0 Off | 0 |
+      | N/A 35C P0 60W / 400W | 9950MiB / 40960MiB | 0% Default |
+      | | | Disabled |
+      +-------------------------------+----------------------+----------------------+
+      +-----------------------------------------------------------------------------+
+
+      | Processes: |
+      | GPU GI CI PID Type Process name GPU Memory |
+      | ID ID Usage |
+      |=============================================================================|
+      | 0 N/A N/A 17471 C+G v 507MiB |
+      | 1 N/A N/A 17649 C+G vgpu 1015MiB |
+      +-----------------------------------------------------------------------------+
+      ============= 111.222.1.2 ============
+      Wed Jan 20 15 02:30:34 2026
+      +-----------------------------------------------------------------------------
+
+      | NVIDIA-SMI 535.113.01 Driver Version: 535.113.01 CUDA Version: 12.2 |
+      |===============================+======================+======================|
+      | 0 NVIDIA A100-SXM... On | 00000000:00:00.0 Off | 0 |
+      | N/A 45C P0 60W / 400W | 40009MiB / 40960MiB | 0% Default |
+      | | | Disabled |
+      +-------------------------------+----------------------+----------------------+
+
+      | 1 NVIDIA A100-SXM... On | 00000000:00:00.0 Off | 0 |
+      | N/A 35C P0 60W / 400W | 9950MiB / 40960MiB | 0% Default |
+      | | | Disabled |
+      +-------------------------------+----------------------+----------------------+
+      +-----------------------------------------------------------------------------+
+
+      | Processes: |
+      | GPU GI CI PID Type Process name GPU Memory |
+      | ID ID Usage |
+      |=============================================================================|
+      | 0 N/A N/A 17471 C+G v 507MiB |
+      | 1 N/A N/A 17649 C+G vgpu 1015MiB |
+      ============= 111.222.1.3 ============
+      Wed Jan 20 15 02:30:34 2026
+      +-----------------------------------------------------------------------------
+
+      | 0 NVIDIA A100-SXM... On | 00000000:00:00.0 Off | 0 |
+      | N/A 35C P0 60W / 400W | 40009MiB / 40960MiB | 0% Default |
+      | | | Disabled |
+      +-------------------------------+----------------------+----------------------+
+
+      | 1 NVIDIA A100-SXM... On | 00000000:00:00.0 Off | 0 |
+      | N/A 55C P0 60W / 400W | 9950MiB / 40960MiB | 0% Default |
+      | | | Disabled |
+      +-------------------------------+----------------------+----------------------+
+
+  tasks:
+
+    - name: 5. Mimic 'cat' register output using lookup
+      set_fact:
+        input_text:
+          stdout: "{{ lookup('file', 'data.46.testing11_hostssh_nvidia_smi_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.46.testing11_hostssh_nvidia_smi_logic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+    
+    - name: 6. Display input_filter.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_text.stdout_lines }}" 
+    
+    - name: Parse lines sequentially by scanning next-neighbor index lines cleanly
+      vars:
+        raw_remark: >-
+          {% set storage_remarks = [] %}
+          {% set temp_remarks = [] %}
+          {% set ns = namespace(current_ip='') %}
+          {% set lines = input_text.stdout.split('\n') %}
+          {% for i in range(lines | length) %}
+            {% set s_line = lines[i] | trim %}
+            {% if s_line.startswith('===') %}
+              {% set ns.current_ip = s_line | replace('=', '') | trim %}
+            {% elif 'NVIDIA A100-SXM' in s_line and (i + 1) < (lines | length) %}
+              {% set gpu_tokens = s_line | replace('|', ' ') | split() %}
+              {% set metrics_tokens = lines[i+1] | replace('|', ' ') | replace('/', ' ') | split() %}
+              {% if gpu_tokens | length > 0 and metrics_tokens | length >= 4 and ns.current_ip != '' %}
+                {% set gpu_idx = gpu_tokens[0] | trim %}
+                
+                {# Locate temperature token (ending with C) and memory tokens (ending with MiB) #}
+                {% set ns_tokens = namespace(t_val='', u_val=0.0, t_val_mem=1.0) %}
+                {% for tok in metrics_tokens %}
+                  {% if tok.endswith('C') %}
+                    {% set ns_tokens.t_val = tok | trim %}
+                  {% endif %}
+                {% endfor %}
+                
+                {# Extract raw memory strings cleanly via index search loop #}
+                {% set m_indices = [] %}
+                {% for j in range(metrics_tokens | length) %}
+                  {% if 'MiB' in metrics_tokens[j] %}
+                    {% set _ = m_indices.append(j) %}
+                  {% endif %}
+                {% endfor %}
+                
+                {% if m_indices | length >= 2 %}
+                  {% set used_str = metrics_tokens[m_indices[0]] | replace('MiB', '') | trim %}
+                  {% set total_str = metrics_tokens[m_indices[1]] | replace('MiB', '') | trim %}
+                  {% set ratio_val = (used_str | float) / (total_str | float) %}
+                  {% set rounded_ratio = "%.2f" | format(ratio_val) | float %}
+                  
+                  {% set _ = storage_remarks.append({'ip': ns.current_ip, 'gpu_index': gpu_idx, 'storage_ratio': rounded_ratio}) %}
+                  {% set _ = temp_remarks.append({'ip': ns.current_ip, 'gpu_index': gpu_idx, 'temperature': ns_tokens.t_val}) %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ (storage_remarks + temp_remarks) | to_json }}
+      ansible.builtin.set_fact:
+        remark: "{{ raw_remark | from_json }}"
+
+    - name: Evaluate threshold indicators cleanly using compressed lists
+      vars:
+        raw_answer: >-
+          {% if remark | length == 0 %}
+            {{ ['None'] | to_json }}
+          {% else %}
+            {% set ns_ans = namespace(has_storage_nok=false, has_temp_nok=false) %}
+            {% for item in remark %}
+              {% if item.storage_ratio is defined and item.storage_ratio | float >= 0.9 %}
+                {% set ns_ans.has_storage_nok = true %}
+              {% endif %}
+              {% if item.temperature is defined %}
+                {% set item_t = item.temperature | replace('C','') | trim | int %}
+                {% if item_t >= 50 %}
+                  {% set ns_ans.has_temp_nok = true %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ [ (ns_ans.has_storage_nok | ternary('Storage NOK', 'Storage OK')), (ns_ans.has_temp_nok | ternary('Temperature NOK', 'Temperature OK')) ] | to_json }}
+          {% endif %}
+      ansible.builtin.set_fact:
+        answer: "{{ raw_answer | from_json }}"
+
+    - name: Debug verified output profiles
+      ansible.builtin.debug:
+        msg:
+          - "REMARK: {{ remark }}"
+          - "ANSWER: {{ answer }}"
+

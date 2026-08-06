@@ -1,0 +1,1405 @@
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_4
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 0
+
+STDOUT:
+['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']
+
+STDERR:
+
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 0
+
+STDOUT:
+['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']
+
+STDERR:
+
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 0
+
+STDOUT:
+['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']
+
+STDERR:
+
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 0
+
+STDOUT:
+['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']
+
+STDERR:
+
+==================================================
+
+==================================================
+Host    : server_4
+Command : hostssh ovn-appctl connection-status
+RC      : 0
+
+STDOUT:
+['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']
+
+STDERR:
+
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 0
+
+STDOUT:
+['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']
+
+STDERR:
+
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_4
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_4
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_4
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_2
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_3
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_5
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_7
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+
+==================================================
+Host    : server_8
+Command : hostssh ovn-appctl connection-status
+RC      : 127
+
+STDOUT:
+[]
+
+STDERR:
+/bin/bash: line 1: hostssh: command not found
+==================================================
+

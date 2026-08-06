@@ -1,0 +1,238 @@
+
+---------------------------------
+14_testing11_allssh_df_kh_grep_elastic_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Running df -kh
+#  hosts: calmcvm
+  hosts: calmcvm
+  gather_facts: false
+
+  vars:
+    read_from_file: false 
+
+  tasks:
+
+    # ------------------------------------------------------------
+    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
+    # ------------------------------------------------------------
+    - name: Verify connectivity to the Control CVM
+      ansible.builtin.wait_for_connection:
+        timeout: 5
+      register: control_cvm_status
+
+    # ------------------------------------------------------------
+    # SCENARIO 2: Run 'df -kh' and process the output
+    # ------------------------------------------------------------
+    - name: 1. Run df -kh and status check across all CVMs
+      ansible.builtin.include_tasks: subr.run_allssh.yml
+      vars:
+        target_cmd: "df -kh"
+      when: not ( read_from_file | bool )
+
+#    - name: 2. Execute a remote script
+#      ansible.builtin.command: name_of_remote_script
+#      register: input_filter
+#      changed_when: false
+#      ignore_errors: true
+
+    - name: 3. Read from hardcoded file
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.14_testing11_allssh_df_kh_grep_elastic_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.14_testing11_allssh_df_kh_grep_elastic_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 4. Initialise variables
+      set_fact:
+        remark_list: []
+        status_tracker: []
+
+    - name: 5. Display input_filter.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+
+    - name: 6. Isolate blocks by delimiter
+      ansible.builtin.set_fact:
+        raw_blocks: "{{ input_filter.stdout.split('==========') }}"
+
+    - name: 7. Process each host block dynamically
+      ansible.builtin.set_fact:
+        current_ip: "{{ raw_blocks[block_idx] | replace('=', '') | trim }}"
+        current_content: "{{ raw_blocks[block_idx + 1] | default('') }}"
+      loop: "{{ range(1, raw_blocks | length, 2) | list }}"
+      loop_control:
+        loop_var: block_idx
+      register: block_results
+
+    - name: 8. Aggregate results into final structures
+      ansible.builtin.set_fact:
+        remark_list: >-
+          {{ remark_list + [ 
+          registered_result.ansible_facts.current_ip ~ ' --- ' ~ 
+          ('Elasticsearch function found' if 'elasticsearch' in registered_result.ansible_facts.current_content else 'Elasticsearch function not found') 
+          ] }}
+        status_tracker: >-
+          {{ status_tracker + [ 
+          'found' if 'elasticsearch' in registered_result.ansible_facts.current_content else 'not found' 
+          ] }}
+      loop: "{{ block_results.results }}"
+      loop_control:
+        loop_var: registered_result
+
+    - name: 9. Finalise scalar answer and remark variables
+      ansible.builtin.set_fact:
+        remark: "{{ remark_list | join('\n') }}"
+        answer: "{{ 'Elasticsearch function not found' if 'not found' in status_tracker else 'Elasticsearch function found' }}"
+
+    - name: 10. Display Results
+      ansible.builtin.debug:
+        msg:
+          - "REMARK:"
+          - "{{ remark }}"
+          - "-----------------------------------"
+          - "ANSWER: {{ answer }}"
+
+    - name: 11. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+    
+------------------------------------------------------------------
+
+
+aphe 14_testing11_allssh_df_kh_grep_elastic_gg.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Running df -kh] **********************************************************
+
+TASK [Verify connectivity to the Control CVM] **********************************
+ok: [calmcvm]
+
+TASK [1. Run df -kh and status check across all CVMs] **************************
+skipping: [calmcvm]
+
+TASK [3. Read from hardcoded file] *********************************************
+ok: [calmcvm]
+
+TASK [4. Initialise variables] *************************************************
+ok: [calmcvm]
+
+TASK [5. Display input_filter.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "msg": [
+        "================== 111.222.12.1 =================",
+        "Filesystem      Size  Used Avail Use% Mounted on",
+        "devtmpfs         27G     0   27G   0% /dev",
+        "tmpfs           512M  120K  512M   1% /dev/shm",
+        "tmpfs            27G  7.5M   27G   1% /run",
+        "tmpfs            27G     0   27G   0% /sys/fs/cgroup",
+        "/dev/sdb2       9.8G  7.3G  2.4G  76% /",
+        "/dev/loop0      1.5G  441M  971M  32% /var",
+        "/dev/loop1      488M  600K  452M   1% /tmp",
+        "/dev/sdb3        49G   25G   24G  51% /home",
+        "/dev/sdi1       9.4G  394M  8.5G   5% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition",
+        "/dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition",
+        "/dev/sdi2        94G  6.1G   83G   7% /home/nutanix/data/msp-backbone-storage/msp_registry_partition",
+        "/dev/sdh1        98G   21G   72G  23% /home/nutanix/data/sys-storage/MSP_partition",
+        "/dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition",
+        "/dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade",
+        "/dev/loop2       44M   30M   11M  73% /home/log/audit",
+        "/dev/sdg1       9.8G  3.1G  6.2G  54% /home/docker/epsilon/elasticsearch",
+        "/dev/sdk1       2.5T  287M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7222_44049f07_0f0f_4baa_a6e1_9adc5d1c833a",
+        "/dev/sdl1       2.5T  367M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7187_59771b07_7bc1_4a1b_9658_0d55aa6d5382",
+        "/dev/sdj1       2.5T  339M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7183_da318082_2daa_4bc6_a688_716042f82115",
+        "/dev/sdc1       2.5T  311M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_5561_71f0fff6_c9e3_4600_b700_77134375a8bf",
+        "tmpfs           5.3G     0  5.3G   0% /run/user/1000",
+        "================== 111.222.12.2 =================",
+        "Filesystem      Size  Used Avail Use% Mounted on",
+        "devtmpfs         27G     0   27G   0% /dev",
+        "tmpfs           512M  120K  512M   1% /dev/shm",
+        "tmpfs            27G  7.1M   27G   1% /run",
+        "tmpfs            27G     0   27G   0% /sys/fs/cgroup",
+        "/dev/sdb2       9.8G  7.6G  2.2G  79% /",
+        "/dev/loop0      488M  604K  452M   1% /tmp",
+        "/dev/loop1      1.5G  434M  978M  31% /var",
+        "/dev/sdb3        49G   26G   23G  54% /home",
+        "/dev/sdh1        98G   20G   74G  21% /home/nutanix/data/sys-storage/MSP_partition",
+        "/dev/sdi2        94G   24K   89G   1% /home/nutanix/data/msp-backbone-storage/msp_registry_partition",
+        "/dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition",
+        "/dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition",
+        "/dev/sdg1        20G  7.3G   12G  39% /home/docker/epsilon/elasticsearch",
+        "/dev/sdi1       9.4G  394M  8.5G   5% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition",
+        "/dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade",
+        "/dev/loop2       44M   26M   15M  65% /home/log/audit",
+        "/dev/sdj1       2.5T  322M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7189_11cbefa3_9fe3_468e_85df_559ec900b2bd",
+        "/dev/sdl1       2.5T  322M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7191_02542a6d_cda0_4e8a_8073_14810e1cba4f",
+        "/dev/sdk1       2.5T  329M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7190_3ba794ab_6118_47c5_91a8_b0a7ff999005",
+        "/dev/sdc1       2.5T  384M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_5573_583dcbc7_8dd7_4546_a572_d6db7ca9cbed",
+        "tmpfs           5.3G     0  5.3G   0% /run/user/1000",
+        "================== 111.222.12.3 =================",
+        "Filesystem      Size  Used Avail Use% Mounted on",
+        "devtmpfs         27G     0   27G   0% /dev",
+        "tmpfs           512M  120K  512M   1% /dev/shm",
+        "tmpfs            27G  3.5M   27G   1% /run",
+        "tmpfs            27G     0   27G   0% /sys/fs/cgroup",
+        "/dev/sdb2       9.8G  7.2G  2.6G  74% /",
+        "/dev/loop0      488M  740K  452M   1% /tmp",
+        "/dev/loop1      1.5G  404M 1008M  29% /var",
+        "/dev/sdb3        49G   24G   25G  49% /home",
+        "/dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition",
+        "/dev/sdi2        94G  6.1G   83G   7% /home/nutanix/data/msp-backbone-storage/msp_registry_partition",
+        "/dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition",
+        "/dev/sdg1        20G   11M   19G   1% /home/docker/epsilon/Elasticsearch",
+        "/dev/sdh1        98G   19G   75G  20% /home/nutanix/data/sys-storage/MSP_partition",
+        "/dev/sdi1       9.4G  455M  8.4G   6% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition",
+        "/dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade",
+        "/dev/sdg1        20G  7.1G   12G  39% /home/docker/epsilon/elasticsearch",
+        "/dev/loop2       44M   30M   11M  73% /home/log/audit",
+        "/dev/sdk1       2.5T  347M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7186_aa0ca6f3_5f58_4490_8416_55b3cefda29b",
+        "/dev/sdj1       2.5T  281M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7184_e0abae97_13a3_45d3_9890_01d3eef6763d",
+        "/dev/sdc1       2.5T  350M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_5640_be283bc6_8dc9_406e_a5e2_541d7e364aac",
+        "/dev/sdl1       2.5T  377M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7111_c8100f09_f562_4214_897a_2ffb742ae28f",
+        "tmpfs           5.3G     0  5.3G   0% /run/user/1000"
+    ]
+}
+
+TASK [6. Isolate blocks by delimiter] ******************************************
+ok: [calmcvm]
+
+TASK [7. Process each host block dynamically] **********************************
+ok: [calmcvm] => (item=1)
+ok: [calmcvm] => (item=3)
+ok: [calmcvm] => (item=5)
+
+TASK [8. Aggregate results into final structures] ******************************
+ok: [calmcvm] => (item={'ansible_facts': {'current_ip': '111.222.12.1', 'current_content': '=======\nFilesystem      Size  Used Avail Use% Mounted on\ndevtmpfs         27G     0   27G   0% /dev\ntmpfs           512M  120K  512M   1% /dev/shm\ntmpfs            27G  7.5M   27G   1% /run\ntmpfs            27G     0   27G   0% /sys/fs/cgroup\n/dev/sdb2       9.8G  7.3G  2.4G  76% /\n/dev/loop0      1.5G  441M  971M  32% /var\n/dev/loop1      488M  600K  452M   1% /tmp\n/dev/sdb3        49G   25G   24G  51% /home\n/dev/sdi1       9.4G  394M  8.5G   5% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition\n/dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition\n/dev/sdi2        94G  6.1G   83G   7% /home/nutanix/data/msp-backbone-storage/msp_registry_partition\n/dev/sdh1        98G   21G   72G  23% /home/nutanix/data/sys-storage/MSP_partition\n/dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition\n/dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade\n/dev/loop2       44M   30M   11M  73% /home/log/audit\n/dev/sdg1       9.8G  3.1G  6.2G  54% /home/docker/epsilon/elasticsearch\n/dev/sdk1       2.5T  287M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7222_44049f07_0f0f_4baa_a6e1_9adc5d1c833a\n/dev/sdl1       2.5T  367M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7187_59771b07_7bc1_4a1b_9658_0d55aa6d5382\n/dev/sdj1       2.5T  339M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7183_da318082_2daa_4bc6_a688_716042f82115\n/dev/sdc1       2.5T  311M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_5561_71f0fff6_c9e3_4600_b700_77134375a8bf\ntmpfs           5.3G     0  5.3G   0% /run/user/1000\n'}, 'failed': False, 'changed': False, 'block_idx': 1, 'ansible_loop_var': 'block_idx'})
+ok: [calmcvm] => (item={'ansible_facts': {'current_ip': '111.222.12.2', 'current_content': '=======\nFilesystem      Size  Used Avail Use% Mounted on\ndevtmpfs         27G     0   27G   0% /dev\ntmpfs           512M  120K  512M   1% /dev/shm\ntmpfs            27G  7.1M   27G   1% /run\ntmpfs            27G     0   27G   0% /sys/fs/cgroup\n/dev/sdb2       9.8G  7.6G  2.2G  79% /\n/dev/loop0      488M  604K  452M   1% /tmp\n/dev/loop1      1.5G  434M  978M  31% /var\n/dev/sdb3        49G   26G   23G  54% /home\n/dev/sdh1        98G   20G   74G  21% /home/nutanix/data/sys-storage/MSP_partition\n/dev/sdi2        94G   24K   89G   1% /home/nutanix/data/msp-backbone-storage/msp_registry_partition\n/dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition\n/dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition\n/dev/sdg1        20G  7.3G   12G  39% /home/docker/epsilon/elasticsearch\n/dev/sdi1       9.4G  394M  8.5G   5% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition\n/dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade\n/dev/loop2       44M   26M   15M  65% /home/log/audit\n/dev/sdj1       2.5T  322M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7189_11cbefa3_9fe3_468e_85df_559ec900b2bd\n/dev/sdl1       2.5T  322M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7191_02542a6d_cda0_4e8a_8073_14810e1cba4f\n/dev/sdk1       2.5T  329M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7190_3ba794ab_6118_47c5_91a8_b0a7ff999005\n/dev/sdc1       2.5T  384M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_5573_583dcbc7_8dd7_4546_a572_d6db7ca9cbed\ntmpfs           5.3G     0  5.3G   0% /run/user/1000\n'}, 'failed': False, 'changed': False, 'block_idx': 3, 'ansible_loop_var': 'block_idx'})
+ok: [calmcvm] => (item={'ansible_facts': {'current_ip': '111.222.12.3', 'current_content': '=======\nFilesystem      Size  Used Avail Use% Mounted on\ndevtmpfs         27G     0   27G   0% /dev\ntmpfs           512M  120K  512M   1% /dev/shm\ntmpfs            27G  3.5M   27G   1% /run\ntmpfs            27G     0   27G   0% /sys/fs/cgroup\n/dev/sdb2       9.8G  7.2G  2.6G  74% /\n/dev/loop0      488M  740K  452M   1% /tmp\n/dev/loop1      1.5G  404M 1008M  29% /var\n/dev/sdb3        49G   24G   25G  49% /home\n/dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition\n/dev/sdi2        94G  6.1G   83G   7% /home/nutanix/data/msp-backbone-storage/msp_registry_partition\n/dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition\n/dev/sdg1        20G   11M   19G   1% /home/docker/epsilon/Elasticsearch\n/dev/sdh1        98G   19G   75G  20% /home/nutanix/data/sys-storage/MSP_partition\n/dev/sdi1       9.4G  455M  8.4G   6% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition\n/dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade\n/dev/sdg1        20G  7.1G   12G  39% /home/docker/epsilon/elasticsearch\n/dev/loop2       44M   30M   11M  73% /home/log/audit\n/dev/sdk1       2.5T  347M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7186_aa0ca6f3_5f58_4490_8416_55b3cefda29b\n/dev/sdj1       2.5T  281M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7184_e0abae97_13a3_45d3_9890_01d3eef6763d\n/dev/sdc1       2.5T  350M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_5640_be283bc6_8dc9_406e_a5e2_541d7e364aac\n/dev/sdl1       2.5T  377M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7111_c8100f09_f562_4214_897a_2ffb742ae28f\ntmpfs           5.3G     0  5.3G   0% /run/user/1000'}, 'failed': False, 'changed': False, 'block_idx': 5, 'ansible_loop_var': 'block_idx'})
+
+TASK [9. Finalise scalar answer and remark variables] **************************
+ok: [calmcvm]
+
+TASK [10. Display Results] *****************************************************
+ok: [calmcvm] => {
+    "msg": [
+        "REMARK:",
+        "111.222.12.1 --- Elasticsearch function found\n111.222.12.2 --- Elasticsearch function found\n111.222.12.3 --- Elasticsearch function found",
+        "-----------------------------------",
+        "ANSWER: Elasticsearch function found"
+    ]
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [calmcvm -> localhost]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=10   changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

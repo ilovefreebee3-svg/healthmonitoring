@@ -1,0 +1,21 @@
+Running : health_checks draas_checks recovery_plan_checks recovery_plan_vm_volume_attachment_ngt_version_check
+[==================================================] 112%
+/health_checks/draas_checks/recovery_plan_checks/recovery_plan_vm_volume_attachment_ngt_version_check                                                                                                                               [ WARN ]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+Detailed information for recovery_plan_vm_volume_attachment_ngt_version_check:
+Node 10.xx.xx.xx:
+WARN: Recovery Plan {<i>rp_name</i>} has VM(s) {<i>vm_name</i>} with iSCSI attached Volume Group(s) that do not have a compatible NGT installed/enabled. | 
+Recovery Plan {<i>rp_name</i>} has VM(s) {<i>vm_name</i>} with iSCSI attached Volume Group(s) that do not have a compatible NGT installed/enabled. | 
+Recovery Plan {<i>rp_name</i>} has VM(s) {<i>vm_name</i>} with iSCSI attached Volume Group(s) that do not have a compatible NGT installed/enabled.
+Refer to KB 11649 (http://portal.nutanix.com/kb/11649) for details on recovery_plan_vm_volume_attachment_ngt_version_check or Recheck with: ncc health_checks draas_checks recovery_plan_checks recovery_plan_vm_volume_attachment_ngt_version_check
++-----------------------+
+| State         | Count |
++-----------------------+
+| Pass          | 1     |
+| Info          | 1     |
+| Warning       | 1     |
+| Error         | 2     |
+| Fail          | 3     |
+| Total Plugins | 4     |
++-----------------------+
+Plugin output written to /home/nutanix/data/logs/ncc-output-latest.log

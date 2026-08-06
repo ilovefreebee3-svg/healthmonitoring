@@ -1,0 +1,930 @@
+
+---------------------------------
+34_testing8_allcvms_mspctl_debug_run_test_exclude_subset_site_data.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: how to run mspctl
+#  hosts: pccvm
+  hosts: allcvms
+  gather_facts: false
+
+  tasks:
+    - name: 1. Run mspctl debug --test_exclude_subnet=hosting_pe with command module
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            mspctl debug run --test_exclude_subset=hosting_pe
+      register: input_result
+      changed_when: false
+      failed_when: false
+
+    - name: 2. Display the raw script output
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 3. Display the raw script output
+      ansible.builtin.debug:
+        var: input_result.stdout
+
+    - name: 4. Remove ANSI color codes
+      ansible.builtin.set_fact:
+        Xinput_result_msg: >-
+          {{
+            input_result.stdout_lines
+            | map('regex_replace', '\x1B\[[0-9;]*[A-Za-z]', '')
+            | list
+          }}
+    
+    - name: 5. Display cleaned output
+      ansible.builtin.debug:
+        var: Xinput_result_msg
+
+    - name: 6. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg:
+          - "V: {{ input_result.stdout_lines }}"
+
+    - name: 7. Display Xinput_Result msg
+      ansible.builtin.debug:
+        msg:
+          - "X: {{ Xinput_result_msg }}"
+
+    - name: 8. Initialize variables
+      set_fact:
+        current_name: ""
+        failures: []
+        test_results: []
+
+    - name: 9. Parse in ONE loop (correct pairing)
+      set_fact:
+        current_name: >-
+          {{
+            item.split(':', 1)[1] | trim
+            if item is search('^Test Name:')
+            else current_name
+          }}
+
+        test_results: >-
+          {{
+            test_results + [ {'name': current_name, 'status': item.split(':',1)[1] | trim} ]
+            if item is search('^STATUS:')
+            else test_results
+          }}
+
+        failures: >-
+          {{
+            failures + [ {'name': current_name, 'status': item.split(':',1)[1] | trim} ]
+            if (item is search('^STATUS:') and (item.split(':',1)[1] | trim) != 'SUCCESS')
+            else failures
+          }}
+
+      loop: "{{ Xinput_result_msg }}"
+
+    - name: 10. Compute summary
+      set_fact:
+        num_failure: "{{ failures | length }}"
+        remark: >-
+          {{
+            failures
+            | map(attribute='name')
+            | zip(failures | map(attribute='status'))
+            | map('join', ' -> ')
+            | join(' -- ')
+          }}
+        answer: "{{ 'STATUS Not Success' if (failures | length) > 0 else 'STATUS SUCCESS' }}"
+
+    - debug:
+        msg:
+          - "Failures: {{ num_failure }}"
+          - "Remark: {{ remark }}"
+          - "Answer: {{ answer }}"
+
+    - name: 8. Append result to CSV (local)
+      import_tasks: logd.yml
+------------------------------------------------------------------
+
+
+aph 34_testing8_allcvms_mspctl_debug_run_test_exclude_subset_site_data.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [how to run mspctl] *******************************************************
+
+TASK [1. Run mspctl debug --test_exclude_subnet=hosting_pe with command module] ***
+ok: [engrcvm]
+ok: [pecvm]
+ok: [corecvm]
+ok: [calmcvm]
+ok: [pccvm]
+
+TASK [2. Display the raw script output] ****************************************
+ok: [calmcvm] => {
+    "input_result.stdout_lines": [
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CONTROLLER_RUNNING",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IPTABLES_ENABLED",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_VMS_REACHABLE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_DVP_WITHIN_MSP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PC_NTP_SYNC_CHECK",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ISCSI_RECORD_LEN",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_TIME_CHECK_PC_MSP_VMS",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CLUSTER_HEALTH",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_ACTIVE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_ACTIVE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_PERFORMANCE",
+        "Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False",
+        "--------------------------------------------------",
+        "Test Name: TEST_KEEPALIVED_ACTIVE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PBR_CONFIG_SETUP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ZK_IP_CHECK",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_WITHIN_MSP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_NODE_ROLES",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_FROM_PC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_STORAGE_PROVISIONING",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_CMSP_SVC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_PMSP_SVC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------"
+    ]
+}
+ok: [corecvm] => {
+    "input_result.stdout_lines": []
+}
+ok: [engrcvm] => {
+    "input_result.stdout_lines": []
+}
+ok: [pccvm] => {
+    "input_result.stdout_lines": [
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CONTROLLER_RUNNING",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IPTABLES_ENABLED",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_VMS_REACHABLE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_DVP_WITHIN_MSP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PC_NTP_SYNC_CHECK",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ISCSI_RECORD_LEN",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_TIME_CHECK_PC_MSP_VMS",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CLUSTER_HEALTH",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_ACTIVE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_ACTIVE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_PERFORMANCE",
+        "Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False",
+        "--------------------------------------------------",
+        "Test Name: TEST_KEEPALIVED_ACTIVE",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PBR_CONFIG_SETUP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ZK_IP_CHECK",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_WITHIN_MSP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_NODE_ROLES",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_FROM_PC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_STORAGE_PROVISIONING",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_CMSP_SVC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_PMSP_SVC",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH",
+        "\u001b[32mSTATUS: SUCCESS\u001b[0m",
+        "--------------------------------------------------"
+    ]
+}
+ok: [pecvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [3. Display the raw script output] ****************************************
+ok: [calmcvm] => {
+    "input_result.stdout": "--------------------------------------------------\nTest Name: TEST_MSP_CONTROLLER_RUNNING\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_IPTABLES_ENABLED\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_MSP_VMS_REACHABLE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_DVP_WITHIN_MSP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PC_NTP_SYNC_CHECK\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ISCSI_RECORD_LEN\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_TIME_CHECK_PC_MSP_VMS\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_MSP_CLUSTER_HEALTH\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_IMAGES_FROM_LOCAL_REGISTRY\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_REGISTRY_ACTIVE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ETCD_ACTIVE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ETCD_PERFORMANCE\nTest TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False\n--------------------------------------------------\nTest Name: TEST_KEEPALIVED_ACTIVE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PBR_CONFIG_SETUP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ZK_IP_CHECK\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PING_REGISTRY_WITHIN_MSP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_NODE_ROLES\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PING_REGISTRY_FROM_PC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_REGISTRY_INSTANCES_IN_SYNC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_STORAGE_PROVISIONING\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SVC_DISCOVERY_CMSP_SVC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SVC_DISCOVERY_PMSP_SVC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SVC_DISCOVERY_WITHIN_MSP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SANITY_MSP_CLUSTER_HEALTH\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------"
+}
+ok: [engrcvm] => {
+    "input_result.stdout": ""
+}
+ok: [corecvm] => {
+    "input_result.stdout": ""
+}
+ok: [pccvm] => {
+    "input_result.stdout": "--------------------------------------------------\nTest Name: TEST_MSP_CONTROLLER_RUNNING\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_IPTABLES_ENABLED\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_MSP_VMS_REACHABLE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_DVP_WITHIN_MSP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PC_NTP_SYNC_CHECK\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ISCSI_RECORD_LEN\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_TIME_CHECK_PC_MSP_VMS\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_MSP_CLUSTER_HEALTH\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_IMAGES_FROM_LOCAL_REGISTRY\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_REGISTRY_ACTIVE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ETCD_ACTIVE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ETCD_PERFORMANCE\nTest TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False\n--------------------------------------------------\nTest Name: TEST_KEEPALIVED_ACTIVE\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PBR_CONFIG_SETUP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_ZK_IP_CHECK\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PING_REGISTRY_WITHIN_MSP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_NODE_ROLES\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_PING_REGISTRY_FROM_PC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_REGISTRY_INSTANCES_IN_SYNC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_STORAGE_PROVISIONING\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SVC_DISCOVERY_CMSP_SVC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SVC_DISCOVERY_PMSP_SVC\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SVC_DISCOVERY_WITHIN_MSP\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------\n--------------------------------------------------\nTest Name: TEST_SANITY_MSP_CLUSTER_HEALTH\n\u001b[32mSTATUS: SUCCESS\u001b[0m\n--------------------------------------------------"
+}
+ok: [pecvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [4. Remove ANSI color codes] **********************************************
+ok: [calmcvm]
+ok: [corecvm]
+ok: [engrcvm]
+ok: [pccvm]
+ok: [pecvm]
+
+TASK [5. Display cleaned output] ***********************************************
+ok: [calmcvm] => {
+    "Xinput_result_msg": [
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CONTROLLER_RUNNING",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IPTABLES_ENABLED",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_VMS_REACHABLE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_DVP_WITHIN_MSP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PC_NTP_SYNC_CHECK",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ISCSI_RECORD_LEN",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_TIME_CHECK_PC_MSP_VMS",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CLUSTER_HEALTH",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_ACTIVE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_ACTIVE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_PERFORMANCE",
+        "Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False",
+        "--------------------------------------------------",
+        "Test Name: TEST_KEEPALIVED_ACTIVE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PBR_CONFIG_SETUP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ZK_IP_CHECK",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_WITHIN_MSP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_NODE_ROLES",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_FROM_PC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_STORAGE_PROVISIONING",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_CMSP_SVC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_PMSP_SVC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------"
+    ]
+}
+ok: [corecvm] => {
+    "Xinput_result_msg": []
+}
+ok: [engrcvm] => {
+    "Xinput_result_msg": []
+}
+ok: [pccvm] => {
+    "Xinput_result_msg": [
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CONTROLLER_RUNNING",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IPTABLES_ENABLED",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_VMS_REACHABLE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_DVP_WITHIN_MSP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PC_NTP_SYNC_CHECK",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ISCSI_RECORD_LEN",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_TIME_CHECK_PC_MSP_VMS",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_CLUSTER_HEALTH",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_ACTIVE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_ACTIVE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ETCD_PERFORMANCE",
+        "Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False",
+        "--------------------------------------------------",
+        "Test Name: TEST_KEEPALIVED_ACTIVE",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PBR_CONFIG_SETUP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_ZK_IP_CHECK",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_WITHIN_MSP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_NODE_ROLES",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_PING_REGISTRY_FROM_PC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_STORAGE_PROVISIONING",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_CMSP_SVC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_PMSP_SVC",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------",
+        "--------------------------------------------------",
+        "Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH",
+        "STATUS: SUCCESS",
+        "--------------------------------------------------"
+    ]
+}
+ok: [pecvm] => {
+    "Xinput_result_msg": []
+}
+
+TASK [6. Display input_result.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "msg": [
+        "V: ['--------------------------------------------------', 'Test Name: TEST_MSP_CONTROLLER_RUNNING', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IPTABLES_ENABLED', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_VMS_REACHABLE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_DVP_WITHIN_MSP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PC_NTP_SYNC_CHECK', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ISCSI_RECORD_LEN', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_TIME_CHECK_PC_MSP_VMS', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_CLUSTER_HEALTH', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_ACTIVE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_ACTIVE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_PERFORMANCE', 'Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False', '--------------------------------------------------', 'Test Name: TEST_KEEPALIVED_ACTIVE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PBR_CONFIG_SETUP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ZK_IP_CHECK', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_WITHIN_MSP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_NODE_ROLES', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_FROM_PC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_STORAGE_PROVISIONING', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_CMSP_SVC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_PMSP_SVC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------']"
+    ]
+}
+ok: [corecvm] => {
+    "msg": [
+        "V: []"
+    ]
+}
+ok: [engrcvm] => {
+    "msg": [
+        "V: []"
+    ]
+}
+ok: [pecvm] => {
+    "msg": [
+        "V: []"
+    ]
+}
+ok: [pccvm] => {
+    "msg": [
+        "V: ['--------------------------------------------------', 'Test Name: TEST_MSP_CONTROLLER_RUNNING', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IPTABLES_ENABLED', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_VMS_REACHABLE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_DVP_WITHIN_MSP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PC_NTP_SYNC_CHECK', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ISCSI_RECORD_LEN', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_TIME_CHECK_PC_MSP_VMS', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_CLUSTER_HEALTH', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_ACTIVE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_ACTIVE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_PERFORMANCE', 'Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False', '--------------------------------------------------', 'Test Name: TEST_KEEPALIVED_ACTIVE', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PBR_CONFIG_SETUP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ZK_IP_CHECK', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_WITHIN_MSP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_NODE_ROLES', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_FROM_PC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_STORAGE_PROVISIONING', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_CMSP_SVC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_PMSP_SVC', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH', '\\x1b[32mSTATUS: SUCCESS\\x1b[0m', '--------------------------------------------------']"
+    ]
+}
+
+TASK [7. Display Xinput_Result msg] ********************************************
+ok: [calmcvm] => {
+    "msg": [
+        "X: ['--------------------------------------------------', 'Test Name: TEST_MSP_CONTROLLER_RUNNING', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IPTABLES_ENABLED', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_VMS_REACHABLE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_DVP_WITHIN_MSP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PC_NTP_SYNC_CHECK', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ISCSI_RECORD_LEN', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_TIME_CHECK_PC_MSP_VMS', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_CLUSTER_HEALTH', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_ACTIVE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_ACTIVE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_PERFORMANCE', 'Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False', '--------------------------------------------------', 'Test Name: TEST_KEEPALIVED_ACTIVE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PBR_CONFIG_SETUP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ZK_IP_CHECK', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_WITHIN_MSP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_NODE_ROLES', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_FROM_PC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_STORAGE_PROVISIONING', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_CMSP_SVC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_PMSP_SVC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH', 'STATUS: SUCCESS', '--------------------------------------------------']"
+    ]
+}
+ok: [corecvm] => {
+    "msg": [
+        "X: []"
+    ]
+}
+ok: [engrcvm] => {
+    "msg": [
+        "X: []"
+    ]
+}
+ok: [pccvm] => {
+    "msg": [
+        "X: ['--------------------------------------------------', 'Test Name: TEST_MSP_CONTROLLER_RUNNING', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IPTABLES_ENABLED', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_VMS_REACHABLE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_DVP_WITHIN_MSP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PC_NTP_SYNC_CHECK', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ISCSI_RECORD_LEN', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_TIME_CHECK_PC_MSP_VMS', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_CLUSTER_HEALTH', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_ACTIVE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_ACTIVE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ETCD_PERFORMANCE', 'Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False', '--------------------------------------------------', 'Test Name: TEST_KEEPALIVED_ACTIVE', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PBR_CONFIG_SETUP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_ZK_IP_CHECK', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_WITHIN_MSP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_NODE_ROLES', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_PING_REGISTRY_FROM_PC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_STORAGE_PROVISIONING', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_CMSP_SVC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_PMSP_SVC', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG', 'STATUS: SUCCESS', '--------------------------------------------------', '--------------------------------------------------', 'Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH', 'STATUS: SUCCESS', '--------------------------------------------------']"
+    ]
+}
+ok: [pecvm] => {
+    "msg": [
+        "X: []"
+    ]
+}
+
+TASK [8. Initialize variables] *************************************************
+ok: [calmcvm]
+ok: [corecvm]
+ok: [engrcvm]
+ok: [pccvm]
+ok: [pecvm]
+
+TASK [9. Parse in ONE loop (correct pairing)] **********************************
+skipping: [corecvm]
+skipping: [engrcvm]
+skipping: [pecvm]
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_MSP_CONTROLLER_RUNNING)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_MSP_CONTROLLER_RUNNING)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_IPTABLES_ENABLED)
+ok: [pccvm] => (item=Test Name: TEST_IPTABLES_ENABLED)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_MSP_VMS_REACHABLE)
+ok: [calmcvm] => (item=Test Name: TEST_MSP_VMS_REACHABLE)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_DVP_WITHIN_MSP)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=Test Name: TEST_DVP_WITHIN_MSP)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_PC_NTP_SYNC_CHECK)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=Test Name: TEST_PC_NTP_SYNC_CHECK)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_ISCSI_RECORD_LEN)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_ISCSI_RECORD_LEN)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=Test Name: TEST_TIME_CHECK_PC_MSP_VMS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_TIME_CHECK_PC_MSP_VMS)
+ok: [pccvm] => (item=Test Name: TEST_MSP_CLUSTER_HEALTH)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=Test Name: TEST_MSP_CLUSTER_HEALTH)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_REGISTRY_ACTIVE)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY)
+ok: [pccvm] => (item=Test Name: TEST_ETCD_ACTIVE)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_ETCD_PERFORMANCE)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_REGISTRY_ACTIVE)
+ok: [pccvm] => (item=Test Name: TEST_KEEPALIVED_ACTIVE)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_PBR_CONFIG_SETUP)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=Test Name: TEST_ETCD_ACTIVE)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_ZK_IP_CHECK)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_ETCD_PERFORMANCE)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_PING_REGISTRY_WITHIN_MSP)
+ok: [calmcvm] => (item=Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_KEEPALIVED_ACTIVE)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=Test Name: TEST_NODE_ROLES)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_PBR_CONFIG_SETUP)
+ok: [pccvm] => (item=Test Name: TEST_PING_REGISTRY_FROM_PC)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC)
+ok: [calmcvm] => (item=Test Name: TEST_ZK_IP_CHECK)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=Test Name: TEST_PING_REGISTRY_WITHIN_MSP)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_STORAGE_PROVISIONING)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_NODE_ROLES)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=Test Name: TEST_SVC_DISCOVERY_CMSP_SVC)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_PING_REGISTRY_FROM_PC)
+ok: [pccvm] => (item=Test Name: TEST_SVC_DISCOVERY_PMSP_SVC)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS)
+ok: [pccvm] => (item=Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [pccvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=Test Name: TEST_STORAGE_PROVISIONING)
+ok: [pccvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_SVC_DISCOVERY_CMSP_SVC)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_SVC_DISCOVERY_PMSP_SVC)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=--------------------------------------------------)
+ok: [calmcvm] => (item=Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH)
+ok: [calmcvm] => (item=STATUS: SUCCESS)
+ok: [calmcvm] => (item=--------------------------------------------------)
+
+TASK [10. Compute summary] *****************************************************
+ok: [calmcvm]
+ok: [pccvm]
+ok: [corecvm]
+ok: [engrcvm]
+ok: [pecvm]
+
+TASK [debug] *******************************************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Failures: 0",
+        "Remark: ",
+        "Answer: STATUS SUCCESS"
+    ]
+}
+ok: [corecvm] => {
+    "msg": [
+        "Failures: 0",
+        "Remark: ",
+        "Answer: STATUS SUCCESS"
+    ]
+}
+ok: [engrcvm] => {
+    "msg": [
+        "Failures: 0",
+        "Remark: ",
+        "Answer: STATUS SUCCESS"
+    ]
+}
+ok: [pecvm] => {
+    "msg": [
+        "Failures: 0",
+        "Remark: ",
+        "Answer: STATUS SUCCESS"
+    ]
+}
+ok: [pccvm] => {
+    "msg": [
+        "Failures: 0",
+        "Remark: ",
+        "Answer: STATUS SUCCESS"
+    ]
+}
+
+TASK [Append result to CSV (local)] ********************************************
+ok: [pccvm -> localhost]
+ok: [engrcvm -> localhost]
+ok: [calmcvm -> localhost]
+ok: [corecvm -> localhost]
+ok: [pecvm -> localhost]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=12   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+corecvm                    : ok=11   changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+engrcvm                    : ok=11   changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+pccvm                      : ok=12   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+pecvm                      : ok=11   changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

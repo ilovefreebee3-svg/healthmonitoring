@@ -1,0 +1,28 @@
+---
+- name: 1. Run diagnostic commands on all CVMs
+  hosts: corecvm
+#  hosts: engrcvm
+#  hosts: pecvm
+#  hosts: allcvms
+  gather_facts: false
+  serial: 1
+
+  vars:
+    cmd_list:
+      - name: hostssh ovn-appctl connection-status
+        argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#      - name: hostssh_ovn_appctl_connection_status
+#        argv: ["hostssh_ovn_appctl_connection_status"]
+
+  tasks:
+    - name: 2. Execute commands
+      include_tasks: subr.25.testing9_hostssh_ovn_lab.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+
+    - name: 3. Display hostssh sudo ovn_appctl connection-status output
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+

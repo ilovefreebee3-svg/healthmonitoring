@@ -1,0 +1,98 @@
+---
+- name: Parse and evaluate NVIDIA-SMI logs
+  hosts: localhost
+  gather_facts: false
+  vars:
+    # Simulating your ansible input_text log output separated per host block
+    input_text: |
+      ============= 111.222.1.1 ============
+      Wed Jan 20 15 02:30:34 2026
+
+      | 0 NVIDIA A100-SXM... On  | 00000000:00:00.0 Off | 0 |
+      | N/A   35C    P0    60W / 400W |  40009MiB / 40960MiB |      0%      Default |
+      +-------------------------------+----------------------+----------------------+
+
+      | 1 NVIDIA A100-SXM... On  | 00000000:00:00.0 Off | 0 |
+      | N/A   35C    P0    60W / 400W |   9950MiB / 40960MiB |      0%      Default |
+
+      ============= 111.222.1.2 ============
+      Wed Jan 20 15 02:30:34 2026
+
+      | 0 NVIDIA A100-SXM... On  | 00000000:00:00.0 Off | 0 |
+      | N/A   45C    P0    60W / 400W |  40009MiB / 40960MiB |      0%      Default |
+      +-------------------------------+----------------------+----------------------+
+
+      | 1 NVIDIA A100-SXM... On  | 00000000:00:00.0 Off | 0 |
+      | N/A   35C    P0    60W / 400W |   9950MiB / 40960MiB |      0%      Default |
+
+      ============= 111.222.1.3 ============
+      Wed Jan 20 15 02:30:34 2026
+
+      | 0 NVIDIA A100-SXM... On  | 00000000:00:00.0 Off | 0 |
+      | N/A   35C    P0    60W / 400W |  40009MiB / 40960MiB |      0%      Default |
+      +-------------------------------+----------------------+----------------------+
+
+      | 1 NVIDIA A100-SXM... On  | 00000000:00:00.0 Off | 0 |
+      | N/A   55C    P0    60W / 400W |   9950MiB / 40960MiB |      0%      Default |
+
+  tasks:
+    - name: Parse lines below 'NVIDIA A100-SXM' capturing metrics
+      set_fact:
+        # Regex captures: Temperature(C), Used Storage(MiB), Total Storage(MiB) from the lines following an A100 signature match
+        parsed_entries: >-
+          {{ input_text | regex_findall('NVIDIA A100-SXM(?:.|\n)*?N/A\s+(\d+)C\s+\S+\s+\S+\s+/\s+\S+\s+\|\s+(\d+)MiB\s+/\s+(\d+)MiB') }}
+
+    - name: Initialize target flag counters and remark items
+      set_fact:
+        remark: []
+        storage_failures: 0
+        temp_failures: 0
+        gpu_detected: "{{ parsed_entries | length > 0 }}"
+
+    - name: Process parsed GPU attributes dynamically
+      set_fact:
+        # Evaluate storage division logic (Storage > 0.9)
+        remark: >-
+          {{
+            remark + [ 'GPU 0 storage > 0.9' ] if (item.1 | float / item.2 | float) > 0.9
+            else remark
+          }}
+        storage_failures: >-
+          {{
+            storage_failures | int + 1 if (item.1 | float / item.2 | float) > 0.9
+            else storage_failures | int
+          }}
+      loop: "{{ parsed_entries }}"
+
+    - name: Process parsed GPU temperature attributes dynamically
+      set_fact:
+        # Evaluate temperature logic (Temp > 50C)
+        remark: >-
+          {{
+            remark + [ 'GPU 0 temp: ' + item.0 + 'C' ] if item.0 | int > 50
+            else remark
+          }}
+        temp_failures: >-
+          {{
+            temp_failures | int + 1 if item.0 | int > 50
+            else temp_failures | int
+          }}
+      loop: "{{ parsed_entries }}"
+
+    - name: Set final automated conditions for answer variable
+      set_fact:
+        answer: >-
+          {% if not gpu_detected | bool %}
+          None
+          {% else %}
+          {% set s_status = 'Storage NOK' if storage_failures | int > 0 else 'Storage OK' %}
+          {% set t_status = 'Temperature NOK' if temp_failures | int > 0 else 'Temperature OK' %}
+          {{ s_status }}, {{ t_status }}
+          {% endif %}
+
+    - name: Output Parsed Script Results
+      debug:
+        msg:
+          - "remark: {{ remark }}"
+          - "answer: {{ answer | trim }}"
+

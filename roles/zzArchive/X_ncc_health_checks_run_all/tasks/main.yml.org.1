@@ -1,0 +1,38 @@
+---
+- name: Run ncc health_checks run_all
+  ansible.builtin.command: "ncc health_checks run_all"
+  register: input_result
+  changed_when: false
+
+#- name: Mimic 'cat' register output using lookup
+#  set_fact:
+#    input_result:
+#      stdout: "{{ lookup('file', 'ncc_health_checks_run_all.txt') }}"
+#      stdout_lines: "{{ lookup('file', 'ncc_health_checks_run_all.txt').splitlines() }}"
+#      rc: 0
+#      failed: false
+#      changed: false
+
+- name: Display input_result 1
+  ansible.builtin.debug:
+    msg: "{{ input_result.stdout_lines }}" 
+
+- name: Display input_result 2
+  ansible.builtin.debug:
+    msg: "{{ input_result.stdout_lines }}" 
+
+- name: Extract Fail matches
+  set_fact:
+    fail_matches: "{{ input_result.stdout | regex_findall('\\|\\s*Fail\\s*\\|\\s*(\\d+)\\s*\\|') }}"
+
+- name: Determine even/odd
+  set_fact:
+    answer: "{{
+        'Success' if (fail_matches | length == 0)
+        else ('Failed' if (fail_matches[0] | int > 0) else 'Success')
+      }}"
+    remark: "{{ fail_matches[0] }}"
+
+- name: Include common role
+  ansible.builtin.include_role:
+     name: common

@@ -1,0 +1,67 @@
+
+---------------------------------
+subr.05.testing10_hostssh_nvidia_vgpu_mgr_hostssh_commands.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 11. Display host and command
+  ansible.builtin.debug:
+    msg:
+      - "Host    : {{ inventory_hostname }}"
+      - "Command : {{ cmd.name }}"
+
+- name: 12. Run command
+  ansible.builtin.command:
+    argv:
+      - /bin/bash
+      - -c
+      - |
+        source /etc/profile
+        {{ cmd.name }}
+  register: input_result
+  changed_when: false
+  failed_when: false
+
+- name: 13. Debug the captured output
+  ansible.builtin.debug:
+    var: input_result.stdout_lines
+
+- name: 14. Display the captured output
+  ansible.builtin.debug:
+    var: input_result.stdout
+
+- name: 15. Display {{ cmd.argv }} command output
+  debug:
+    msg: |
+      ==================================================
+      Host    : {{ inventory_hostname }}
+      Command : {{ cmd.name }}
+      RC      : {{ input_result.rc }}
+
+      STDOUT:
+      {{ input_result.stdout_lines | default('') }}
+
+      STDERR:
+      {{ input_result.stderr | default('') }}
+      ==================================================
+
+- name: 16. Log output on control node
+  ansible.builtin.blockinfile:
+    path: ./tmp/00_run_all_hostssh_commands.log
+    create: true
+    marker: ""
+    block: |
+      ==================================================
+      Host    : {{ inventory_hostname }}
+      Command : {{ cmd.name }}
+      RC      : {{ input_result.rc }}
+
+      STDOUT:
+      {{ input_result.stdout_lines | default('') }}
+
+      STDERR:
+      {{ input_result.stderr | default('') }}
+      ==================================================
+  delegate_to: localhost
+------------------------------------------------------------------

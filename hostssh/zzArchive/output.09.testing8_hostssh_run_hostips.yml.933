@@ -1,0 +1,128 @@
+
+---------------------------------
+09.testing8_hostssh_run_hostips.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Extract and use Nutanix Host IPs
+#  hosts: pecvm
+  hosts: allcvms
+  gather_facts: false
+
+  tasks:
+    - name: Execute hostips command inside Nutanix CVM
+#      ansible.builtin.command: hostips
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: Parse output into an Ansible list variable
+      ansible.builtin.set_fact:
+        physical_hosts: "{{ hostips_output.stdout.split() }}"
+
+    - name: Display discovered physical hypervisor IPs
+      ansible.builtin.debug:
+        msg: "Discovered physical host IP: {{ item }}"
+      loop: "{{ physical_hosts }}"
+
+    # Example Action: Use the parsed list to execute an API check or a cross-ping
+    - name: Verify network connectivity from CVM to each physical host
+      ansible.builtin.command: "ping -c 2 {{ item }}"
+      loop: "{{ physical_hosts }}"
+      changed_when: false
+
+------------------------------------------------------------------
+
+
+aph 09.testing8_hostssh_run_hostips.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Extract and use Nutanix Host IPs] ****************************************
+
+TASK [Execute hostips command inside Nutanix CVM] ******************************
+ok: [engrcvm]
+ok: [pccvm]
+ok: [pecvm]
+ok: [calmcvm]
+ok: [corecvm]
+
+TASK [Parse output into an Ansible list variable] ******************************
+ok: [calmcvm]
+ok: [corecvm]
+ok: [engrcvm]
+ok: [pccvm]
+ok: [pecvm]
+
+TASK [Display discovered physical hypervisor IPs] ******************************
+skipping: [calmcvm]
+ok: [corecvm] => (item=188.185.10.1) => {
+    "msg": "Discovered physical host IP: 188.185.10.1"
+}
+ok: [corecvm] => (item=188.185.10.2) => {
+    "msg": "Discovered physical host IP: 188.185.10.2"
+}
+skipping: [pccvm]
+ok: [corecvm] => (item=188.185.10.3) => {
+    "msg": "Discovered physical host IP: 188.185.10.3"
+}
+ok: [corecvm] => (item=188.185.10.4) => {
+    "msg": "Discovered physical host IP: 188.185.10.4"
+}
+ok: [engrcvm] => (item=188.185.20.1) => {
+    "msg": "Discovered physical host IP: 188.185.20.1"
+}
+ok: [engrcvm] => (item=188.185.20.2) => {
+    "msg": "Discovered physical host IP: 188.185.20.2"
+}
+ok: [corecvm] => (item=188.185.10.6) => {
+    "msg": "Discovered physical host IP: 188.185.10.6"
+}
+ok: [pecvm] => (item=188.185.13.1) => {
+    "msg": "Discovered physical host IP: 188.185.13.1"
+}
+ok: [engrcvm] => (item=188.185.20.3) => {
+    "msg": "Discovered physical host IP: 188.185.20.3"
+}
+ok: [pecvm] => (item=188.185.13.2) => {
+    "msg": "Discovered physical host IP: 188.185.13.2"
+}
+ok: [corecvm] => (item=188.185.10.7) => {
+    "msg": "Discovered physical host IP: 188.185.10.7"
+}
+ok: [pecvm] => (item=188.185.13.3) => {
+    "msg": "Discovered physical host IP: 188.185.13.3"
+}
+
+TASK [Verify network connectivity from CVM to each physical host] **************
+skipping: [calmcvm]
+skipping: [pccvm]
+ok: [engrcvm] => (item=188.185.20.1)
+ok: [pecvm] => (item=188.185.13.1)
+ok: [corecvm] => (item=188.185.10.1)
+ok: [engrcvm] => (item=188.185.20.2)
+ok: [pecvm] => (item=188.185.13.2)
+ok: [corecvm] => (item=188.185.10.2)
+ok: [engrcvm] => (item=188.185.20.3)
+ok: [pecvm] => (item=188.185.13.3)
+ok: [corecvm] => (item=188.185.10.3)
+ok: [corecvm] => (item=188.185.10.4)
+ok: [corecvm] => (item=188.185.10.6)
+ok: [corecvm] => (item=188.185.10.7)
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=2    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+corecvm                    : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+engrcvm                    : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+pccvm                      : ok=2    changed=0    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+pecvm                      : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

@@ -1,0 +1,158 @@
+
+---------------------------------
+21_testing7_ncc_health_checks_run_all_gg_shell.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Fetch and process Nutanix NCC health check log
+  hosts: pccvm
+  gather_facts: false
+  vars:
+    log_path: "/home/nutanix/data/logs/ncc-output.log"
+    csv_report_path: "./tmp/ncc_health_summary.csv"
+
+  tasks:
+    - name: Check if the log file exists
+      ansible.builtin.stat:
+        path: "{{ log_path }}"
+      register: log_stat
+
+    - name: Handle missing log file
+      ansible.builtin.set_fact:
+        answer: "No log found"
+        remark: "Last checked: {{ lookup('pipe', 'date +%Y-%m-%d') }}"
+      when: not log_stat.stat.exists
+
+    - name: Process log when file exists
+      when: log_stat.stat.exists
+      block:
+        - name: Fetch the log file to the Ansible control node
+          ansible.builtin.fetch:
+            src: "{{ log_path }}"
+            dest: "./tmp/fetched_ncc_logs/"
+            flat: true
+
+        - name: Trim all rows up to the last TIMESTAMP block using Bash
+          # tac reverses lines -> grep finds the first match (which is the last one in the real file)
+          # awk cuts everything before that matched marker line
+          ansible.builtin.shell: |
+            tac "{{ log_path }}" | awk '/# TIMESTAMP/{print; exit} {print}' | tac
+          register: trimmed_log_output
+          changed_when: false
+
+        - name: Parse and cast the trimmed log counters strictly
+          vars:
+            log_text: "{{ trimmed_log_output.stdout }}"
+            log_lines: "{{ log_text.splitlines() }}"
+            
+            # Since the text now starts at the last TIMESTAMP block, grab the first line
+            timestamp_raw: "{{ log_lines | select('search', 'TIMESTAMP') | first | default('') }}"
+            timestamp_clean: "{{ timestamp_raw | regex_replace('^#\\s*TIMESTAMP\\s*', '') | regex_replace('\\s*#$', '') }}"
+            
+            # Find the summary metrics inside this isolated block
+            fail_line: "{{ log_text | regex_search('\\|\\s*Fail\\s*\\|\\s*\\d+\\s*\\|') | default('| Fail | 0 |') }}"
+            error_line: "{{ log_text | regex_search('\\|\\s*Error\\s*\\|\\s*\\d+\\s*\\|') | default('| Error | 0 |') }}"
+            
+            # Extract digits exclusively
+            fail_digits: "{{ fail_line | regex_replace('[^0-9]', '') | default('0') }}"
+            error_digits: "{{ error_line | regex_replace('[^0-9]', '') | default('0') }}"
+          ansible.builtin.set_fact:
+            _saved_fail: "{{ fail_digits | int }}"
+            _saved_error: "{{ error_digits | int }}"
+            _saved_ts: "{{ timestamp_clean | trim }}"
+
+        - name: Evaluate final cluster health parameters
+          ansible.builtin.set_fact:
+            answer: "{{ 'Unhealthy' if (_saved_fail | int > 0 or _saved_error | int > 0) else 'Healthy' }}"
+            remark: >-
+              {% if _saved_fail | int > 0 or _saved_error | int > 0 -%}
+              Last updated: {{ _saved_ts }} (Fails: {{ _saved_fail }}, Errors: {{ _saved_error }})
+              {%- else -%}
+              Last updated: {{ _saved_ts }}
+              {%- endif %}
+
+    - name: Ensure CSV report directory exists on control node
+      ansible.builtin.file:
+        path: "{{ csv_report_path | dirname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      run_once: true
+
+    - name: Ensure CSV header line is present on control node
+      ansible.builtin.lineinfile:
+        path: "{{ csv_report_path }}"
+        line: "Host,Status,Remark"
+        create: true
+        mode: '0644'
+      delegate_to: localhost
+      run_once: true
+
+    - name: Append current host status summary to CSV file
+      ansible.builtin.lineinfile:
+        path: "{{ csv_report_path }}"
+        line: '"{{ inventory_hostname }}","{{ answer }}","{{ remark | trim }}"'
+      delegate_to: localhost
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+
+    - name: Debug variables to verify results
+      ansible.builtin.debug:
+        msg:
+          - "Answer: {{ answer }}"
+          - "Remark: {{ remark }}"
+
+------------------------------------------------------------------
+
+
+aph 21_testing7_ncc_health_checks_run_all_gg_shell.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Fetch and process Nutanix NCC health check log] **************************
+
+TASK [Check if the log file exists] ********************************************
+ok: [pccvm]
+
+TASK [Handle missing log file] *************************************************
+skipping: [pccvm]
+
+TASK [Fetch the log file to the Ansible control node] **************************
+changed: [pccvm]
+
+TASK [Trim all rows up to the last TIMESTAMP block using Bash] *****************
+ok: [pccvm]
+
+TASK [Parse and cast the trimmed log counters strictly] ************************
+ok: [pccvm]
+
+TASK [Evaluate final cluster health parameters] ********************************
+ok: [pccvm]
+
+TASK [Ensure CSV report directory exists on control node] **********************
+ok: [pccvm -> localhost]
+
+TASK [Ensure CSV header line is present on control node] ***********************
+ok: [pccvm -> localhost]
+
+TASK [Append current host status summary to CSV file] **************************
+ok: [pccvm -> localhost]
+
+TASK [Append result to CSV (local)] ********************************************
+ok: [pccvm -> localhost]
+
+TASK [Debug variables to verify results] ***************************************
+ok: [pccvm] => {
+    "msg": [
+        "Answer: Unhealthy",
+        "Remark: Last updated: : Tue Jul 14 14:39:53 2026 (UTC +0800) (Fails: 1, Errors: 0)"
+    ]
+}
+
+PLAY RECAP *********************************************************************
+pccvm                      : ok=10   changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

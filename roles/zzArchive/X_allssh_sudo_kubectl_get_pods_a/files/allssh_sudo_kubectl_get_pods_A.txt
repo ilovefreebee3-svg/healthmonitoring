@@ -1,0 +1,8 @@
+================== 188.185.11.1 =================
+NAMESPACE           NAME                    READY   STATUS      RESTARTS         AGE
+marik              web-app-69d5f8b9-x7m2k   1/1     Running      0          4m21s
+================== 188.185.11.3 =================
+Unable to connect to the server: EOF
+================== 188.185.11.2 =================
+NAMESPACE           NAME                    READY   STATUS      RESTARTS         AGE
+gk              web-app-69d5f8b9-x7m2k   1/1     Pending      0          4m21s

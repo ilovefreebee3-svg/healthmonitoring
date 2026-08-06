@@ -1,0 +1,9 @@
+host_roles:
+  - r_ncc_health_checks_run_all_gg
+  - r_hostssh_sudo_ovn_appctl_connection_status
+  - r_hostssh_systemctl_status_nvidia_vgpu_mgr
+  - r_hostssh_nvidia_smi
+
+vpc: "IKC2 GPU Tenant 2 PE"
+
+

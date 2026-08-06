@@ -1,0 +1,220 @@
+
+---------------------------------
+05.testing10_hostssh_nvidia_vgpu_mgr_hostssh_commands.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 1. Run diagnostic commands on all CVMs
+  hosts: corecvm
+#  hosts: allcvms
+  gather_facts: false
+  serial: 1
+
+  tasks:
+
+    - name: 1. Declare variables
+      set_fact:
+        answer: "Healthy"
+        remark: "No failures or errors detected."
+        cmd_list:
+#          - name: hostssh ovn-appctl connection-status
+#            argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#          - name: hostssh nvidia-smi
+#            argv: ["hostssh", "nvidia-smi"]
+
+          - name: hostssh systemctl status nvidia-vgpu-mgr
+            argv: ["hostssh", "systemctl", "status","nvidia-vgpu-mgr"]
+
+#          - name: hostssh systemctl list-units --type=service --no-pager
+#            argv: ["hostssh", "systemctl", "list-units", "--type=service", "--no-pager"]
+
+#          - name: hostssh systemctl status dbus
+#            argv: ["hostssh", "systemctl", "status","dbus"]
+
+    - name: 2. Execute commands
+      include_tasks: subr.05.testing10_hostssh_nvidia_vgpu_mgr_hostssh_commands.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+
+#    - name: 3. Mimic 'cat' register output using lookup
+#      set_fact:
+#        input_result:
+#          stdout: "{{ lookup('file', 'data.hostssh_systemctl_status_nvidia_vgpu_mgr.txt') }}"
+#          stdout_lines: "{{ lookup('file', 'data.hostssh_systemctl_status_nvidia_vgpu_mgr.txt').splitlines() }}"
+#          rc: 0
+#          failed: false
+#          changed: false
+
+    - name: 4. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 5. Display input_result.stdout
+      ansible.builtin.debug:
+        var: input_result.stdout
+
+    - name: 6. Display input_result.stderr
+      ansible.builtin.debug:
+        var: input_result.stderr
+
+    - name: 7. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+
+    - set_fact:
+        svc_list: >-
+          {{
+            input_result.stdout | regex_findall(
+            '={1,20}\s*([0-9.]+)\s*={1,20}.*?\n.*?(nvidia-vgpu-mgr\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            multiline=True
+            )
+          }}
+    
+    - name: 9. Determine svc_list
+      debug:
+        var: svc_list
+
+    - set_fact:
+        answer: "None"
+      when: svc_list | length == 0
+    
+    - set_fact:
+        inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
+      when: svc_list | length > 0
+    
+    - set_fact:
+        answer: >-
+          {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
+        remark: >-
+          {{ inactive_list if inactive_list | length > 0 else '' }}
+      when: svc_list | length > 0
+
+    - name: 10. Display answer and remark
+      debug:
+        msg: "{{ answer }} {{ remark }} "
+
+    - name: 11. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+
+------------------------------------------------------------------
+
+
+aph 05.testing10_hostssh_nvidia_vgpu_mgr_hostssh_commands.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.05.testing10_hostssh_nvidia_vgpu_mgr_hostssh_commands.yml for corecvm => (item={'name': 'hostssh systemctl status nvidia-vgpu-mgr', 'argv': ['hostssh', 'systemctl', 'status', 'nvidia-vgpu-mgr']})
+
+TASK [11. Display host and command] ********************************************
+ok: [corecvm] => {
+    "msg": [
+        "Host    : corecvm",
+        "Command : hostssh systemctl status nvidia-vgpu-mgr"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [corecvm]
+
+TASK [13. Debug the captured output] *******************************************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.10.3 ============",
+        "============= 188.185.10.4 ============",
+        "============= 188.185.10.2 ============",
+        "============= 188.185.10.1 ============",
+        "============= 188.185.10.7 ============",
+        "============= 188.185.10.6 ============"
+    ]
+}
+
+TASK [14. Display the captured output] *****************************************
+ok: [corecvm] => {
+    "input_result.stdout": "============= 188.185.10.3 ============\n============= 188.185.10.4 ============\n============= 188.185.10.2 ============\n============= 188.185.10.1 ============\n============= 188.185.10.7 ============\n============= 188.185.10.6 ============"
+}
+
+TASK [15. Display ['hostssh', 'systemctl', 'status', 'nvidia-vgpu-mgr'] command output] ***
+ok: [corecvm] => {
+    "msg": "==================================================\nHost    : corecvm\nCommand : hostssh systemctl status nvidia-vgpu-mgr\nRC      : 0\n\nSTDOUT:\n['============= 188.185.10.3 ============', '============= 188.185.10.4 ============', '============= 188.185.10.2 ============', '============= 188.185.10.1 ============', '============= 188.185.10.7 ============', '============= 188.185.10.6 ============']\n\nSTDERR:\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.3\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.4\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.2\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.1\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.7\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.6\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\n==================================================\n"
+}
+
+TASK [16. Log output on control node] ******************************************
+changed: [corecvm -> localhost]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "============= 188.185.10.3 ============",
+        "============= 188.185.10.4 ============",
+        "============= 188.185.10.2 ============",
+        "============= 188.185.10.1 ============",
+        "============= 188.185.10.7 ============",
+        "============= 188.185.10.6 ============"
+    ]
+}
+
+TASK [5. Display input_result.stdout] ******************************************
+ok: [corecvm] => {
+    "input_result.stdout": "============= 188.185.10.3 ============\n============= 188.185.10.4 ============\n============= 188.185.10.2 ============\n============= 188.185.10.1 ============\n============= 188.185.10.7 ============\n============= 188.185.10.6 ============"
+}
+
+TASK [6. Display input_result.stderr] ******************************************
+ok: [corecvm] => {
+    "input_result.stderr": "ERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.3\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.4\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.2\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.1\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.7\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''\nERROR:root:Got Non Zero Return code 4 while executing cmd 'systemctl status nvidia-vgpu-mgr' on host 188.185.10.6\nERROR:root:stderr: b'Unit nvidia-vgpu-mgr.service could not be found.\\n'\nERROR:root:stdout: b''"
+}
+
+TASK [7. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "msg": [
+        "============= 188.185.10.3 ============",
+        "============= 188.185.10.4 ============",
+        "============= 188.185.10.2 ============",
+        "============= 188.185.10.1 ============",
+        "============= 188.185.10.7 ============",
+        "============= 188.185.10.6 ============"
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [9. Determine svc_list] ***************************************************
+ok: [corecvm] => {
+    "svc_list": []
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [10. Display answer and remark] *******************************************
+ok: [corecvm] => {
+    "msg": "None No failures or errors detected. "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [corecvm -> localhost]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=17   changed=2    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+

@@ -1,0 +1,94 @@
+---
+#  vars:
+#input_text: | 
+#  ================== 188.185.12.1 =================
+#  Filesystem      Size  Used Avail Use% Mounted on
+#  devtmpfs         27G     0   27G   0% /dev
+#  tmpfs           512M  120K  512M   1% /dev/shm
+#  tmpfs            27G  5.9M   27G   1% /run
+#  tmpfs            27G     0   27G   0% /sys/fs/cgroup
+#  /dev/sdb2       9.8G  7.1G  2.6G  74% /
+#  /dev/loop1      488M  740K  452M   1% /tmp
+#  /dev/loop0      1.5G  400M 1012M  29% /var
+#  /dev/sdb3        49G   23G   26G  48% /home
+#  /dev/sdi1       9.4G  394M  8.5G   5% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition
+#  /dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade
+#  /dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition
+#  /dev/sdi2        94G  6.1G   83G   7% /home/nutanix/data/msp-backbone-storage/msp_registry_partition
+#  /dev/sdh1        98G   20G   74G  21% /home/nutanix/data/sys-storage/MSP_partition
+#  /dev/loop2       44M   28M   13M  69% /home/log/audit
+#  /dev/sdg1       9.8G  7.9M  9.3G  77% /home/docker/epsilon/elasticsearch
+#  /dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition
+#  /dev/sdj1       2.5T  440M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7183_da318082_2daa_4bc6_a688_716042f82115
+#  /dev/sdl1       2.5T  486M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7187_59771b07_7bc1_4a1b_9658_0d55aa6d5382
+#  /dev/sdk1       2.5T  352M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_7185_44049f07_0f0f_4baa_a6e1_9adc5d1c833a
+#  /dev/sdc1       2.5T  398M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_5561_71f0fff6_c9e3_4600_b700_77134375a8bf
+#  tmpfs           5.3G     0  5.3G   0% /run/user/1000
+#  ================== 188.185.12.3 =================
+#  Filesystem      Size  Used Avail Use% Mounted on
+#  devtmpfs         27G     0   27G   0% /dev
+#  tmpfs           512M  120K  512M   1% /dev/shm
+#  tmpfs            27G  7.0M   27G   1% /run
+#  tmpfs            27G     0   27G   0% /sys/fs/cgroup
+#  /dev/sdb2       9.8G  6.9G  2.8G  79% /
+#  /dev/loop0      488M  708K  452M   1% /tmp
+#  /dev/loop1      1.5G  407M 1006M  29% /var
+#  /dev/sdb3        49G   21G   28G  44% /home
+#  /dev/sdh1        98G   21G   73G  22% /home/nutanix/data/sys-storage/MSP_partition
+#  /dev/sdd         30G   40K   30G   1% /home/nutanix/upgrade
+#  /dev/sdi3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition
+#  /dev/sdi4        22G   24K   21G   1% /home/nutanix/data/msp-backbone-storage/messagebus_partition
+#  /dev/sdi1       9.4G  394M  8.5G   5% /home/nutanix/data/msp-backbone-storage/msp_etcd_partition
+#  /dev/sdi2        94G  6.1G   83G   7% /home/nutanix/data/msp-backbone-storage/msp_registry_partition
+#  /dev/sdg1       9.8G  3.1G  6.2G  34% /home/docker/epsilon/elasticsearch
+#  /dev/loop2       44M   30M   11M  74% /home/log/audit
+#  
+- name: Capture file content into a variable
+  set_fact:
+    input_text: "{{ lookup('file', 'allssh_df_kh.txt') }}"
+
+- name: Initialize variables
+  set_fact:
+    ip_address: ""
+    num_over75: 0
+    remark: ""
+
+- name: Process lines
+  set_fact:
+    ip_address: "{{ item.split()[1] if '======' in item else ip_address }}"
+
+    num_over75: >-
+      {{ num_over75 | int + 1
+         if (
+           ('sdb2' in item or 'elastic' in item)
+           and (item.split()[4] | regex_replace('%','') | int > 75)
+         )
+         else num_over75 }}
+
+    remark: >-
+      {{ remark +
+         (
+           ip_address ~ ' ' ~ item.split()[0] ~ ' ' ~ item.split()[4] ~ '  '
+           if (
+             ('sdb2' in item or 'elastic' in item)
+             and (item.split()[4] | regex_replace('%','') | int > 75)
+           )
+           else ''
+         )
+      }}
+  loop: "{{ input_text.splitlines() }}"
+
+- name: Set final answer
+  set_fact:
+    answer: "{{ 'All under 75%' if num_over75 == 0 else 'Over 75%' }}"
+
+- name: Show result
+  debug:
+    msg:
+      - "answer: {{ answer }}"
+      - "num_over75: {{ num_over75 }}"
+      - "remark: {{ remark }}"
+
+- name: Include common role
+  ansible.builtin.include_role:
+     name: common

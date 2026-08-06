@@ -1,0 +1,81 @@
+---
+- name: how to run mspctl cluster health
+  hosts: pccvm
+  gather_facts: false
+
+  tasks:
+    - name: 1. Set cluster
+      set_fact:
+        cluster: "msp"
+        num_unhealthy: 0
+        remark: ""
+
+    - name: 2. Run mspctl cluster health {{ cluster }} with command module
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            mspctl cluster health {{ cluster }}
+      register: input_result
+      changed_when: false
+      failed_when: false
+
+    - name: 3. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 4. Display input_result.stdout
+      ansible.builtin.debug:
+        var: input_result.stdout
+
+    - name: 5. Display input_result.stderr
+      ansible.builtin.debug:
+        var: input_result.stderr
+
+    - name: 6. Mimic 'cat' register output 
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.33_testing11_mspctl_cluster_health_command_msp.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.33_testing11_mspctl_cluster_health_command_msp.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+
+    - name: 7. Display the return code
+      ansible.builtin.debug:
+        var: input_result.rc
+
+    - name: 8. Process each line
+      set_fact:
+        num_unhealthy: "{{ num_unhealthy | int + (1 if healthy | lower != 'true' else 0) }}"
+        remark: >-
+          {{ remark +
+             (component ~ ':' ~ healthy ~ ' ' if healthy | lower != 'true' else '') }}
+      loop: "{{ input_result.stdout_lines }}"
+      vars:
+        line: "{{ item | trim }}"
+        is_valid: "{{ line != '' and not line.startswith('COMPONENT') }}"
+        parsed: "{{ line | regex_findall('^(\\S+)\\s+(\\S+)\\s+(.*)$') }}"
+        component: "{{ parsed[0][0] if parsed else '' }}"
+        healthy: "{{ parsed[0][1] if parsed else '' }}"
+      when: is_valid and parsed | length > 0
+
+    - name: 9. Final answer
+      set_fact:
+        answer: "{{ 'Unhealthy' if (num_unhealthy | int) > 0 else 'Healthy' }}"
+    
+    - name: 10. Show results
+      debug:
+        msg:
+          num_unhealthy: "{{ num_unhealthy }}"
+          remark: "{{ remark }}"
+          answer: "{{ answer }}"
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common

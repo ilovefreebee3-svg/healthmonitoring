@@ -1,0 +1,94 @@
+---
+- name: Capture file content into a variable
+  set_fact:
+    input_txt: "{{ lookup('file', 'allssh_sudo_kubectl_get_pods_A.txt') }}"
+- name: Initialize variables
+  set_fact:
+    ip_address: ""
+    num_failed_pod: "{{ 0 | int }}"
+    remark: ""
+
+- name: Process input line-by-line
+  set_fact:
+    ip_address: >-
+      {{
+        (
+          item
+          | regex_replace('^=+', '')
+          | regex_replace('=+$', '')
+          | trim
+        )
+        if item is match('^=+')
+        else ip_address
+      }}
+
+
+    num_failed_pod: >-
+      {{
+        (num_failed_pod | int) + 1
+        if (
+          item is not match('^=+')
+          and 'NAMESPACE' not in item
+          and 'RESTARTS' not in item
+          and 'AGE' not in item
+          and 'Unable to connect' not in item
+          and (
+            item.split() | length > 4
+          )
+          and (
+            item.split()[4] != 'Running'
+          )
+        )
+        else (num_failed_pod | int)
+      }}
+
+
+    remark: >-
+      {%- if item is match('^=+') -%}
+      {{ remark }}
+
+      {%- elif 'Unable to connect' in item -%}
+      {{ remark | trim }}
+      {{ '\n' if (remark | trim) != '' else '' }}
+      {{ ip_address | trim }} - Unable to connect
+
+
+      {%- elif (
+            'NAMESPACE' not in item
+            and 'RESTARTS' not in item
+            and 'AGE' not in item
+            and item.split() | length > 4
+            and item.split()[4] != 'Running'
+          ) -%}
+      {{ remark | trim }}
+      {{ '\n' if (remark | trim) != '' else '' }}
+      {{ ip_address | trim }} - NAME={{ item.split()[1] }} STATUS={{ item.split()[4] }}
+  
+
+      {%- else -%}
+      {{ remark }}
+      {%- endif -%}
+
+  loop: "{{ input_txt.split('\n') }}"
+
+- name: Final result
+  set_fact:
+    answer: >-
+      {{
+        'Problem pods found'
+        if (num_failed_pod | int) > 0
+        else 'All good'
+      }}
+
+- name: Display result
+  debug:
+    msg:
+      - "answer={{ answer }}"
+      - "num_failed_pod={{ num_failed_pod }}"
+      - |
+        remark:
+        {{ remark }}
+
+- name: Include common role
+  ansible.builtin.include_role:
+     name: common

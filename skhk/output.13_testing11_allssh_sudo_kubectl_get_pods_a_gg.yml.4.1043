@@ -1,0 +1,319 @@
+
+---------------------------------
+13_testing11_allssh_sudo_kubectl_get_pods_a_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Running kubectl get pods -A
+#  hosts: pccvm
+  hosts: calmcvm
+  gather_facts: false
+
+  vars:
+    read_from_file: false 
+
+  tasks:
+    - name: 0. Set variables default
+      set_fact:
+        remark_list: []
+        answer: "No pod issue"
+
+    # ------------------------------------------------------------
+    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
+    # ------------------------------------------------------------
+    - name: 0. Verify connectivity to the Control CVM
+      ansible.builtin.wait_for_connection:
+        timeout: 5
+      register: control_cvm_status
+
+    # ------------------------------------------------------------
+    # SCENARIO 2: Run 'kubectl get pods -A' and process the output
+    # ------------------------------------------------------------
+    - name: 1. Run sudo kubectl get pods -A 
+      ansible.builtin.include_tasks: subr.run_allssh.yml
+      vars:
+        target_cmd: "sudo kubectl get pods -A"
+      when: not ( read_from_file | bool )
+
+#    - name: 2. Execute a remote script
+#      ansible.builtin.command: name_of_remote_script
+#      register: input_filter
+#      changed_when: false
+#      ignore_errors: true
+
+    - name: 3. Read from hardcoded file
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.13_testing11_allssh_sudo_kubectl_get_pods_a_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.13_testing11_allssh_sudo_kubectl_get_pods_a_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 4. Display input_filter 1
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+
+    - name: Process output and calculate pod states
+      ansible.builtin.set_fact:
+        clean_lines: >-
+          {{ input_filter.stdout_lines 
+             | reject('search', 'Unable to connect to the server') 
+             | select('string') 
+             | list }}
+
+
+    - name: 5. Parse IP blocks and evaluate pods
+      ansible.builtin.set_fact:
+        parsed_data: >-
+          {% set ns = namespace(current_ip='', ip_pods=0, results=[]) %}
+          {% for line in clean_lines if line | trim != '' %}
+            {% if '==========' in line %}
+              {% if ns.current_ip != '' and ns.ip_pods > 0 %}
+                {% set _ = ns.results.append({'ip': ns.current_ip, 'count': ns.ip_pods}) %}
+              {% endif %}
+              {% set ns.current_ip = line | regex_search('([0-9]{1,3}\.){3}[0-9]{1,3}') %}
+              {% set ns.ip_pods = 0 %}
+            {% else %}
+              {% if 'Completed' not in line and 'Running' not in line and 'NAMESPACE' not in line %}
+                {% set ns.ip_pods = ns.ip_pods + 1 %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.current_ip != '' and ns.ip_pods > 0 %}
+            {% set _ = ns.results.append({'ip': ns.current_ip, 'count': ns.ip_pods}) %}
+          {% endif %}
+          {{ ns.results | to_json }}
+
+    - name: 6. Display parsed_data
+      ansible.builtin.debug:
+        msg:
+          - "Answer:\n{{ parsed_data }}"
+
+    - name: 7. Convert parsed data to native structure
+      ansible.builtin.set_fact:
+        structured_data: "{{ parsed_data | from_yaml }}"
+
+    - name: 8. Assign final variables based on pod counts
+      ansible.builtin.set_fact:
+        remark: >-
+          {% set remark_list = [] %}
+          {% for item in structured_data %}
+            {% set _ = remark_list.append(item.ip ~ ': ' ~ item.count) %}
+          {% endfor %}
+          {{ remark_list }}
+        total_issues: "{{ structured_data | map(attribute='count') | map('int') | sum }}"
+
+    - name: 9. Set final answer status
+      ansible.builtin.set_fact:
+        answer: "{{ 'Pod issues' if (total_issues | int > 0) else 'No pod issue' }}"
+
+    - name: 10. Display Results
+      ansible.builtin.debug:
+        msg:
+          - "Answer: {{ answer }}"
+          - "Remark: {{ remark | default('No issues found') }}"
+
+    - name: 11. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+------------------------------------------------------------------
+
+
+aphe 13_testing11_allssh_sudo_kubectl_get_pods_a_gg.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Running kubectl get pods -A] *********************************************
+
+TASK [0. Set variables default] ************************************************
+ok: [calmcvm]
+
+TASK [0. Verify connectivity to the Control CVM] *******************************
+ok: [calmcvm]
+
+TASK [1. Run sudo kubectl get pods -A] *****************************************
+skipping: [calmcvm]
+
+TASK [3. Read from hardcoded file] *********************************************
+ok: [calmcvm]
+
+TASK [4. Display input_filter 1] ***********************************************
+ok: [calmcvm] => {
+    "msg": [
+        "================== 222.111.14.1 =================",
+        "NAMESPACE     NAME                                                    READY   STATUS      RESTARTS       AGE",
+        "default       anc-hermes-588664fcd6-fvs4v                             1/1     Running     0              29d",
+        "default       anc-mysql-0                                             2/2     Walking     0              29d",
+        "default       anc-ovn-0                                               2/2     Running     0              29d",
+        "default       anc-policydb-0                                          1/1     Running     0              29d",
+        "kube-system   cloud-controller-manager-77nj8                          1/1     Running     0              29d",
+        "kube-system   coredns-5c647754cf-2x7x5                                1/1     Running     0              29d",
+        "kube-system   coredns-5c647754cf-8qkm4                                1/1     Running     0              29d",
+        "kube-system   kube-apiserver-ntnx-123-111-14-1-a-pcvm                 3/3     Running     7 (29d ago)    29d",
+        "kube-system   kube-apiserver-ntnx-123-234-14-3-a-pcvm                 3/3     Running     11 (29d ago)   29d",
+        "kube-system   kube-flannel-ds-2jg2q                                   1/1     Running     0              29d",
+        "kube-system   kube-flannel-ds-2kh7m                                   1/1     Running     0              29d",
+        "kube-system   kube-flannel-ds-bjv92                                   1/1     Running     0              29d",
+        "kube-system   kube-proxy-ds-bkhld                                     1/1     Running     0              29d",
+        "kube-system   kube-proxy-ds-wz58n                                     1/1     Running     0              29d",
+        "kube-system   kube-proxy-ds-xhhvz                                     1/1     Running     0              29d",
+        "kube-system   lb-controller-74b79c6f96-xws72                          1/1     Running     0              29d",
+        "kube-system   mspdns-2xc4r                                            1/1     Running     0              29d",
+        "kube-system   mspdns-vv6bg                                            1/1     Running     0              29d",
+        "kube-system   mspserviceregistry-7866b46f5d-n52d6                     1/1     Running     0              29d",
+        "kube-system   mspserviceregistry-7866b46f5d-ztg2w                     1/1     Running     0              29d",
+        "ntnx-base     alerts-broker-596cc748fc-6pn64                          1/1     Running     0              29d",
+        "ntnx-base     alerts-broker-596cc748fc-qsl6l                          1/1     Running     0              29d",
+        "ntnx-base     iam-bootstrap-6xz6z                                     0/1     Completed   0              29d",
+        "ntnx-base     iam-postgres-0                                          2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-789ff677b4-29rx5                              2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-789ff677b4-rwrpg                              2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-789ff677b4-vv9r2                              2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-control-plane-58c6f5665d-px7lm                1/1     Running     0              29d",
+        "ntnx-base     iam-themis-59575cf5d8-c7tzb                             1/1     Running     0              29d",
+        "ntnx-base     iam-themis-59575cf5d8-mklrq                             1/1     Running     0              29d",
+        "ntnx-base     iam-themis-59575cf5d8-s5gvw                             1/1     Running     0              29d",
+        "ntnx-base     iam-ui-849dd5f98f-8v5fr                                 1/1     Running     0              29d",
+        "ntnx-base     iam-ui-849dd5f98f-xhln5                                 1/1     Running     0              29d",
+        "ntnx-base     iam-user-authn-6dbc8cf799-lfhhq                         1/1     Running     0              29d",
+        "ntnx-base     iam-user-authn-6dbc8cf799-st4rx                         1/1     Running     0              29d",
+        "ntnx-base     iam-user-authn-6dbc8cf799-zvth9                         1/1     Running     0              29d",
+        "ntnx-base     redis-standalone-c955fc489-lk7bv                        3/3     Running     0              29d",
+        "ntnx-base     svcmgr-75fd68fcf5-nkmft                                 1/1     Running     0              29d",
+        "ntnx-system   alertmanager-main-0                                     2/2     Running     0              29d",
+        "ntnx-system   alertmanager-main-1                                     2/2     Running     0              29d",
+        "ntnx-system   alertmanager-main-2                                     2/2     Running     0              29d",
+        "ntnx-system   fluent-bit-9f2hg                                        1/1     Running     0              29d",
+        "ntnx-system   fluent-bit-btxfs                                        1/1     Running     0              29d",
+        "ntnx-system   fluent-bit-rnjjl                                        1/1     Running     0              29d",
+        "ntnx-system   kube-state-metrics-7f75b9d79-rpdkg                      3/3     Running     0              29d",
+        "ntnx-system   mutator-webhook-dep-7fb67d94d6-8grls                    1/1     Running     0              29d",
+        "ntnx-system   mutator-webhook-dep-7fb67d94d6-d5tgm                    1/1     Running     0              29d",
+        "ntnx-system   node-exporter-gvmw7                                     2/2     Running     0              29d",
+        "ntnx-system   node-exporter-kp8ct                                     2/2     Running     0              29d",
+        "ntnx-system   node-exporter-x7z2w                                     2/2     Running     0              29d",
+        "ntnx-system   ntnx-cluster-maintainer-746c58bd84-mbhx5                1/1     Running     0              29d",
+        "ntnx-system   ntnx-k8s-cluster-maintainer-operator-55f8b5fc4d-gjfj2   1/1     Running     1 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-controller-85b47b8d46-frnlr                 6/6     Running     3 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-controller-85b47b8d46-qc29l                 6/6     Running     3 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-node-6pj8b                                  3/3     Running     0              29d",
+        "ntnx-system   nutanix-csi-node-fnzfr                                  3/3     Running     1 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-node-zk8nt                                  3/3     Running     0              29d",
+        "ntnx-system   prometheus-k8s-0                                        2/2     Running     0              29d",
+        "ntnx-system   prometheus-k8s-1                                        2/2     Running     0              29d",
+        "ntnx-system   prometheus-operator-774fb648bd-8d27f                    2/2     Running     0              29d",
+        "================== 222.111.14.2 =================",
+        "",
+        "Unable to connect to the server: EOF",
+        "================== 222.111.14.3 =================",
+        "NAMESPACE     NAME                                                    READY   STATUS      RESTARTS       AGE",
+        "default       anc-hermes-588664fcd6-fvs4v                             1/1     Running     0              29d",
+        "default       anc-mysql-0                                             2/2     Running     0              29d",
+        "default       anc-mysql-0                                             2/2     Walking     0              29d",
+        "default       anc-ovn-0                                               2/2     Running     0              29d",
+        "default       anc-policydb-0                                          1/1     Running     0              29d",
+        "kube-system   cloud-controller-manager-77nj8                          1/1     Running     0              29d",
+        "kube-system   cloud-controller-manager-rvwd5                          1/1     Running     0              29d",
+        "kube-system   coredns-5c647754cf-2x7x5                                1/1     Running     0              29d",
+        "kube-system   coredns-5c647754cf-8qkm4                                1/1     Running     0              29d",
+        "kube-system   kube-apiserver-ntnx-123-234-14-1-a-pcvm                 3/3     Restarting     7 (29d ago)    29d",
+        "kube-system   kube-apiserver-ntnx-123-234-14-3-a-pcvm                 3/3     Running     11 (29d ago)   29d",
+        "kube-system   kube-flannel-ds-2jg2q                                   1/1     Running     0              29d",
+        "kube-system   kube-flannel-ds-2kh7m                                   1/1     Running     0              29d",
+        "kube-system   kube-flannel-ds-bjv92                                   1/1     Running     0              29d",
+        "kube-system   kube-proxy-ds-bkhld                                     1/1     Running     0              29d",
+        "kube-system   kube-proxy-ds-wz58n                                     1/1     Running     0              29d",
+        "kube-system   kube-proxy-ds-xhhvz                                     1/1     Running     0              29d",
+        "kube-system   lb-controller-74b79c6f96-xws72                          1/1     Running     0              29d",
+        "kube-system   mspdns-2xc4r                                            1/1     Running     0              29d",
+        "kube-system   mspdns-vv6bg                                            1/1     Running     0              29d",
+        "kube-system   mspserviceregistry-7866b46f5d-n52d6                     1/1     Running     0              29d",
+        "kube-system   mspserviceregistry-7866b46f5d-ztg2w                     1/1     Running     0              29d",
+        "ntnx-base     alerts-broker-596cc748fc-6pn64                          1/1     Running     0              29d",
+        "ntnx-base     alerts-broker-596cc748fc-qsl6l                          1/1     Running     0              29d",
+        "ntnx-base     iam-bootstrap-6xz6z                                     0/1     Completed   0              29d",
+        "ntnx-base     iam-postgres-0                                          2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-789ff677b4-29rx5                              2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-789ff677b4-rwrpg                              2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-789ff677b4-vv9r2                              2/2     Running     0              29d",
+        "ntnx-base     iam-proxy-control-plane-58c6f5665d-px7lm                1/1     Running     0              29d",
+        "ntnx-base     iam-themis-59575cf5d8-c7tzb                             1/1     Running     0              29d",
+        "ntnx-base     iam-themis-59575cf5d8-mklrq                             1/1     Running     0              29d",
+        "ntnx-base     iam-themis-59575cf5d8-s5gvw                             1/1     Running     0              29d",
+        "ntnx-base     iam-ui-849dd5f98f-8v5fr                                 1/1     Running     0              29d",
+        "ntnx-base     iam-ui-849dd5f98f-xhln5                                 1/1     Running     0              29d",
+        "ntnx-base     iam-user-authn-6dbc8cf799-lfhhq                         1/1     Running     0              29d",
+        "ntnx-base     iam-user-authn-6dbc8cf799-st4rx                         1/1     Running     0              29d",
+        "ntnx-base     iam-user-authn-6dbc8cf799-zvth9                         1/1     Running     0              29d",
+        "ntnx-base     redis-standalone-c955fc489-lk7bv                        3/3     Running     0              29d",
+        "ntnx-base     svcmgr-75fd68fcf5-nkmft                                 1/1     Running     0              29d",
+        "ntnx-system   alertmanager-main-0                                     2/2     Running     0              29d",
+        "ntnx-system   alertmanager-main-1                                     2/2     Running     0              29d",
+        "ntnx-system   alertmanager-main-2                                     2/2     Running     0              29d",
+        "ntnx-system   fluent-bit-9f2hg                                        1/1     Running     0              29d",
+        "ntnx-system   fluent-bit-btxfs                                        1/1     Running     0              29d",
+        "ntnx-system   fluent-bit-btxfs                                        1/1     Running     0              29d",
+        "ntnx-system   fluent-bit-rnjjl                                        1/1     Running     0              29d",
+        "ntnx-system   kube-state-metrics-7f75b9d79-rpdkg                      3/3     Running     0              29d",
+        "ntnx-system   mutator-webhook-dep-7fb67d94d6-8grls                    1/1     Running     0              29d",
+        "ntnx-system   mutator-webhook-dep-7fb67d94d6-d5tgm                    1/1     Running     0              29d",
+        "ntnx-system   node-exporter-gvmw7                                     2/2     Running     0              29d",
+        "ntnx-system   node-exporter-kp8ct                                     2/2     Running     0              29d",
+        "ntnx-system   node-exporter-x7z2w                                     2/2     Running     0              29d",
+        "ntnx-system   ntnx-cluster-maintainer-746c58bd84-mbhx5                1/1     Running     0              29d",
+        "ntnx-system   ntnx-k8s-cluster-maintainer-operator-55f8b5fc4d-gjfj2   1/1     Running     1 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-controller-85b47b8d46-frnlr                 6/6     Running     3 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-controller-85b47b8d46-qc29l                 6/6     Running     3 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-node-6pj8b                                  3/3     Running     0              29d",
+        "ntnx-system   nutanix-csi-node-fnzfr                                  3/3     Running     1 (29d ago)    29d",
+        "ntnx-system   nutanix-csi-node-zk8nt                                  3/3     Running     0              29d",
+        "ntnx-system   prometheus-k8s-0                                        2/2     Running     0              29d",
+        "ntnx-system   prometheus-k8s-1                                        2/2     Running     0              29d",
+        "ntnx-system   prometheus-operator-774fb648bd-8d27f                    2/2     Running     0              29d"
+    ]
+}
+
+TASK [Process output and calculate pod states] *********************************
+ok: [calmcvm]
+
+TASK [5. Parse IP blocks and evaluate pods] ************************************
+ok: [calmcvm]
+
+TASK [6. Display parsed_data] **************************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Answer:\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     [{\"ip\": \"222.111.14.1\", \"count\": 1}, {\"ip\": \"222.111.14.3\", \"count\": 2}]"
+    ]
+}
+
+TASK [7. Convert parsed data to native structure] ******************************
+ok: [calmcvm]
+
+TASK [8. Assign final variables based on pod counts] ***************************
+ok: [calmcvm]
+
+TASK [9. Set final answer status] **********************************************
+ok: [calmcvm]
+
+TASK [10. Display Results] *****************************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Answer: Pod issues",
+        "Remark:       ['222.111.14.1: 1', '222.111.14.3: 2']"
+    ]
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [calmcvm -> localhost]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=12   changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

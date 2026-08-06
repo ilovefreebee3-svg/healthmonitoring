@@ -1,0 +1,1284 @@
+
+---------------------------------
+44.testing10_hostssh_systemctl_status_dbus_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check dbus across AHV Hosts
+#  hosts: corecvm
+  hosts: allcvms
+  gather_facts: false
+  vars:
+    remote_user_name: nutanix
+
+  tasks:
+    - name: 0. Declare variables
+      set_fact:
+        answer: "Healthy"
+        remark: "No failures or errors detected."
+
+    - name: 1. Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: 2. Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: 4. Initialize the empty input_result structures
+      ansible.builtin.set_fact:
+        input_result_stdout_list: []
+        input_result_lines_list: []
+
+    - name: 5. Calling the subroutine
+      ansible.builtin.include_tasks: subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when: ahv_hosts | length > 0
+
+    - name: 6. Construct final input_result dictionary
+      ansible.builtin.set_fact:
+        input_result:
+          stdout: "{{ input_result_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_result_lines_list }}"
+
+    - name: 7. Debug and display aggregate input_result outputs
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+#    - name: 8. Mimic 'cat' register output using lookup
+#      set_fact:
+#        input_result:
+#          stdout: "{{ lookup('file', 'data.hostssh_systemctl_status_dbus.txt') }}"
+#          stdout_lines: "{{ lookup('file', 'data.hostssh_systemctl_status_dbus.txt').splitlines() }}"
+#          rc: 0
+#          failed: false
+#          changed: false
+
+    - name: 9. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+
+    - set_fact:
+        svc_list: >-
+          {{
+            input_result.stdout | regex_findall(
+            '={1,20}\s*([0-9.]+)\s*={1,20}.*?\n.*?(dbus\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            multiline=True
+            )
+          }}
+    
+    - name: 10. Determine svc_list
+      debug:
+        var: svc_list
+
+    - set_fact:
+        answer: "None"
+      when: svc_list | length == 0
+    
+    - set_fact:
+        inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
+      when: svc_list | length > 0
+    
+    - set_fact:
+        answer: >-
+          {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
+        remark: >-
+          {{ inactive_list if inactive_list | length > 0 else '' }}
+      when: svc_list | length > 0
+
+    - name: 11. Display answer and remark
+      debug:
+        msg: "{{ answer }} {{ remark }} "
+
+    - name: 12. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+------------------------------------------------------------------
+
+
+aph 44.testing10_hostssh_systemctl_status_dbus_logic.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Pseudo hostssh - Check dbus across AHV Hosts] ****************************
+
+TASK [0. Declare variables] ****************************************************
+ok: [calmcvm]
+ok: [corecvm]
+ok: [engrcvm]
+ok: [pccvm]
+ok: [pecvm]
+
+TASK [1. Get AHV host IP addresses] ********************************************
+ok: [engrcvm]
+ok: [pccvm]
+ok: [calmcvm]
+ok: [pecvm]
+ok: [corecvm]
+
+TASK [2. Parse IP addresses into a clean list] *********************************
+ok: [calmcvm]
+ok: [engrcvm]
+ok: [corecvm]
+ok: [pccvm]
+ok: [pecvm]
+
+TASK [4. Initialize the empty input_result structures] *************************
+ok: [calmcvm]
+ok: [corecvm]
+ok: [engrcvm]
+ok: [pccvm]
+ok: [pecvm]
+
+TASK [5. Calling the subroutine] ***********************************************
+skipping: [calmcvm]
+skipping: [pccvm]
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for engrcvm => (item=188.185.20.1)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for engrcvm => (item=188.185.20.2)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for engrcvm => (item=188.185.20.3)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=188.185.10.1)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=188.185.10.2)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=188.185.10.3)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=188.185.10.4)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=188.185.10.6)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=188.185.10.7)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for pecvm => (item=188.185.13.1)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for pecvm => (item=188.185.13.2)
+included: /home/liamhuat/proj/ansible/hm/testing10/hostssh/subr.44.testing10_hostssh_systemctl_status_dbus_logic.yml for pecvm => (item=188.185.13.3)
+
+TASK [Check reachability for 188.185.20.1] *************************************
+ok: [engrcvm]
+
+TASK [Run systemctl status on 188.185.20.1] ************************************
+ok: [engrcvm]
+
+TASK [Display execution stderr when command fails on 188.185.20.1] *************
+skipping: [engrcvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [engrcvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [engrcvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [engrcvm]
+
+TASK [9. Display input_result_list 188.185.20.1] *******************************
+ok: [engrcvm] => {
+    "msg": [
+        "==================== 188.185.20.1 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.3M",
+        "        CPU: 1h 19min 34.369s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.20.2] *************************************
+ok: [engrcvm]
+
+TASK [Run systemctl status on 188.185.20.2] ************************************
+ok: [engrcvm]
+
+TASK [Display execution stderr when command fails on 188.185.20.2] *************
+skipping: [engrcvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [engrcvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [engrcvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [engrcvm]
+
+TASK [9. Display input_result_list 188.185.20.2] *******************************
+ok: [engrcvm] => {
+    "msg": [
+        "==================== 188.185.20.1 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.3M",
+        "        CPU: 1h 19min 34.369s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "==================== 188.185.20.2 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5056 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 23min 3.838s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.20.3] *************************************
+ok: [engrcvm]
+
+TASK [Run systemctl status on 188.185.20.3] ************************************
+ok: [engrcvm]
+
+TASK [Display execution stderr when command fails on 188.185.20.3] *************
+skipping: [engrcvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [engrcvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [engrcvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [engrcvm]
+
+TASK [9. Display input_result_list 188.185.20.3] *******************************
+ok: [engrcvm] => {
+    "msg": [
+        "==================== 188.185.20.1 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.3M",
+        "        CPU: 1h 19min 34.369s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "==================== 188.185.20.2 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5056 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 23min 3.838s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "==================== 188.185.20.3 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5091 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 21min 19.933s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.1] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.1] ************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 188.185.10.1] *************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.1] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.2] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.2] ************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 188.185.10.2] *************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.2] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.3] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.3] ************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 188.185.10.3] *************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.3] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.4] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.4] ************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 188.185.10.4] *************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.4] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.6] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.6] ************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 188.185.10.6] *************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.6] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.7] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.7] ************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 188.185.10.7] *************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.7] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.7 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6982 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.13.1] *************************************
+ok: [pecvm]
+
+TASK [Run systemctl status on 188.185.13.1] ************************************
+ok: [pecvm]
+
+TASK [Display execution stderr when command fails on 188.185.13.1] *************
+skipping: [pecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [pecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [pecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [pecvm]
+
+TASK [9. Display input_result_list 188.185.13.1] *******************************
+ok: [pecvm] => {
+    "msg": [
+        "==================== 188.185.13.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.13.2] *************************************
+ok: [pecvm]
+
+TASK [Run systemctl status on 188.185.13.2] ************************************
+ok: [pecvm]
+
+TASK [Display execution stderr when command fails on 188.185.13.2] *************
+skipping: [pecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [pecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [pecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [pecvm]
+
+TASK [9. Display input_result_list 188.185.13.2] *******************************
+ok: [pecvm] => {
+    "msg": [
+        "==================== 188.185.13.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.13.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4329 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.2M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.13.3] *************************************
+ok: [pecvm]
+
+TASK [Run systemctl status on 188.185.13.3] ************************************
+ok: [pecvm]
+
+TASK [Display execution stderr when command fails on 188.185.13.3] *************
+skipping: [pecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [pecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [pecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [pecvm]
+
+TASK [9. Display input_result_list 188.185.13.3] *******************************
+ok: [pecvm] => {
+    "msg": [
+        "==================== 188.185.13.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.13.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4329 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.2M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.13.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4296 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.1M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [6. Construct final input_result dictionary] ******************************
+ok: [calmcvm]
+ok: [corecvm]
+ok: [engrcvm]
+ok: [pecvm]
+ok: [pccvm]
+
+TASK [7. Debug and display aggregate input_result outputs] *********************
+ok: [calmcvm] => {
+    "input_result.stdout_lines": []
+}
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.7 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6982 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+ok: [engrcvm] => {
+    "input_result.stdout_lines": [
+        "==================== 188.185.20.1 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.3M",
+        "        CPU: 1h 19min 34.369s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "==================== 188.185.20.2 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5056 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 23min 3.838s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "==================== 188.185.20.3 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5091 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 21min 19.933s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        ""
+    ]
+}
+ok: [pccvm] => {
+    "input_result.stdout_lines": []
+}
+ok: [pecvm] => {
+    "input_result.stdout_lines": [
+        "==================== 188.185.13.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.13.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4329 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.2M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.13.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4296 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.1M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [9. Display input_result.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "msg": []
+}
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.8M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:55:01 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:48:24 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.0M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.10.7 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6982 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+ok: [engrcvm] => {
+    "msg": [
+        "==================== 188.185.20.1 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:43:55 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5066 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.3M",
+        "        CPU: 1h 19min 34.369s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5066 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5068 dbus-broker --log 4 --controller 9 --machine-id 9bf87912facb494387f9531e94714726 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "==================== 188.185.20.2 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 10:09:09 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5056 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 23min 3.838s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5056 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5057 dbus-broker --log 4 --controller 9 --machine-id 94b399e5e06a469bb57c2f103e9ebbd4 --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        "",
+        "==================== 188.185.20.3 ====================",
+        "● dbus-broker.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/usr/lib/systemd/system/dbus-broker.service; enabled; preset: enabled)",
+        "     Active: active (running) since Mon 2026-06-29 09:18:51 UTC; 4 weeks 0 days ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-broker-launch(1)",
+        "   Main PID: 5091 (dbus-broker-lau)",
+        "      Tasks: 2 (limit: 3355442)",
+        "     Memory: 3.4M",
+        "        CPU: 1h 21min 19.933s",
+        "     CGroup: /system.slice/dbus-broker.service",
+        "             ├─5091 /usr/bin/dbus-broker-launch --scope system --audit",
+        "             └─5093 dbus-broker --log 4 --controller 9 --machine-id c31204d82d6741649c61ac49694bb51f --max-bytes 838860800000 --max-fds 6400000 --max-matches 204800000 --audit",
+        ""
+    ]
+}
+ok: [pccvm] => {
+    "msg": []
+}
+ok: [pecvm] => {
+    "msg": [
+        "==================== 188.185.13.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 07:44:19 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4377 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4377 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.13.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:34:22 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4329 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.2M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4329 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 188.185.13.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:09:35 UTC; 1 months 2 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 4296 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 3.1M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─4296 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        ""
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [calmcvm]
+ok: [pecvm]
+ok: [engrcvm]
+ok: [corecvm]
+ok: [pccvm]
+
+TASK [10. Determine svc_list] **************************************************
+ok: [calmcvm] => {
+    "svc_list": []
+}
+ok: [corecvm] => {
+    "svc_list": [
+        [
+            "188.185.10.1",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.2",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.3",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.4",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.6",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.10.7",
+            "dbus.service",
+            "active"
+        ]
+    ]
+}
+ok: [engrcvm] => {
+    "svc_list": []
+}
+ok: [pccvm] => {
+    "svc_list": []
+}
+ok: [pecvm] => {
+    "svc_list": [
+        [
+            "188.185.13.1",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.13.2",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "188.185.13.3",
+            "dbus.service",
+            "active"
+        ]
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [calmcvm]
+skipping: [corecvm]
+ok: [engrcvm]
+ok: [pccvm]
+skipping: [pecvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [calmcvm]
+skipping: [pccvm]
+ok: [pecvm]
+skipping: [engrcvm]
+ok: [corecvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [calmcvm]
+skipping: [pccvm]
+ok: [corecvm]
+skipping: [engrcvm]
+ok: [pecvm]
+
+TASK [11. Display answer and remark] *******************************************
+ok: [calmcvm] => {
+    "msg": "None No failures or errors detected. "
+}
+ok: [corecvm] => {
+    "msg": "All active  "
+}
+ok: [engrcvm] => {
+    "msg": "None No failures or errors detected. "
+}
+ok: [pccvm] => {
+    "msg": "None No failures or errors detected. "
+}
+ok: [pecvm] => {
+    "msg": "All active  "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+ok: [pecvm -> localhost]
+ok: [pccvm -> localhost]
+ok: [engrcvm -> localhost]
+ok: [corecvm -> localhost]
+ok: [calmcvm -> localhost]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=12   changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+corecvm                    : ok=55   changed=0    unreachable=0    failed=0    skipped=7    rescued=0    ignored=0   
+engrcvm                    : ok=33   changed=0    unreachable=0    failed=0    skipped=5    rescued=0    ignored=0   
+pccvm                      : ok=12   changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+pecvm                      : ok=34   changed=0    unreachable=0    failed=0    skipped=4    rescued=0    ignored=0   
+

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Define the list of files
+#files=("file1.txt" "file2.txt" "file3.txt")
+
+files=(
+"20A.testing8_hostssh_df_commands_sudo_become.yml"
+"20B.testing8_hostssh_ls_commands_sudo_become.yml"
+"20C.testing8_hostssh_fdisk_commands_sudo_become.yml"
+"20.testing8_hostssh_commands_sudo_become.yml"
+"21.testing8_hostssh_fdisk_no_sudo.yml"
+"22.testing8_hostssh_fdisk_sudo_password.yml"
+"23.testing8_hostssh_fdisk_sudo_become.yml"
+"26.testing8_hostssh_ovn_sudo_become.yml"
+"subr.20A.testing8_hostssh_df_commands_sudo_become.yml"
+"subr.20B.testing8_hostssh_ls_commands_sudo_become.yml"
+"subr.20C.testing8_hostssh_fdisk_commands_sudo_become.yml"
+"subr.20.testing8_hostssh_commands_sudo_become.yml"
+"subr.21.testing8_hostssh_fdisk_no_sudo.yml"
+"subr.22.testing8_hostssh_fdisk_sudo_password.yml"
+"subr.23.testing8_hostssh_fdisk_sudo_become.yml"
+"subr.26.testing8_hostssh_ovn_sudo_become.yml"
+)
+
+#post=$(( ( $(date +%H) * 60 + $(date +%M) ) * 60 + $(date +%S) ))
+post=$((  $(date +%H) * 60 + $(date +%M) + 0 ))
+
+# Loop through each file
+for file in "${files[@]}"; do
+    if [ -f "$file" ]; then
+        
+        outfile=output."$file"."$post"
+        echo Processing "$file" started
+        echo "" > $outfile
+        echo "---------------------------------" >> $outfile
+        echo "$file" >> $outfile
+        echo "---------------------------------" >> $outfile
+        echo "" >> $outfile
+
+        echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" >> $outfile
+        cat "$file" >> $outfile
+        echo "------------------------------------------------------------------" >> $outfile
+
+
+        if [[ ${file:0:4} != 'subr' ]]; then
+
+           echo "" >> $outfile
+           echo "" >> $outfile
+           echo aph "$file" >> $outfile
+           echo "" >> $outfile
+           aph "$file" >> $outfile
+           echo Processing "$file" finished
+           echo
+#         sleep 1
+        fi
+    else
+        echo "Error: $file not found."
+    fi
+done
+
+

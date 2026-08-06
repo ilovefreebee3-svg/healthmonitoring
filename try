@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#post=$(( ( $(date +%H) * 60 + $(date +%M) ) * 60 + $(date +%S) ))
+#post=$((  $(date +%H) * 60 + $(date +%M) + 0 ))
+todaydate=$(( $(date +%d) ))
+post1=$(printf "%02d" $todaydate)
+post=$post1.$(( 10#$(date +%H) * 60 + 10#$(date +%M) ))
+
+#output=output.$post
+echo $post
+# Loop through each file
+
+
+

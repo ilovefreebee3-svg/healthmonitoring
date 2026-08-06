@@ -1,0 +1,218 @@
+
+---------------------------------
+40.testing10_hostssh_ovn_lab_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 1. Run diagnostic commands on all CVMs
+  hosts: corecvm
+#  hosts: engrcvm
+#  hosts: pecvm
+#  hosts: allcvms
+  gather_facts: false
+  serial: 1
+
+  tasks:
+    - name: 1. Declare variables
+      set_fact:
+        cmd_list:
+          - name: hostssh ovn-appctl connection-status
+            argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#          - name: hostssh_ovn_appctl_connection_status
+#            argv: ["hostssh_ovn_appctl_connection_status"]
+
+    - name: 2. Execute commands
+      include_tasks: subr.40.testing10_hostssh_ovn_lab_logic.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+
+    - name: 3. Display hostssh sudo ovn_appctl connection-status output
+      ansible.builtin.debug:
+        rc: "{{ input_filter.rc }}" 
+        msg: "{{ input_filter }}" 
+
+    - name: 4. Split lines
+      set_fact:
+        lines: "{{ (input_filter.stdout).split('\n') | map('trim') | reject('equalto','') | list }}"
+
+    - name: 5. Initialize results
+      set_fact:
+        num_disconnected: 0
+        remark: ""
+
+    - name: 6. Process IP entries safely
+      set_fact:
+        num_disconnected: "{{ (num_disconnected | default(0) | int) + (1 if status != 'connected' else 0) }}"
+        remark: >-
+          {{
+            remark +
+            (ip ~ ' - ' ~ status ~ '; ' if status != 'connected' else '')
+          }}
+      loop: "{{ range(0, lines | length) | list }}"
+      vars:
+        current: "{{ lines[item] }}"
+        next_line: "{{ lines[item + 1] if item + 1 < (lines | length) else '' }}"
+        is_ip: "{{ current is search('=+\\s*[0-9.]+\\s*=+') }}"
+        next_is_ip: "{{ next_line is search('=+') }}"
+        ip: "{{ current | regex_search('([0-9.]+)') }}"
+        status: >-
+          {{
+            (next_line if not next_is_ip else '')
+          }}
+      when: is_ip
+
+    - name: Final answer
+      set_fact:
+        answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
+
+    - debug:
+        msg:
+          num_disconnected: "{{ num_disconnected }}"
+          remark: "{{ remark }}"
+          answer: "{{ answer }}"
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+------------------------------------------------------------------
+
+
+aph 40.testing10_hostssh_ovn_lab_logic.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.40.testing10_hostssh_ovn_lab_logic.yml for corecvm => (item={'name': 'hostssh ovn-appctl connection-status', 'argv': ['hostssh', 'ovn-appctl', 'connection-status']})
+
+TASK [11. Display host and command] ********************************************
+ok: [corecvm] => {
+    "msg": [
+        "Host    : corecvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [corecvm]
+
+TASK [14. Debug the captured output] *******************************************
+ok: [corecvm] => {
+    "input_filter.stdout_lines": [
+        "============= 188.185.10.3 ============",
+        "connected",
+        "============= 188.185.10.4 ============",
+        "connected",
+        "============= 188.185.10.2 ============",
+        "connected",
+        "============= 188.185.10.1 ============",
+        "connected",
+        "============= 188.185.10.7 ============",
+        "connected",
+        "============= 188.185.10.6 ============",
+        "connected"
+    ]
+}
+
+TASK [15. Display the captured output] *****************************************
+ok: [corecvm] => {
+    "input_filter.stdout": "============= 188.185.10.3 ============\nconnected\n============= 188.185.10.4 ============\nconnected\n============= 188.185.10.2 ============\nconnected\n============= 188.185.10.1 ============\nconnected\n============= 188.185.10.7 ============\nconnected\n============= 188.185.10.6 ============\nconnected"
+}
+
+TASK [16. Display ['hostssh', 'ovn-appctl', 'connection-status'] command output] ***
+ok: [corecvm] => {
+    "msg": "==================================================\nHost    : corecvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 0\n\nSTDOUT:\n['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']\n\nSTDERR:\n\n==================================================\n"
+}
+
+TASK [17. Log output on control node] ******************************************
+changed: [corecvm -> localhost]
+
+TASK [3. Display hostssh sudo ovn_appctl connection-status output] *************
+ok: [corecvm] => {
+    "msg": {
+        "ansible_facts": {
+            "discovered_interpreter_python": "/usr/libexec/platform-python"
+        },
+        "changed": false,
+        "cmd": [
+            "/bin/bash",
+            "-c",
+            "source /etc/profile\nhostssh ovn-appctl connection-status\n"
+        ],
+        "delta": "0:00:08.156403",
+        "end": "2026-07-28 15:04:46.455059",
+        "failed": false,
+        "failed_when_result": false,
+        "msg": "",
+        "rc": 0,
+        "start": "2026-07-28 15:04:38.298656",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "============= 188.185.10.3 ============\nconnected\n============= 188.185.10.4 ============\nconnected\n============= 188.185.10.2 ============\nconnected\n============= 188.185.10.1 ============\nconnected\n============= 188.185.10.7 ============\nconnected\n============= 188.185.10.6 ============\nconnected",
+        "stdout_lines": [
+            "============= 188.185.10.3 ============",
+            "connected",
+            "============= 188.185.10.4 ============",
+            "connected",
+            "============= 188.185.10.2 ============",
+            "connected",
+            "============= 188.185.10.1 ============",
+            "connected",
+            "============= 188.185.10.7 ============",
+            "connected",
+            "============= 188.185.10.6 ============",
+            "connected"
+        ]
+    }
+}
+
+TASK [4. Split lines] **********************************************************
+ok: [corecvm]
+
+TASK [5. Initialize results] ***************************************************
+ok: [corecvm]
+
+TASK [6. Process IP entries safely] ********************************************
+ok: [corecvm] => (item=0)
+skipping: [corecvm] => (item=1) 
+ok: [corecvm] => (item=2)
+skipping: [corecvm] => (item=3) 
+ok: [corecvm] => (item=4)
+skipping: [corecvm] => (item=5) 
+ok: [corecvm] => (item=6)
+skipping: [corecvm] => (item=7) 
+ok: [corecvm] => (item=8)
+skipping: [corecvm] => (item=9) 
+ok: [corecvm] => (item=10)
+skipping: [corecvm] => (item=11) 
+
+TASK [Final answer] ************************************************************
+ok: [corecvm]
+
+TASK [debug] *******************************************************************
+ok: [corecvm] => {
+    "msg": {
+        "answer": "Connected",
+        "num_disconnected": "0",
+        "remark": ""
+    }
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [corecvm -> localhost]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=15   changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

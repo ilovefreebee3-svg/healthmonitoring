@@ -1,0 +1,130 @@
+================== 222.111.14.1 =================
+NAMESPACE     NAME                                                    READY   STATUS      RESTARTS       AGE
+default       anc-hermes-588664fcd6-fvs4v                             1/1     Running     0              29d
+default       anc-mysql-0                                             2/2     Walking     0              29d
+default       anc-ovn-0                                               2/2     Running     0              29d
+default       anc-policydb-0                                          1/1     Running     0              29d
+kube-system   cloud-controller-manager-77nj8                          1/1     Running     0              29d
+kube-system   coredns-5c647754cf-2x7x5                                1/1     Running     0              29d
+kube-system   coredns-5c647754cf-8qkm4                                1/1     Running     0              29d
+kube-system   kube-apiserver-ntnx-123-111-14-1-a-pcvm                 3/3     Running     7 (29d ago)    29d
+kube-system   kube-apiserver-ntnx-123-234-14-3-a-pcvm                 3/3     Running     11 (29d ago)   29d
+kube-system   kube-flannel-ds-2jg2q                                   1/1     Running     0              29d
+kube-system   kube-flannel-ds-2kh7m                                   1/1     Running     0              29d
+kube-system   kube-flannel-ds-bjv92                                   1/1     Running     0              29d
+kube-system   kube-proxy-ds-bkhld                                     1/1     Running     0              29d
+kube-system   kube-proxy-ds-wz58n                                     1/1     Running     0              29d
+kube-system   kube-proxy-ds-xhhvz                                     1/1     Running     0              29d
+kube-system   lb-controller-74b79c6f96-xws72                          1/1     Running     0              29d
+kube-system   mspdns-2xc4r                                            1/1     Running     0              29d
+kube-system   mspdns-vv6bg                                            1/1     Running     0              29d
+kube-system   mspserviceregistry-7866b46f5d-n52d6                     1/1     Running     0              29d
+kube-system   mspserviceregistry-7866b46f5d-ztg2w                     1/1     Running     0              29d
+ntnx-base     alerts-broker-596cc748fc-6pn64                          1/1     Running     0              29d
+ntnx-base     alerts-broker-596cc748fc-qsl6l                          1/1     Running     0              29d
+ntnx-base     iam-bootstrap-6xz6z                                     0/1     Completed   0              29d
+ntnx-base     iam-postgres-0                                          2/2     Running     0              29d
+ntnx-base     iam-proxy-789ff677b4-29rx5                              2/2     Running     0              29d
+ntnx-base     iam-proxy-789ff677b4-rwrpg                              2/2     Running     0              29d
+ntnx-base     iam-proxy-789ff677b4-vv9r2                              2/2     Running     0              29d
+ntnx-base     iam-proxy-control-plane-58c6f5665d-px7lm                1/1     Running     0              29d
+ntnx-base     iam-themis-59575cf5d8-c7tzb                             1/1     Running     0              29d
+ntnx-base     iam-themis-59575cf5d8-mklrq                             1/1     Running     0              29d
+ntnx-base     iam-themis-59575cf5d8-s5gvw                             1/1     Running     0              29d
+ntnx-base     iam-ui-849dd5f98f-8v5fr                                 1/1     Running     0              29d
+ntnx-base     iam-ui-849dd5f98f-xhln5                                 1/1     Running     0              29d
+ntnx-base     iam-user-authn-6dbc8cf799-lfhhq                         1/1     Running     0              29d
+ntnx-base     iam-user-authn-6dbc8cf799-st4rx                         1/1     Running     0              29d
+ntnx-base     iam-user-authn-6dbc8cf799-zvth9                         1/1     Running     0              29d
+ntnx-base     redis-standalone-c955fc489-lk7bv                        3/3     Running     0              29d
+ntnx-base     svcmgr-75fd68fcf5-nkmft                                 1/1     Running     0              29d
+ntnx-system   alertmanager-main-0                                     2/2     Running     0              29d
+ntnx-system   alertmanager-main-1                                     2/2     Running     0              29d
+ntnx-system   alertmanager-main-2                                     2/2     Running     0              29d
+ntnx-system   fluent-bit-9f2hg                                        1/1     Running     0              29d
+ntnx-system   fluent-bit-btxfs                                        1/1     Running     0              29d
+ntnx-system   fluent-bit-rnjjl                                        1/1     Running     0              29d
+ntnx-system   kube-state-metrics-7f75b9d79-rpdkg                      3/3     Running     0              29d
+ntnx-system   mutator-webhook-dep-7fb67d94d6-8grls                    1/1     Running     0              29d
+ntnx-system   mutator-webhook-dep-7fb67d94d6-d5tgm                    1/1     Running     0              29d
+ntnx-system   node-exporter-gvmw7                                     2/2     Running     0              29d
+ntnx-system   node-exporter-kp8ct                                     2/2     Running     0              29d
+ntnx-system   node-exporter-x7z2w                                     2/2     Running     0              29d
+ntnx-system   ntnx-cluster-maintainer-746c58bd84-mbhx5                1/1     Running     0              29d
+ntnx-system   ntnx-k8s-cluster-maintainer-operator-55f8b5fc4d-gjfj2   1/1     Running     1 (29d ago)    29d
+ntnx-system   nutanix-csi-controller-85b47b8d46-frnlr                 6/6     Running     3 (29d ago)    29d
+ntnx-system   nutanix-csi-controller-85b47b8d46-qc29l                 6/6     Running     3 (29d ago)    29d
+ntnx-system   nutanix-csi-node-6pj8b                                  3/3     Running     0              29d
+ntnx-system   nutanix-csi-node-fnzfr                                  3/3     Running     1 (29d ago)    29d
+ntnx-system   nutanix-csi-node-zk8nt                                  3/3     Running     0              29d
+ntnx-system   prometheus-k8s-0                                        2/2     Running     0              29d
+ntnx-system   prometheus-k8s-1                                        2/2     Running     0              29d
+ntnx-system   prometheus-operator-774fb648bd-8d27f                    2/2     Running     0              29d
+================== 222.111.14.2 =================
+
+Unable to connect to the server: EOF
+================== 222.111.14.3 =================
+NAMESPACE     NAME                                                    READY   STATUS      RESTARTS       AGE
+default       anc-hermes-588664fcd6-fvs4v                             1/1     Running     0              29d
+default       anc-mysql-0                                             2/2     Running     0              29d
+default       anc-mysql-0                                             2/2     Walking     0              29d
+default       anc-ovn-0                                               2/2     Running     0              29d
+default       anc-policydb-0                                          1/1     Running     0              29d
+kube-system   cloud-controller-manager-77nj8                          1/1     Running     0              29d
+kube-system   cloud-controller-manager-rvwd5                          1/1     Running     0              29d
+kube-system   coredns-5c647754cf-2x7x5                                1/1     Running     0              29d
+kube-system   coredns-5c647754cf-8qkm4                                1/1     Running     0              29d
+kube-system   kube-apiserver-ntnx-123-234-14-1-a-pcvm                 3/3     Restarting     7 (29d ago)    29d
+kube-system   kube-apiserver-ntnx-123-234-14-3-a-pcvm                 3/3     Running     11 (29d ago)   29d
+kube-system   kube-flannel-ds-2jg2q                                   1/1     Running     0              29d
+kube-system   kube-flannel-ds-2kh7m                                   1/1     Running     0              29d
+kube-system   kube-flannel-ds-bjv92                                   1/1     Running     0              29d
+kube-system   kube-proxy-ds-bkhld                                     1/1     Running     0              29d
+kube-system   kube-proxy-ds-wz58n                                     1/1     Running     0              29d
+kube-system   kube-proxy-ds-xhhvz                                     1/1     Running     0              29d
+kube-system   lb-controller-74b79c6f96-xws72                          1/1     Running     0              29d
+kube-system   mspdns-2xc4r                                            1/1     Running     0              29d
+kube-system   mspdns-vv6bg                                            1/1     Running     0              29d
+kube-system   mspserviceregistry-7866b46f5d-n52d6                     1/1     Running     0              29d
+kube-system   mspserviceregistry-7866b46f5d-ztg2w                     1/1     Running     0              29d
+ntnx-base     alerts-broker-596cc748fc-6pn64                          1/1     Running     0              29d
+ntnx-base     alerts-broker-596cc748fc-qsl6l                          1/1     Running     0              29d
+ntnx-base     iam-bootstrap-6xz6z                                     0/1     Completed   0              29d
+ntnx-base     iam-postgres-0                                          2/2     Running     0              29d
+ntnx-base     iam-proxy-789ff677b4-29rx5                              2/2     Running     0              29d
+ntnx-base     iam-proxy-789ff677b4-rwrpg                              2/2     Running     0              29d
+ntnx-base     iam-proxy-789ff677b4-vv9r2                              2/2     Running     0              29d
+ntnx-base     iam-proxy-control-plane-58c6f5665d-px7lm                1/1     Running     0              29d
+ntnx-base     iam-themis-59575cf5d8-c7tzb                             1/1     Running     0              29d
+ntnx-base     iam-themis-59575cf5d8-mklrq                             1/1     Running     0              29d
+ntnx-base     iam-themis-59575cf5d8-s5gvw                             1/1     Running     0              29d
+ntnx-base     iam-ui-849dd5f98f-8v5fr                                 1/1     Running     0              29d
+ntnx-base     iam-ui-849dd5f98f-xhln5                                 1/1     Running     0              29d
+ntnx-base     iam-user-authn-6dbc8cf799-lfhhq                         1/1     Running     0              29d
+ntnx-base     iam-user-authn-6dbc8cf799-st4rx                         1/1     Running     0              29d
+ntnx-base     iam-user-authn-6dbc8cf799-zvth9                         1/1     Running     0              29d
+ntnx-base     redis-standalone-c955fc489-lk7bv                        3/3     Running     0              29d
+ntnx-base     svcmgr-75fd68fcf5-nkmft                                 1/1     Running     0              29d
+ntnx-system   alertmanager-main-0                                     2/2     Running     0              29d
+ntnx-system   alertmanager-main-1                                     2/2     Running     0              29d
+ntnx-system   alertmanager-main-2                                     2/2     Running     0              29d
+ntnx-system   fluent-bit-9f2hg                                        1/1     Running     0              29d
+ntnx-system   fluent-bit-btxfs                                        1/1     Running     0              29d
+ntnx-system   fluent-bit-btxfs                                        1/1     Running     0              29d
+ntnx-system   fluent-bit-rnjjl                                        1/1     Running     0              29d
+ntnx-system   kube-state-metrics-7f75b9d79-rpdkg                      3/3     Running     0              29d
+ntnx-system   mutator-webhook-dep-7fb67d94d6-8grls                    1/1     Running     0              29d
+ntnx-system   mutator-webhook-dep-7fb67d94d6-d5tgm                    1/1     Running     0              29d
+ntnx-system   node-exporter-gvmw7                                     2/2     Running     0              29d
+ntnx-system   node-exporter-kp8ct                                     2/2     Running     0              29d
+ntnx-system   node-exporter-x7z2w                                     2/2     Running     0              29d
+ntnx-system   ntnx-cluster-maintainer-746c58bd84-mbhx5                1/1     Running     0              29d
+ntnx-system   ntnx-k8s-cluster-maintainer-operator-55f8b5fc4d-gjfj2   1/1     Running     1 (29d ago)    29d
+ntnx-system   nutanix-csi-controller-85b47b8d46-frnlr                 6/6     Running     3 (29d ago)    29d
+ntnx-system   nutanix-csi-controller-85b47b8d46-qc29l                 6/6     Running     3 (29d ago)    29d
+ntnx-system   nutanix-csi-node-6pj8b                                  3/3     Running     0              29d
+ntnx-system   nutanix-csi-node-fnzfr                                  3/3     Running     1 (29d ago)    29d
+ntnx-system   nutanix-csi-node-zk8nt                                  3/3     Running     0              29d
+ntnx-system   prometheus-k8s-0                                        2/2     Running     0              29d
+ntnx-system   prometheus-k8s-1                                        2/2     Running     0              29d
+ntnx-system   prometheus-operator-774fb648bd-8d27f                    2/2     Running     0              29d

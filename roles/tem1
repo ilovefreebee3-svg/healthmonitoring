@@ -1,0 +1,1 @@
+  when: not read_from_file | bool

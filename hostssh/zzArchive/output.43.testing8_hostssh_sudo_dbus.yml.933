@@ -1,0 +1,307 @@
+
+---------------------------------
+43.testing8_hostssh_sudo_dbus.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check dbus across AHV Hosts
+  hosts: corecvm
+  gather_facts: false
+  vars:
+    remote_user_name: nutanix
+
+  tasks:
+    - name: Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: Initialize the empty input_result structures
+      ansible.builtin.set_fact:
+        input_result_stdout_list: []
+        input_result_lines_list: []
+
+    - name: Process each AHV host dynamically
+      ansible.builtin.include_tasks:  subr.43.testing8_hostssh_sudo_dbus.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when: ahv_hosts | length > 0
+
+    - name: Construct final input_result dictionary
+      ansible.builtin.set_fact:
+        input_result:
+          stdout: "{{ input_result_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_result_lines_list }}"
+
+    - name: Debug and display aggregate input_result outputs
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+------------------------------------------------------------------
+
+
+aph 43.testing8_hostssh_sudo_dbus.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Pseudo hostssh - Check dbus across AHV Hosts] ****************************
+
+TASK [Get AHV host IP addresses] ***********************************************
+ok: [corecvm]
+
+TASK [Parse IP addresses into a clean list] ************************************
+ok: [corecvm]
+
+TASK [Initialize the empty input_result structures] ****************************
+ok: [corecvm]
+
+TASK [Process each AHV host dynamically] ***************************************
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.43.testing8_hostssh_sudo_dbus.yml for corecvm => (item=188.185.10.1)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.43.testing8_hostssh_sudo_dbus.yml for corecvm => (item=188.185.10.2)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.43.testing8_hostssh_sudo_dbus.yml for corecvm => (item=188.185.10.3)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.43.testing8_hostssh_sudo_dbus.yml for corecvm => (item=188.185.10.4)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.43.testing8_hostssh_sudo_dbus.yml for corecvm => (item=188.185.10.6)
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/subr.43.testing8_hostssh_sudo_dbus.yml for corecvm => (item=188.185.10.7)
+
+TASK [Check reachability for 188.185.10.1] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.1] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.1 'sudo systemctl status dbus --no-pager'", "delta": "0:00:02.403604", "end": "2026-07-24 15:38:47.479238", "msg": "non-zero return code", "rc": 1, "start": "2026-07-24 15:38:45.075634", "stderr": "Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required", "stderr_lines": ["Nutanix AHV", "", "We trust you have received the usual lecture from the local System", "Administrator. It usually boils down to these three things:", "", "    #1) Respect the privacy of others.", "    #2) Think before you type.", "    #3) With great power comes great responsibility.", "", "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper", "sudo: a password is required"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.1] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.1 FAILED. STDERR: Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"
+}
+
+TASK [7. Format and collect execution strings] *********************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.1] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.2] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.2] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.2 'sudo systemctl status dbus --no-pager'", "delta": "0:00:02.269347", "end": "2026-07-24 15:38:51.142588", "msg": "non-zero return code", "rc": 1, "start": "2026-07-24 15:38:48.873241", "stderr": "Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required", "stderr_lines": ["Nutanix AHV", "", "We trust you have received the usual lecture from the local System", "Administrator. It usually boils down to these three things:", "", "    #1) Respect the privacy of others.", "    #2) Think before you type.", "    #3) With great power comes great responsibility.", "", "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper", "sudo: a password is required"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.2] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.2 FAILED. STDERR: Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"
+}
+
+TASK [7. Format and collect execution strings] *********************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.2] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.3] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.3] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.3 'sudo systemctl status dbus --no-pager'", "delta": "0:00:02.638337", "end": "2026-07-24 15:38:55.257823", "msg": "non-zero return code", "rc": 1, "start": "2026-07-24 15:38:52.619486", "stderr": "Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required", "stderr_lines": ["Nutanix AHV", "", "We trust you have received the usual lecture from the local System", "Administrator. It usually boils down to these three things:", "", "    #1) Respect the privacy of others.", "    #2) Think before you type.", "    #3) With great power comes great responsibility.", "", "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper", "sudo: a password is required"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.3] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.3 FAILED. STDERR: Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"
+}
+
+TASK [7. Format and collect execution strings] *********************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.3] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.4] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.4] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.4 'sudo systemctl status dbus --no-pager'", "delta": "0:00:02.267866", "end": "2026-07-24 15:38:59.029951", "msg": "non-zero return code", "rc": 1, "start": "2026-07-24 15:38:56.762085", "stderr": "Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required", "stderr_lines": ["Nutanix AHV", "", "We trust you have received the usual lecture from the local System", "Administrator. It usually boils down to these three things:", "", "    #1) Respect the privacy of others.", "    #2) Think before you type.", "    #3) With great power comes great responsibility.", "", "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper", "sudo: a password is required"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.4] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.4 FAILED. STDERR: Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"
+}
+
+TASK [7. Format and collect execution strings] *********************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.4] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.6] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.6] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.6 'sudo systemctl status dbus --no-pager'", "delta": "0:00:02.828510", "end": "2026-07-24 15:39:03.629555", "msg": "non-zero return code", "rc": 1, "start": "2026-07-24 15:39:00.801045", "stderr": "Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required", "stderr_lines": ["Nutanix AHV", "", "We trust you have received the usual lecture from the local System", "Administrator. It usually boils down to these three things:", "", "    #1) Respect the privacy of others.", "    #2) Think before you type.", "    #3) With great power comes great responsibility.", "", "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper", "sudo: a password is required"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.6] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.6 FAILED. STDERR: Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"
+}
+
+TASK [7. Format and collect execution strings] *********************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.6] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "",
+        "==================== 188.185.10.6 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.7] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.7] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.7 'sudo systemctl status dbus --no-pager'", "delta": "0:00:03.067285", "end": "2026-07-24 15:39:08.423967", "msg": "non-zero return code", "rc": 1, "start": "2026-07-24 15:39:05.356682", "stderr": "Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required", "stderr_lines": ["Nutanix AHV", "", "We trust you have received the usual lecture from the local System", "Administrator. It usually boils down to these three things:", "", "    #1) Respect the privacy of others.", "    #2) Think before you type.", "    #3) With great power comes great responsibility.", "", "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper", "sudo: a password is required"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.7] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.7 FAILED. STDERR: Nutanix AHV\n\nWe trust you have received the usual lecture from the local System\nAdministrator. It usually boils down to these three things:\n\n    #1) Respect the privacy of others.\n    #2) Think before you type.\n    #3) With great power comes great responsibility.\n\nsudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"
+}
+
+TASK [7. Format and collect execution strings] *********************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.7] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "",
+        "==================== 188.185.10.7 ====================",
+        ""
+    ]
+}
+
+TASK [Construct final input_result dictionary] *********************************
+ok: [corecvm]
+
+TASK [Debug and display aggregate input_result outputs] ************************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "",
+        "==================== 188.185.10.7 ====================",
+        ""
+    ]
+}
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=53   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=6   
+

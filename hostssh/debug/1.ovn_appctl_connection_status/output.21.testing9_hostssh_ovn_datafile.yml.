@@ -1,0 +1,111 @@
+
+---------------------------------
+21.testing9_hostssh_ovn_datafile.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 1. Run diagnostic commands on all CVMs
+  hosts: corecvm
+#  hosts: engrcvm
+#  hosts: pecvm
+#  hosts: allcvms
+  gather_facts: false
+  serial: 1
+
+  vars:
+    cmd_list:
+      - name: hostssh ovn-appctl connection-status
+        argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#      - name: hostssh_ovn_appctl_connection_status
+#        argv: ["hostssh_ovn_appctl_connection_status"]
+
+  tasks:
+    - name: 2. Execute commands
+      include_tasks: subr.21.testing9_hostssh_ovn_datafile.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+
+    - name: 3. Display hostssh sudo ovn_appctl connection-status output
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+
+------------------------------------------------------------------
+
+
+aph 21.testing9_hostssh_ovn_datafile.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [2. Execute commands] *****************************************************
+included: /home/liamhuat/proj/ansible/hm/testing9/hostssh/debug/1.ovn_appctl_connection_status/subr.21.testing9_hostssh_ovn_datafile.yml for corecvm => (item={'name': 'hostssh ovn-appctl connection-status', 'argv': ['hostssh', 'ovn-appctl', 'connection-status']})
+
+TASK [11. Display host and command] ********************************************
+ok: [corecvm] => {
+    "msg": [
+        "Host    : corecvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [corecvm]
+
+TASK [14. Debug the captured output] *******************************************
+ok: [corecvm] => {
+    "input_filter.stdout_lines": [
+        "============= 188.185.10.3 ============",
+        "connected",
+        "============= 188.185.10.4 ============",
+        "connected",
+        "============= 188.185.10.2 ============",
+        "connected",
+        "============= 188.185.10.1 ============",
+        "connected",
+        "============= 188.185.10.7 ============",
+        "connected",
+        "============= 188.185.10.6 ============",
+        "connected"
+    ]
+}
+
+TASK [15. Display the captured output] *****************************************
+ok: [corecvm] => {
+    "input_filter.stdout": "============= 188.185.10.3 ============\nconnected\n============= 188.185.10.4 ============\nconnected\n============= 188.185.10.2 ============\nconnected\n============= 188.185.10.1 ============\nconnected\n============= 188.185.10.7 ============\nconnected\n============= 188.185.10.6 ============\nconnected"
+}
+
+TASK [16. Display ['hostssh', 'ovn-appctl', 'connection-status'] command output] ***
+ok: [corecvm] => {
+    "msg": "==================================================\nHost    : corecvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 0\n\nSTDOUT:\n['============= 188.185.10.3 ============', 'connected', '============= 188.185.10.4 ============', 'connected', '============= 188.185.10.2 ============', 'connected', '============= 188.185.10.1 ============', 'connected', '============= 188.185.10.7 ============', 'connected', '============= 188.185.10.6 ============', 'connected']\n\nSTDERR:\n\n==================================================\n"
+}
+
+TASK [17. Log output on control node] ******************************************
+changed: [corecvm -> localhost]
+
+TASK [3. Display hostssh sudo ovn_appctl connection-status output] *************
+ok: [corecvm] => {
+    "msg": [
+        "============= 188.185.10.3 ============",
+        "connected",
+        "============= 188.185.10.4 ============",
+        "connected",
+        "============= 188.185.10.2 ============",
+        "connected",
+        "============= 188.185.10.1 ============",
+        "connected",
+        "============= 188.185.10.7 ============",
+        "connected",
+        "============= 188.185.10.6 ============",
+        "connected"
+    ]
+}
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=8    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

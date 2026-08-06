@@ -1,0 +1,409 @@
+
+---------------------------------
+42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check nvidia-vgpu-mgr
+  hosts: corecvm
+  gather_facts: false
+  vars:
+    remote_user_name: nutanix
+
+  tasks:
+    - name: 1. Declare variables
+      set_fact:
+        answer: "Healthy"
+        remark: "No failures or errors detected."
+
+    - name: 2. Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: 3. Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: 4. Initialize the empty input_result structures
+      ansible.builtin.set_fact:
+        input_result_stdout_list: []
+        input_result_lines_list: []
+
+    - name: 5. Calling the subroutine
+      ansible.builtin.include_tasks: subr.42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when: ahv_hosts | length > 0
+
+    - name: 6. Construct final input_result dictionary
+      ansible.builtin.set_fact:
+        input_result:
+          stdout: "{{ input_result_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_result_lines_list }}"
+
+    - name: 7. Debug and display aggregate input_result outputs
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+#    - name: 8. Mimic 'cat' register output using lookup
+#      set_fact:
+#        input_result:
+#          stdout: "{{ lookup('file', 'data.hostssh_systemctl_status_nvidia_vgpu_mgr.txt') }}"
+#          stdout_lines: "{{ lookup('file', 'data.hostssh_systemctl_status_nvidia_vgpu_mgr.txt').splitlines() }}"
+#          rc: 0
+#          failed: false
+#          changed: false
+
+    - name: 9. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+
+    - set_fact:
+        svc_list: >-
+          {{
+            input_result.stdout | regex_findall(
+            '={1,20}\s*([0-9.]+)\s*={1,20}.*?\n.*?(nvidia-vgpu-mgr\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            multiline=True
+            )
+          }}
+    
+    - name: 10. Determine svc_list
+      debug:
+        var: svc_list
+
+    - set_fact:
+        answer: "None"
+      when: svc_list | length == 0
+    
+    - set_fact:
+        inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
+      when: svc_list | length > 0
+    
+    - set_fact:
+        answer: >-
+          {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
+        remark: >-
+          {{ inactive_list if inactive_list | length > 0 else '' }}
+      when: svc_list | length > 0
+
+    - name: 11. Display answer and remark
+      debug:
+        msg: "{{ answer }} {{ remark }} "
+
+    - name: 12. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+------------------------------------------------------------------
+
+
+aph 42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml
+
+
+Using inventory host.ini in the local folder
+
+
+PLAY [Pseudo hostssh - Check nvidia-vgpu-mgr] **********************************
+
+TASK [1. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [2. Get AHV host IP addresses] ********************************************
+ok: [corecvm]
+
+TASK [3. Parse IP addresses into a clean list] *********************************
+ok: [corecvm]
+
+TASK [4. Initialize the empty input_result structures] *************************
+ok: [corecvm]
+
+TASK [5. Calling the subroutine] ***********************************************
+included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=188.185.10.1)
+included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=188.185.10.2)
+included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=188.185.10.3)
+included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=188.185.10.4)
+included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=188.185.10.6)
+included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.42.testing10_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=188.185.10.7)
+
+TASK [Check reachability for 188.185.10.1] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.1] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.1 'systemctl status nvidia-vgpu-mgr --no-pager'", "delta": "0:00:00.456063", "end": "2026-07-28 15:04:55.219810", "msg": "non-zero return code", "rc": 4, "start": "2026-07-28 15:04:54.763747", "stderr": "Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found.", "stderr_lines": ["Nutanix AHV", "Unit nvidia-vgpu-mgr.service could not be found."], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.1] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.1 FAILED. STDERR: Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found."
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.1] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.2] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.2] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.2 'systemctl status nvidia-vgpu-mgr --no-pager'", "delta": "0:00:00.392240", "end": "2026-07-28 15:04:57.102020", "msg": "non-zero return code", "rc": 4, "start": "2026-07-28 15:04:56.709780", "stderr": "Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found.", "stderr_lines": ["Nutanix AHV", "Unit nvidia-vgpu-mgr.service could not be found."], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.2] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.2 FAILED. STDERR: Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found."
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.2] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.3] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.3] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.3 'systemctl status nvidia-vgpu-mgr --no-pager'", "delta": "0:00:00.450792", "end": "2026-07-28 15:04:59.084050", "msg": "non-zero return code", "rc": 4, "start": "2026-07-28 15:04:58.633258", "stderr": "Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found.", "stderr_lines": ["Nutanix AHV", "Unit nvidia-vgpu-mgr.service could not be found."], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.3] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.3 FAILED. STDERR: Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found."
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.3] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.4] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.4] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.4 'systemctl status nvidia-vgpu-mgr --no-pager'", "delta": "0:00:00.485648", "end": "2026-07-28 15:05:01.753263", "msg": "non-zero return code", "rc": 4, "start": "2026-07-28 15:05:01.267615", "stderr": "Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found.", "stderr_lines": ["Nutanix AHV", "Unit nvidia-vgpu-mgr.service could not be found."], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.4] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.4 FAILED. STDERR: Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found."
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.4] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.6] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.6] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.6 'systemctl status nvidia-vgpu-mgr --no-pager'", "delta": "0:00:00.418222", "end": "2026-07-28 15:05:04.156437", "msg": "non-zero return code", "rc": 4, "start": "2026-07-28 15:05:03.738215", "stderr": "Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found.", "stderr_lines": ["Nutanix AHV", "Unit nvidia-vgpu-mgr.service could not be found."], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.6] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.6 FAILED. STDERR: Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found."
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.6] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "",
+        "==================== 188.185.10.6 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 188.185.10.7] *************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 188.185.10.7] ************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@188.185.10.7 'systemctl status nvidia-vgpu-mgr --no-pager'", "delta": "0:00:00.397462", "end": "2026-07-28 15:05:06.104697", "msg": "non-zero return code", "rc": 4, "start": "2026-07-28 15:05:05.707235", "stderr": "Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found.", "stderr_lines": ["Nutanix AHV", "Unit nvidia-vgpu-mgr.service could not be found."], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 188.185.10.7] *************
+ok: [corecvm] => {
+    "msg": "HOST 188.185.10.7 FAILED. STDERR: Nutanix AHV\nUnit nvidia-vgpu-mgr.service could not be found."
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 188.185.10.7] *******************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "",
+        "==================== 188.185.10.7 ====================",
+        ""
+    ]
+}
+
+TASK [6. Construct final input_result dictionary] ******************************
+ok: [corecvm]
+
+TASK [7. Debug and display aggregate input_result outputs] *********************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "",
+        "==================== 188.185.10.7 ====================",
+        ""
+    ]
+}
+
+TASK [9. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 188.185.10.1 ====================",
+        "",
+        "==================== 188.185.10.2 ====================",
+        "",
+        "==================== 188.185.10.3 ====================",
+        "",
+        "==================== 188.185.10.4 ====================",
+        "",
+        "==================== 188.185.10.6 ====================",
+        "",
+        "==================== 188.185.10.7 ====================",
+        ""
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [10. Determine svc_list] **************************************************
+ok: [corecvm] => {
+    "svc_list": []
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [11. Display answer and remark] *******************************************
+ok: [corecvm] => {
+    "msg": "None No failures or errors detected. "
+}
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [corecvm -> localhost]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=60   changed=1    unreachable=0    failed=0    skipped=2    rescued=0    ignored=6   
+

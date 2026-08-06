@@ -1,0 +1,98 @@
+- hosts: sk1
+  gather_facts: no
+
+  tasks:
+#    - name: mspctl debug run
+#      ansible.builtin.command: mspctl_debug_run
+#    #  ansible.builtin.command: "mspctl debug run"
+#      register: input_result
+#      changed_when: false
+
+    - name: Mimic 'cat' register output using lookup
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'X.mspctl_debug_run.txt') }}"
+          stdout_lines: "{{ lookup('file', 'X.mspctl_debug_run.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+
+    - name: 1A. Display input_result stdout
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout }}" 
+
+    - name: 2A. Display input_result stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+
+    - name: 3A. Clean up each line in the stdout_lines list
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines | map('regex_replace', '\\\\u001b\\[32m|\\\\u001b\\[0m', '') | list }}"
+      register: Xinput_result
+
+    - name: 3B. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg:
+          - "V: {{ input_result.stdout_lines }}"
+
+    - name: 3C. Display Xinput_Result msg
+      ansible.builtin.debug:
+        msg:
+          - "X: {{ Xinput_result }}"
+
+    - name: 3D. Display Xinput_Result var
+      ansible.builtin.debug:
+        var:  Xinput_result
+
+    - name: 5. Initialize variables
+      set_fact:
+        current_name: ""
+        failures: []
+        test_results: []
+
+    - name: 6. Parse in ONE loop (correct pairing)
+      set_fact:
+        current_name: >-
+          {{
+            item.split(':', 1)[1] | trim
+            if item is search('^Test Name:')
+            else current_name
+          }}
+
+        test_results: >-
+          {{
+            test_results + [ {'name': current_name, 'status': item.split(':',1)[1] | trim} ]
+            if item is search('^STATUS:')
+            else test_results
+          }}
+
+        failures: >-
+          {{
+            failures + [ {'name': current_name, 'status': item.split(':',1)[1] | trim} ]
+            if (item is search('^STATUS:') and (item.split(':',1)[1] | trim) != 'SUCCESS')
+            else failures
+          }}
+
+      loop: "{{ Xinput_result.msg }}"
+
+    - name: 7. Compute summary
+      set_fact:
+        num_failure: "{{ failures | length }}"
+        remark: >-
+          {{
+            failures
+            | map(attribute='name')
+            | zip(failures | map(attribute='status'))
+            | map('join', ' -> ')
+            | join(' -- ')
+          }}
+        answer: "{{ 'STATUS Not Success' if (failures | length) > 0 else 'STATUS SUCCESS' }}"
+
+    - debug:
+        msg:
+          - "Failures: {{ num_failure }}"
+          - "Remark: {{ remark }}"
+          - "Answer: {{ answer }}"
+
+    - name: 8. Append result to CSV (local)
+      import_tasks: logd.yml

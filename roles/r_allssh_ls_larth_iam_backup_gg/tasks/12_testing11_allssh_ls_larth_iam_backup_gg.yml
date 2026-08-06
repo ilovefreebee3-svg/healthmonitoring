@@ -1,0 +1,87 @@
+---
+- name: Master Playbook to Execute and Process Multiple AllSSH Commands
+  hosts: engrcvm
+#  hosts: allcvms
+  gather_facts: false
+
+  tasks:
+    # ------------------------------------------------------------
+    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
+    # ------------------------------------------------------------
+    - name: 1. Verify connectivity to the Control CVM
+      ansible.builtin.wait_for_connection:
+        timeout: 5
+      register: control_cvm_status
+
+    # ------------------------------------------------------------
+    # SCENARIO 2: Run 'ls -larth' and process the output
+    # ------------------------------------------------------------
+    - name: 2. Run "ls -larth /usr/local/nutanix/iam-backup"
+      ansible.builtin.include_tasks: subr.12_testing11_allssh_ls_larth_iam_backup_gg.yml
+      vars:
+        target_cmd: "ls -larth /usr/local/nutanix/iam-backup"
+
+    - name: Mimic 'cat' register output using lookup
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.12_testing11_allssh_ls_larth_iam_backup_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.12_testing11_allssh_ls_larth_iam_backup_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+
+    - name: Display input_filter 1
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+
+    - name: Parse output blocks reliably using Python engine
+      ansible.builtin.set_fact:
+        parsed_data: >-
+          {{
+            input_filter.stdout | 
+            regex_findall('(?s)==+\s*([0-9.]+)\s*==+\s*\n(.*?)(?=\n==+|$|\Z)')
+          }}
+
+    - name: Evaluate data rules and calculate metrics
+      ansible.builtin.set_fact:
+        calculated_results: >-
+          {% set ns = namespace(num_backup=0, remark=[]) %}
+          {% for item in parsed_data %}
+            {% set ip = item[0] %}
+            {% set content = item[1] %}
+            {% set content_lines = [] %}
+            {% for line in content.split('\n') %}
+              {% if line.strip() %}
+                {% set _ = content_lines.append(line) %}
+              {% endif %}
+            {% endfor %}
+            {% if 'cannot access' in content %}
+              {% set _ = ns.remark.append(ip ~ ' cannot access') %}
+            {% elif content_lines | length > 0 %}
+              {% set ns.num_backup = ns.num_backup + 1 %}
+            {% endif %}
+          {% endfor %}
+          {"num_backup": {{ ns.num_backup }}, "remark": {{ ns.remark | to_json }}}
+
+    - name: Map parsed results to variables
+      ansible.builtin.set_fact:
+        num_backup: "{{ (calculated_results | from_json).num_backup | int }}"
+        remark: "{{ (calculated_results | from_json).remark }}"
+
+    - name: Determine final answer status
+      ansible.builtin.set_fact:
+        answer: "{{ 'iam-backup found' if num_backup | int > 0 else 'No iam-backup found' }}"
+
+    - name: Display final results
+      ansible.builtin.debug:
+        msg:
+          - "num_backup: {{ num_backup }}"
+          - "remark: {{ remark }}"
+          - "answer: {{ answer }}"
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common

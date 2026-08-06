@@ -1,0 +1,5 @@
+---
+# defaults file for r_allssh_ls_larth_iam_backup
+description: allssh 'ls -larth /usr/local/nutanix/iam-backup'
+idx: idx101
+role: r_allssh_ls_larth_iam_backup

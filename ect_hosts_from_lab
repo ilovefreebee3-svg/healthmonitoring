@@ -1,0 +1,23 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+
+188.181.19.76 qlhvm
+188.185.10.250 core corecvm server_1 server_2 server_3 server_4 server_5 server_6 server_7 server_8 server_9
+188.185.11.250 server_12 server_13 server_14
+188.185.12.250 calm calmcvm server_17 server_18 server_19
+188.185.13.250 object_pe pecvm server_10 server_11
+188.185.14.250 object_pc pccvm server_15 server_16
+188.185.20.250 engineering engrcvm
+
+
+#188.185.10.1 hostips1
+#188.185.10.2 hostips2
+#188.185.10.3 hostips3
+#188.185.10.4 hostips4
+#188.185.10.6 hostips6
+#188.185.10.7 hostips7
+
+#188.185.14.1 smvips1
+#188.185.14.2 smvips2                                                                                                                                                                                            #188.185.14.3 smvips3
+
