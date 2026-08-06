@@ -1,0 +1,138 @@
+---
+#- name: Run allssh command to check backup directory
+#  ansible.builtin.command: allssh 'ls -larth /usr/local/nutanix/iam-backup'
+#  register: input_result
+#  changed_when: false
+#  ignore_errors: true
+
+- name: Mimic 'cat' register output using lookup
+  set_fact:
+    input_result:
+      stdout: "{{ lookup('file', 'allssh_ls_larth_iam_backup.txt') }}"
+      stdout_lines: "{{ lookup('file', 'allssh_ls_larth_iam_backup.txt').splitlines() }}"
+      rc: 0
+      failed: false
+      changed: false
+
+- name: Display input_result 1
+  ansible.builtin.debug:
+    msg: "{{ input_result.stdout_lines }}" 
+
+- name: Initialize variables
+  set_fact:
+    nofile_threshold: 2
+    current_ip: ""
+    num_files: 0
+    qualifying_blocks: []
+    answer: "No backup"
+
+- name: Process lines
+  vars:
+    lines: "{{ input_result.stdout.split('\n') }}"
+  set_fact:
+
+    qualifying_blocks: >-
+      {{
+        qualifying_blocks +
+        (
+          [{
+            'ip_address': current_ip,
+            'num_files': (num_files | int)
+          }]
+          if (
+            item is match('^=+')
+            and current_ip != ''
+            and (num_files | int) >= (nofile_threshold | int)
+          )
+          else []
+        )
+      }}
+
+    answer: >-
+      {{
+        'Backup found'
+        if (
+          item is match('^=+')
+          and current_ip != ''
+          and (num_files | int) >= (nofile_threshold | int)
+        )
+        else answer
+      }}
+
+
+    current_ip: >-
+      {{
+        (
+          item
+          | regex_replace('=+', '')
+          | trim
+        )
+        if item is match('^=+')
+        else current_ip
+      }}
+
+    num_files: >-
+      {{
+        0
+        if item is match('^=+')
+        else
+        (
+          (num_files | int) + 1
+          if (
+            item | trim != ''
+            and 'cannot' not in item
+            and 'No such file' not in item
+            and 'total' not in item
+            and not (item is match('^=+'))
+          )
+          else (num_files | int)
+        )
+      }}
+  loop: "{{ lines }}"
+
+- name: Evaluate final block
+  set_fact:
+
+    qualifying_blocks: >-
+      {{
+        qualifying_blocks +
+        (
+          [{
+            'ip_address': current_ip,
+            'num_files': (num_files | int)
+          }]
+          if (num_files | int) >= (nofile_threshold | int)
+          else []
+        )
+      }}
+
+    answer: >-
+      {{
+        'Backup found'
+        if (num_files | int) >= (nofile_threshold | int)
+        else answer
+      }}
+
+- name: Build remark variable
+  set_fact:
+    remark: >-
+      {{
+        qualifying_blocks
+        | map(attribute='ip_address')
+        | zip(
+            qualifying_blocks
+            | map(attribute='num_files')
+          )
+        | map('join', ' num_files=')
+        | join(', ')
+      }}
+
+- name: Display final result
+  debug:
+    msg:
+      answer: "{{ answer }}"
+      remark: "{{ remark }}"
+
+- name: Include common role
+  ansible.builtin.include_role:
+     name: common

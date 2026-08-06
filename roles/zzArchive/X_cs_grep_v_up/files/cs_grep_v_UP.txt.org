@@ -1,0 +1,14 @@
+2021-07-27 15:55:42 INFO zookeeper_session.py:143 cluster is attempting to connect to Zookeeper
+2021-07-27 15:55:42 INFO zookeeper_session.py:576 ZK session establishment complete, sessionId=0x17a535df243727d, negotiated timeout=20.0 secs
+2021-07-27 15:55:42 INFO cluster:2724 Executing action status on SVMs xx.xx.xx.xx,xx.xx.xx.xx,xx.xx.xx.xx,xx.xx.xx.xx
+The state of the cluster: start
+Lockdown mode: Disabled
+
+ CVM: xx.xx.xx.xx Up
+
+ CVM: xx.xx.xx.xx Up, ZeusLeader
+
+ CVM: xx.xx.xx.xx Up
+
+ CVM: xx.xx.xx.xx Up 
+2021-07-27 15:55:43 INFO cluster:2875 Success!

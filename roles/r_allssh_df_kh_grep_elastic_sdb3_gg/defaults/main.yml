@@ -1,0 +1,5 @@
+---
+# defaults file for Role r_allssh_df_kh_grep_elastic_sdb3_gg
+description: allssh 'df -kh | grep -e elastic '
+idx: idx099
+role: r_allssh_df_kh_grep_elastic_sdb3_gg

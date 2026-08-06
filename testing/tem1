@@ -1,0 +1,4 @@
+  vars:
+    # Set to true to read from the file, or false to skip it
+    read_from_file: false 
+

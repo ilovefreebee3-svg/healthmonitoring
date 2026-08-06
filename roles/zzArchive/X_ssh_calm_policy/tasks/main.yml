@@ -1,0 +1,52 @@
+---
+#- name: Run df -Th
+#  ansible.builtin.command:
+#    argv:
+#      - df
+#      - -kh
+#  register: df_result
+#  changed_when: false
+
+#- name: Save filtered output to input_txt
+#  set_fact:
+#    input_txt: {{ df_result.stdout_lines }}
+
+- name: Capture file content into a variable
+  set_fact:
+    input_txt: "{{ lookup('file', 'ssh_calm_policy.txt') }}"
+
+- name: Initialize variables
+  set_fact:
+    threshold: 75
+    remark: ""
+    answer: "Storage OK"
+
+- name: Process df output
+  set_fact:
+    remark: >-
+      {{
+        remark
+        + item.split()[0]
+        + ' '
+        + item.split()[-1]
+        + ' '
+        + item.split()[-2]
+        + '\n'
+      }}
+    answer: "Storage not OK"
+  loop: "{{ input_txt.split('\n') }}"
+  when:
+    - item | trim != ''
+    - item.split() | length >= 6
+    - item.split()[-1] == '/' or item.split()[-1].startswith('/home')
+    - (item.split()[-2] | regex_replace('%', '') | int) > threshold
+
+- name: Show result
+  debug:
+    msg:
+      - "answer={{ answer }}"
+      - "remark={{ remark }}"
+
+- name: Include common role
+  ansible.builtin.include_role:
+     name: common

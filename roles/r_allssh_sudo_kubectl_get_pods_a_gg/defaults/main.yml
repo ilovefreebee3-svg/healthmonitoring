@@ -1,0 +1,5 @@
+---
+# defaults file for Role r_allssh_sudo_kubectl_get_pods_a_gg
+description: allssh sudo kubectl get pods -A
+idx: idx061
+role: r_allssh_sudo_kubectl_get_pods_a_gg

@@ -1,0 +1,6 @@
+host_roles:
+common                                 
+  - r_hostssh_nvidia_smi
+
+vpc: "IKC2 Calm PC (OTC)"
+

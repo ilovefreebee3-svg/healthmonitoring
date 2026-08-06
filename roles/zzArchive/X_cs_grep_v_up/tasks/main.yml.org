@@ -1,0 +1,53 @@
+---
+- name: Capture file content into a variable
+  set_fact:
+    input_text: "{{ lookup('file', 'cs_grep_v_UP.txt') }}"
+
+- name: Initialize variables
+  set_fact:
+    num_down: 0
+    remark: ""
+    num_cvm: 0
+
+- name: Process CVM lines with regex
+  set_fact:
+    num_cvm: "{{ (num_cvm | int) + 1 }}"
+    num_down: "{{ (num_down | int) + (1 if state != 'Up' else 0) }}"
+    remark: >-
+      {{ remark + (ipaddress ~ ' (' ~ state ~ '), ' if state != 'Up' else '') }}
+  vars:
+    match: "{{ item | regex_search('CVM:\\s+(\\S+)\\s+(Up|Down)', '\\1', '\\2') }}"
+    ipaddress: "{{ match[0] if match else '' }}"
+    state: "{{ match[1] if match else '' }}"
+  loop: "{{ input_text.splitlines() }}"
+  when:
+    - "'CVM:' in item"
+    - match is defined
+    - match | length >= 2
+
+- name: Final result
+  set_fact:
+    answer: >-
+      {% if (num_cvm | int) == 0 %}
+      Fail
+      {% elif (num_down | int) > 0 %}
+      Some CVMs not up
+      {% else %}
+      All CVMs Up
+      {% endif %}
+    remark: >-
+      {% if (num_cvm | int) == 0 %}
+      No CVM entries found
+      {% else %}
+      {{ remark }}
+      {% endif %}
+
+- debug:
+    var: answer
+
+- debug:
+    var: remark
+
+- name: Include common role
+  ansible.builtin.include_role:
+     name: common

@@ -1,0 +1,121 @@
+---
+- name: Master Playbook to Execute and Process Multiple AllSSH Commands
+  hosts: corecvm
+  gather_facts: false
+
+  tasks:
+    # ------------------------------------------------------------
+    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
+    # ------------------------------------------------------------
+    - name: 1. Verify connectivity to the Control CVM
+      ansible.builtin.wait_for_connection:
+        timeout: 5
+      register: control_cvm_status
+
+    # ------------------------------------------------------------
+    # SCENARIO 2: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+    # ------------------------------------------------------------
+    - name: 2. Run "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+      ansible.builtin.include_tasks: subr.run_allssh_x.yml
+      vars:
+        target_cmd: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+
+    - name: 3. Read from hardcoded file
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.16_testing11_allssh_curl_get_catalog_k_P1SMG025.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.16_testing11_allssh_curl_get_catalog_k_P1SMG025.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+    
+    - name: 4. Display input_filter.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+
+    - name: 5. Initialize variables
+      set_fact:
+        remark_list: []
+        status_tracker: []
+        current_ip: ""
+        num_repository: 0
+        repository_error_found: false
+        remark: []
+        answer: ""
+
+    - name: 6. Process input line by line
+      set_fact:
+        # Finalize previous block BEFORE changing IP
+        remark: >-
+          {{
+          remark
+          +
+          (
+          [ current_ip ~ ' - No connection to repository' ]
+          if (
+          curl_line is match('^=+')
+          and current_ip != ''
+          and (num_repository | int) == 0
+          )
+          else []
+          )
+          }}
+        repository_error_found: >-
+          {{
+          true
+          if (
+          curl_line is match('^=+')
+          and current_ip != ''
+          and (num_repository | int) == 0
+          )
+          else repository_error_found
+          }}
+        # Update current IP
+        current_ip: >-
+          {{
+          (
+          curl_line
+          | regex_replace('^=+', '')
+          | regex_replace('=+$', '')
+          | trim
+          )
+          if curl_line is match('^=+')
+          else current_ip
+          }}
+        # Reset or increment counter
+        num_repository: >-
+          {{
+          0
+          if curl_line is match('^=+')
+          else
+          (
+          (num_repository | int) + 1
+          if curl_line is search('repositories')
+          else (num_repository | int)
+          )
+          }}
+      loop: "{{ input_filter.stdout.split('\n') }}"
+      loop_control:
+        loop_var: curl_line
+      when:
+        - curl_line is match('^=+') or curl_line is search('repositories')
+
+    - name: Set final answer
+      set_fact:
+        answer: >-
+          {{
+            'CVM - repository connection error'
+            if repository_error_found
+            else 'ALL CVMs to repository ok'
+          }}
+
+    - name: Show result
+      debug:
+        msg:
+          - "remark = {{ remark }}"
+          - "answer = {{ answer }}"
+
+    - name: Append result to CSV (local)
+      import_tasks: logd.yml
+
+    

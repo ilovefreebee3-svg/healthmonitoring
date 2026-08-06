@@ -1,0 +1,361 @@
+2026-07-24 15:17:07 INFO     [msp_validator:1436] PC IPS ['111.222.14.1', '111.222.14.2', '111.222.14.3'], VIP "111.222.14.250"
+      cluster_external_ip
+2026-07-24 15:17:08 INFO     [msp_validator:1460] MSP Controller leader IP: 111.222.14.3
+--------------------------------------------------
+Test Name: TEST_MSP_CONTROLLER_RUNNING
+2026-07-24 15:17:08 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:08 INFO     [msp_validator:2332] Test Name: TEST_MSP_CONTROLLER_RUNNING
+2026-07-24 15:17:08 INFO     [msp_validator:1512] Checking if msp controller is enabled on all PC VMs
+2026-07-24 15:17:15 INFO     [msp_validator:1518] MSP Controller Enabled on all nodes
+2026-07-24 15:17:15 INFO     [msp_validator:2360] Check TEST_MSP_CONTROLLER_RUNNING SUCCEEDED
+[32mSTATUS: xUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_IPTABLES_ENABLED
+2026-07-24 15:17:15 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:15 INFO     [msp_validator:2332] Test Name: TEST_IPTABLES_ENABLED
+2026-07-24 15:17:15 INFO     [msp_validator:1529] Check if iptables is active on 111.222.14.1
+2026-07-24 15:17:15 INFO     [msp_validator:1529] Check if iptables is active on 111.222.14.2
+2026-07-24 15:17:15 INFO     [msp_validator:1529] Check if iptables is active on 111.222.14.3
+2026-07-24 15:17:15 INFO     [msp_validator:2360] Check TEST_IPTABLES_ENABLED SUCCEEDED
+[32mSTATUS: sUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_HOSTING_PE_CONNECTIVITY
+2026-07-24 15:17:15 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:15 INFO     [msp_validator:2332] Test Name: TEST_HOSTING_PE_CONNECTIVITY
+2026-07-24 15:17:15 WARNING  [log.py:227] Ignoring passed host_port_list: zk1:9876,zk2:9876,zk3:9876 because the passed host_port_list appears to have been copied from the environment variable or gflag.
+2026-07-24 15:17:15 INFO     [log.py:214] msp_validator is attempting to connect to Zookeeper (unestablished session (object 0x7f46d3b5a9d0)), host port list zk1:9876,zk2:9876,zk3:9876
+2026-07-24 15:17:15 INFO     [log.py:214] Creating a new instance for ZookeeperSession[('client_id', None), ('connection_timeout', None), ('host_port_list', 'zk1:9876,zk2:9876,zk3:9876'), ('use_zk_mt', None)]
+2026-07-24 15:17:15 INFO     [log.py:214] ZK session establishment complete, session 0x39ef8eb00468add (object 0x7f46d3b5a9d0), negotiated timeout=20 secs
+2026-07-24 15:17:15 INFO     [log.py:214] msp_validator is attempting to connect to Zookeeper (unestablished session (object 0x7f46d3b5a7c0)), host port list zk1:9876,zk2:9876,zk3:9876
+2026-07-24 15:17:15 INFO     [log.py:214] Creating a new instance for ZookeeperSession[('client_id', None), ('connection_timeout', None), ('host_port_list', None), ('use_zk_mt', None)]
+2026-07-24 15:17:15 INFO     [log.py:214] ZK session establishment complete, session 0x19ef8de716488ab (object 0x7f46d3b5a7c0), negotiated timeout=20 secs
+2026-07-24 15:17:15 INFO     [log.py:214] The status of trust zk retrieval is:['000644db-7c2e-3a48-38e8-5cba2c429138']
+2026-07-24 15:17:15 INFO     [log.py:214] Hosting PE details fetched from trust cluster external state: cluster_uuid: "000644db-7c2e-3a48-38e8-5cba2c429138"
+cluster_details {
+  contact_info {
+    address_list: "111.222.13.33"
+    address_list: "111.222.13.34"
+    address_list: "111.222.13.35"
+  }
+}
+config_details {
+  external_ip: "111.222.13.250"
+  cluster_fully_qualified_domain_name: ""
+  external_ip_v6: ""
+}
+cluster_data_service_ip: "111.222.13.249"
+
+2026-07-24 15:17:15 INFO     [log.py:214] Three tier enabled? False
+2026-07-24 15:17:15 INFO     [log.py:214] Retrieved an existing instance for ZookeeperSession
+2026-07-24 15:17:15 INFO     [log.py:214] Found PC Environment ZK Node on PC
+2026-07-24 15:17:15 INFO     [log.py:214] Is legacy three tier PC? False
+2026-07-24 15:17:15 INFO     [log.py:214] Retrieved an existing instance for ZookeeperSession
+2026-07-24 15:17:15 INFO     [log.py:214] Found PC Environment ZK Node on PC
+2026-07-24 15:17:15 INFO     [log.py:214] Is cloud PC? False
+2026-07-24 15:17:15 INFO     [log.py:214] Retrieved an existing instance for ZookeeperSession
+2026-07-24 15:17:15 INFO     [log.py:214] The status of trust zk retrieval is:['000644db-7c2e-3a48-38e8-5cba2c429138']
+2026-07-24 15:17:15 INFO     [log.py:214] Hosting PE details fetched from trust cluster external state: cluster_uuid: "000644db-7c2e-3a48-38e8-5cba2c429138"
+cluster_details {
+  contact_info {
+    address_list: "111.222.13.33"
+    address_list: "111.222.13.34"
+    address_list: "111.222.13.35"
+  }
+}
+config_details {
+  external_ip: "111.222.13.250"
+  cluster_fully_qualified_domain_name: ""
+  external_ip_v6: ""
+}
+cluster_data_service_ip: "111.222.13.249"
+
+2026-07-24 15:17:15 INFO     [log.py:214] PE Cluster initialized to PE ['111.222.13.250']
+2026-07-24 15:17:15 INFO     [log.py:214] Attempting to connect to PE using IP: 111.222.13.250
+2026-07-24 15:17:16 INFO     [log.py:214] Http call to URL https://111.222.13.250:9440/PrismGateway/services/rest/v2.0/cluster succeeded
+2026-07-24 15:17:16 INFO     [log.py:214] Check connectivity to DSIP 111.222.13.249
+2026-07-24 15:17:16 INFO     [log.py:214] 111.222.13.249:3260 is reachable
+2026-07-24 15:17:16 INFO     [msp_validator:2360] Check TEST_HOSTING_PE_CONNECTIVITY SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_MSP_VMS_REACHABLE
+2026-07-24 15:17:16 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:16 INFO     [msp_validator:2332] Test Name: TEST_MSP_VMS_REACHABLE
+2026-07-24 15:17:16 INFO     [msp_validator:1557] ********** Testing msp vm reachability within cluster msp **********
+2026-07-24 15:17:16 INFO     [msp_validator:842] ping test on 192.168.5.6
+2026-07-24 15:17:16 INFO     [msp_validator:842] ping test on 192.168.5.5
+2026-07-24 15:17:16 INFO     [msp_validator:842] ping test on 192.168.5.4
+2026-07-24 15:17:16 INFO     [msp_validator:1557] ********** Testing msp vm reachability within cluster S3 **********
+2026-07-24 15:17:16 INFO     [msp_validator:842] ping test on 111.222.64.15
+2026-07-24 15:17:16 INFO     [msp_validator:842] ping test on 111.222.64.20
+2026-07-24 15:17:16 INFO     [msp_validator:842] ping test on 111.222.64.19
+2026-07-24 15:17:16 INFO     [msp_validator:2360] Check TEST_MSP_VMS_REACHABLE SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_DVP_WITHIN_MSP
+2026-07-24 15:17:16 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:16 INFO     [msp_validator:2332] Test Name: TEST_DVP_WITHIN_MSP
+2026-07-24 15:17:16 INFO     [msp_validator:1596] ********** Testing DVP on MSP cluster msp **********
+2026-07-24 15:17:16 INFO     [msp_validator:1599] DVP not being used on MSP cluster msp, Skipping DVP check.
+2026-07-24 15:17:16 INFO     [msp_validator:1596] ********** Testing DVP on MSP cluster S3 **********
+2026-07-24 15:17:16 INFO     [msp_validator:1599] DVP not being used on MSP cluster S3, Skipping DVP check.
+2026-07-24 15:17:16 INFO     [msp_validator:2360] Check TEST_DVP_WITHIN_MSP SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_PC_NTP_SYNC_CHECK
+2026-07-24 15:17:16 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:16 INFO     [msp_validator:2332] Test Name: TEST_PC_NTP_SYNC_CHECK
+2026-07-24 15:17:17 INFO     [msp_validator:1688] NTP leader 111.222.14.3
+2026-07-24 15:17:17 INFO     [msp_validator:2360] Check TEST_PC_NTP_SYNC_CHECK SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_ISCSI_RECORD_LEN
+2026-07-24 15:17:17 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:17 INFO     [msp_validator:2332] Test Name: TEST_ISCSI_RECORD_LEN
+2026-07-24 15:17:17 INFO     [msp_validator:1636] ********** Testing iscsi record length within cluster msp **********
+2026-07-24 15:17:17 INFO     [msp_validator:1640] Checking iscsi records size on 192.168.5.6
+2026-07-24 15:17:17 INFO     [msp_validator:1640] Checking iscsi records size on 192.168.5.5
+2026-07-24 15:17:18 INFO     [msp_validator:1640] Checking iscsi records size on 192.168.5.4
+2026-07-24 15:17:18 INFO     [msp_validator:1636] ********** Testing iscsi record length within cluster S3 **********
+2026-07-24 15:17:18 INFO     [msp_validator:1640] Checking iscsi records size on 111.222.64.15
+2026-07-24 15:17:19 INFO     [msp_validator:1640] Checking iscsi records size on 111.222.64.20
+2026-07-24 15:17:19 INFO     [msp_validator:1640] Checking iscsi records size on 111.222.64.19
+2026-07-24 15:17:20 INFO     [msp_validator:2360] Check TEST_ISCSI_RECORD_LEN SUCCEEDED
+[32mSTATUS: sUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_TIME_CHECK_PC_MSP_VMS
+2026-07-24 15:17:20 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:20 INFO     [msp_validator:2332] Test Name: TEST_TIME_CHECK_PC_MSP_VMS
+2026-07-24 15:17:21 INFO     [msp_validator:1579] date on 192.168.5.6: 1784877441
+2026-07-24 15:17:21 INFO     [msp_validator:1579] date on 192.168.5.5: 1784877441
+2026-07-24 15:17:22 INFO     [msp_validator:1579] date on 192.168.5.4: 1784877442
+2026-07-24 15:17:22 INFO     [msp_validator:1579] date on 111.222.64.15: 1784877442
+2026-07-24 15:17:23 INFO     [msp_validator:1579] date on 111.222.64.20: 1784877442
+2026-07-24 15:17:23 INFO     [msp_validator:1579] date on 111.222.64.19: 1784877443
+2026-07-24 15:17:23 INFO     [msp_validator:1583] Drift between PC and Msp VMs is 3 seconds.
+2026-07-24 15:17:23 INFO     [msp_validator:2360] Check TEST_TIME_CHECK_PC_MSP_VMS SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_MSP_CLUSTER_HEALTH
+2026-07-24 15:17:23 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:23 INFO     [msp_validator:2332] Test Name: TEST_MSP_CLUSTER_HEALTH
+2026-07-24 15:17:23 INFO     [msp_validator:1659] ********** Testing Cluster health of MSP cluster msp **********
+2026-07-24 15:17:25 INFO     [msp_validator:1665] Cluster msp: Node is healthy
+2026-07-24 15:17:25 INFO     [msp_validator:1665] Cluster msp: LB is healthy
+2026-07-24 15:17:25 INFO     [msp_validator:1665] Cluster msp: ClusterWorkflow is healthy
+2026-07-24 15:17:25 INFO     [msp_validator:1665] Cluster msp: Core is healthy
+2026-07-24 15:17:25 INFO     [msp_validator:1665] Cluster msp: Addons is healthy
+2026-07-24 15:17:25 INFO     [msp_validator:1665] Cluster msp: Extensions is healthy
+2026-07-24 15:17:25 INFO     [msp_validator:1659] ********** Testing Cluster health of MSP cluster S3 **********
+2026-07-24 15:17:27 INFO     [msp_validator:1665] Cluster S3: Node is healthy
+2026-07-24 15:17:27 INFO     [msp_validator:1665] Cluster S3: LB is healthy
+2026-07-24 15:17:27 INFO     [msp_validator:1665] Cluster S3: ClusterWorkflow is healthy
+2026-07-24 15:17:27 INFO     [msp_validator:1665] Cluster S3: Core is healthy
+2026-07-24 15:17:27 INFO     [msp_validator:1665] Cluster S3: Addons is healthy
+2026-07-24 15:17:27 INFO     [msp_validator:1665] Cluster S3: Extensions is healthy
+2026-07-24 15:17:27 INFO     [msp_validator:2360] Check TEST_MSP_CLUSTER_HEALTH SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY
+2026-07-24 15:17:27 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:27 INFO     [msp_validator:2332] Test Name: TEST_IMAGES_FROM_LOCAL_REGISTRY
+2026-07-24 15:17:27 INFO     [msp_validator:2360] Check TEST_IMAGES_FROM_LOCAL_REGISTRY SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_REGISTRY_ACTIVE
+2026-07-24 15:17:27 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:27 INFO     [msp_validator:2332] Test Name: TEST_REGISTRY_ACTIVE
+2026-07-24 15:17:27 INFO     [msp_validator:1731] ********** Testing Registry health within cluster msp **********
+2026-07-24 15:17:27 INFO     [msp_validator:1740] Checking registry status on 192.168.5.4
+2026-07-24 15:17:28 INFO     [msp_validator:1740] Checking registry status on 192.168.5.5
+2026-07-24 15:17:28 INFO     [msp_validator:1731] ********** Testing Registry health within cluster S3 **********
+2026-07-24 15:17:28 INFO     [msp_validator:1740] Checking registry status on 111.222.64.19
+2026-07-24 15:17:29 INFO     [msp_validator:1740] Checking registry status on 111.222.64.15
+2026-07-24 15:17:30 INFO     [msp_validator:2360] Check TEST_REGISTRY_ACTIVE SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_ETCD_ACTIVE
+2026-07-24 15:17:30 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:30 INFO     [msp_validator:2332] Test Name: TEST_ETCD_ACTIVE
+2026-07-24 15:17:30 INFO     [msp_validator:1794] ********** Testing Etcd health within cluster msp **********
+2026-07-24 15:17:30 INFO     [msp_validator:1797] Checking etcd health on 192.168.5.6
+2026-07-24 15:17:31 INFO     [msp_validator:1797] Checking etcd health on 192.168.5.5
+2026-07-24 15:17:31 INFO     [msp_validator:1797] Checking etcd health on 192.168.5.4
+2026-07-24 15:17:32 INFO     [msp_validator:1794] ********** Testing Etcd health within cluster S3 **********
+2026-07-24 15:17:32 INFO     [msp_validator:1797] Checking etcd health on 111.222.64.15
+2026-07-24 15:17:33 INFO     [msp_validator:1797] Checking etcd health on 111.222.64.20
+2026-07-24 15:17:34 INFO     [msp_validator:1797] Checking etcd health on 111.222.64.19
+2026-07-24 15:17:35 INFO     [msp_validator:2360] Check TEST_ETCD_ACTIVE SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_ETCD_PERFORMANCE
+2026-07-24 15:17:35 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:35 INFO     [msp_validator:2332] Test Name: TEST_ETCD_PERFORMANCE
+2026-07-24 15:17:35 WARNING  [msp_validator:2349] Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False
+Test TEST_ETCD_PERFORMANCE is skipped: To run this test set flag --skip_long_running_tests=False
+--------------------------------------------------
+Test Name: TEST_KEEPALIVED_ACTIVE
+2026-07-24 15:17:35 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:35 INFO     [msp_validator:2332] Test Name: TEST_KEEPALIVED_ACTIVE
+2026-07-24 15:17:35 INFO     [msp_validator:1845] ********** Testing keepalive health within cluster msp **********
+2026-07-24 15:17:35 INFO     [msp_validator:1848] Checking keepalived status on 192.168.5.4
+2026-07-24 15:17:36 INFO     [msp_validator:1848] Checking keepalived status on 192.168.5.5
+2026-07-24 15:17:36 INFO     [msp_validator:1845] ********** Testing keepalive health within cluster S3 **********
+2026-07-24 15:17:36 INFO     [msp_validator:1848] Checking keepalived status on 111.222.64.19
+2026-07-24 15:17:36 INFO     [msp_validator:1848] Checking keepalived status on 111.222.64.15
+2026-07-24 15:17:37 INFO     [msp_validator:2360] Check TEST_KEEPALIVED_ACTIVE SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_PBR_CONFIG_SETUP
+2026-07-24 15:17:37 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:37 INFO     [msp_validator:2332] Test Name: TEST_PBR_CONFIG_SETUP
+2026-07-24 15:17:37 INFO     [msp_validator:1871] Skipping PBR config check since it is a vxlan setup
+2026-07-24 15:17:37 INFO     [msp_validator:1862] ********** Testing pbr config setup within cluster S3 **********
+2026-07-24 15:17:37 INFO     [msp_validator:1866] Checking PBR on 111.222.64.15
+2026-07-24 15:17:37 INFO     [msp_validator:1866] Checking PBR on 111.222.64.20
+2026-07-24 15:17:38 INFO     [msp_validator:1866] Checking PBR on 111.222.64.19
+2026-07-24 15:17:38 INFO     [msp_validator:2360] Check TEST_PBR_CONFIG_SETUP SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_ZK_IP_CHECK
+2026-07-24 15:17:38 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:38 INFO     [msp_validator:2332] Test Name: TEST_ZK_IP_CHECK
+2026-07-24 15:17:38 INFO     [msp_validator:1116] ********** Testing if zk correctly exposed with PC IP within cluster msp **********
+2026-07-24 15:17:38 INFO     [msp_validator:2360] Check TEST_ZK_IP_CHECK SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_PING_REGISTRY_WITHIN_MSP
+2026-07-24 15:17:38 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:38 INFO     [msp_validator:2332] Test Name: TEST_PING_REGISTRY_WITHIN_MSP
+2026-07-24 15:17:38 INFO     [msp_validator:1904] ********** Testing Registry access within cluster msp **********
+2026-07-24 15:17:38 INFO     [msp_validator:1912] Active-active registry on cluster msp
+2026-07-24 15:17:50 INFO     [msp_validator:1259] test connectivity of resolved fqdn 111.222.64.19
+2026-07-24 15:17:51 INFO     [msp_validator:1248] Retry count for resolving fqdn: 0
+2026-07-24 15:17:51 INFO     [msp_validator:863] Resolve fqdn 2.msp-registry.s3.msp.cluster.local using dig on cluster 111.222.64.19 node S3, expected values ['111.222.64.19', '111.222.64.15']
+2026-07-24 15:17:51 INFO     [msp_validator:868] DIG 2.msp-registry.s3.msp.cluster.local on 111.222.64.19: 111.222.64.19
+2026-07-24 15:17:51 INFO     [msp_validator:1259] test connectivity of resolved fqdn 111.222.64.19
+2026-07-24 15:17:52 INFO     [msp_validator:2360] Check TEST_PING_REGISTRY_WITHIN_MSP SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_NODE_ROLES
+2026-07-24 15:17:52 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:52 INFO     [msp_validator:2332] Test Name: TEST_NODE_ROLES
+2026-07-24 15:17:52 INFO     [msp_validator:1999] Verifying the node roles for the cluster msp 
+2026-07-24 15:17:52 INFO     [msp_validator:777] Attempt: 1 Nodes of cluster msp have expected roles.
+2026-07-24 15:17:52 INFO     [msp_validator:1999] Verifying the node roles for the cluster S3 
+2026-07-24 15:17:52 INFO     [msp_validator:777] Attempt: 1 Nodes of cluster S3 have expected roles.
+2026-07-24 15:17:52 INFO     [msp_validator:2360] Check TEST_NODE_ROLES SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_PING_REGISTRY_FROM_PC
+2026-07-24 15:17:52 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:17:52 INFO     [msp_validator:2332] Test Name: TEST_PING_REGISTRY_FROM_PC
+2026-07-24 15:17:52 INFO     [msp_validator:1932] ********** Testing Registry access from PC for cluster msp **********
+2026-07-24 15:17:52 INFO     [msp_validator:1940] Active-active registry on cluster msp
+2026-07-24 15:17:52 INFO     [msp_validator:1248] Retry count for resolving fqdn: 0
+2026-07-24 15:17:52 INFO     [msp_validator:863] Resolve fqdn msp-registry.msp.cluster.local using dig on cluster 111.222.14.1 node msp, expected values ['192.168.5.4', '192.168.5.5']
+2026-07-24 15:17:52 INFO     [msp_validator:868] DIG msp-registry.msp.cluster.local on 111.222.14.1: 192.168.5.5
+192.168.5.4
+2026-07-24 15:17:52 INFO     [msp_validator:1259] test connectivity of resolved fqdn 192.168.5.5
+2026-07-24 15:17:53 INFO     [msp_validator:1248] Retry count for resolving fqdn: 0
+2026-07-24 15:17:53 INFO     [msp_validator:863] Resolve fqdn msp-registry.msp.cluster.local using dig on cluster 111.222.14.2 node msp, expected values ['192.168.5.4', '192.168.5.5']
+2026-07-24 15:17:53 INFO     [msp_validator:868] DIG msp-registry.msp.cluster.local on 111.222.14.2: 192.168.5.5
+192.168.5.4
+2026-07-24 15:17:53 INFO     [msp_validator:1259] test connectivity of resolved fqdn 192.168.5.5
+2026-07-24 15:17:53 INFO     [msp_validator:1248] Retry count for resolving fqdn: 0
+2026-07-24 15:17:53 INFO     [msp_validator:863] Resolve fqdn msp-registry.msp.cluster.local using dig on cluster 111.222.14.3 node msp, expected values ['192.168.5.4', '192.168.5.5']
+2026-07-24 15:17:53 INFO     [msp_validator:868] DIG msp-registry.msp.cluster.local on 111.222.14.3: 192.168.5.5
+192.168.5.4
+2026-07-24 15:17:53 INFO     [msp_validator:1259] test connectivity of resolved fqdn 192.168.5.5
+2026-07-24 15:17:54 INFO     [msp_validator:1248] Retry count for resolving fqdn: 0
+2026-07-24 15:18:01 INFO     [msp_validator:863] Resolve fqdn 2.msp-registry.s3.msp.cluster.local using dig on cluster 111.222.14.3 node S3, expected values ['111.222.64.19', '111.222.64.15']
+2026-07-24 15:18:01 INFO     [msp_validator:868] DIG 2.msp-registry.s3.msp.cluster.local on 111.222.14.3: 111.222.64.19
+2026-07-24 15:18:01 INFO     [msp_validator:1259] test connectivity of resolved fqdn 111.222.64.19
+2026-07-24 15:18:01 INFO     [msp_validator:2360] Check TEST_PING_REGISTRY_FROM_PC SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC
+2026-07-24 15:18:01 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:18:01 INFO     [msp_validator:2332] Test Name: TEST_REGISTRY_INSTANCES_IN_SYNC
+2026-07-24 15:18:01 INFO     [msp_validator:1970] ********** Testing registry instances in sync for cluster msp **********
+2026-07-24 15:18:04 INFO     [msp_validator:261] Retry 1: Images in https://1.msp-registry.msp.cluster.local:5001 and https://2.msp-registry.msp.cluster.local:5001 are in sync
+2026-07-24 15:18:04 INFO     [msp_validator:1970] ********** Testing registry instances in sync for cluster S3 **********
+2026-07-24 15:18:06 INFO     [msp_validator:261] Retry 1: Images in https://1.msp-registry.s3.msp.cluster.local:5000 and https://2.msp-registry.s3.msp.cluster.local:5000 are in sync
+2026-07-24 15:18:06 INFO     [msp_validator:2360] Check TEST_REGISTRY_INSTANCES_IN_SYNC SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS
+2026-07-24 15:18:06 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:18:06 INFO     [msp_validator:2332] Test Name: TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS
+2026-07-24 15:18:06 INFO     [msp_validator:2160] ********** Testing services assigned expected LB IPs for msp_cluster: msp **********
+2026-07-24 15:18:06 INFO     [msp_validator:1122] LoadBalancer svcs on clusters msp: [('anc-hermes-service.default', ['111.222.14.3', '111.222.14.2', '111.222.14.1']), ('anc-ovn-external.default', ['111.222.14.1', '111.222.14.3', '111.222.14.2']), ('anc-policydb-external.default', ['111.222.14.1', '111.222.14.3', '111.222.14.2']), ('iam-proxy.ntnx-base', ['111.222.14.1', '111.222.14.3', '111.222.14.2']), ('iam-proxy-cac.ntnx-base', ['111.222.14.1', '111.222.14.3', '111.222.14.2']), ('iam-proxy-internal.ntnx-base', ['192.168.5.4', '192.168.5.5', '192.168.5.6']), ('svcmgr.ntnx-base', ['192.168.5.4', '192.168.5.5', '192.168.5.6'])]
+2026-07-24 15:18:06 INFO     [msp_validator:1146] svc registry entry exist for anc-hermes-service.default(111.222.14.1)
+2026-07-24 15:18:07 INFO     [msp_validator:2175] Expected LB IPs assigned to service iam-proxy.ntnx-base
+2026-07-24 15:18:07 INFO     [msp_validator:2175] Expected LB IPs assigned to service iam-proxy-cac.ntnx-base
+2026-07-24 15:18:07 INFO     [msp_validator:2360] Check TEST_SERVICES_ASSIGNED_EXPECTED_LB_IPS SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_STORAGE_PROVISIONING
+2026-07-24 15:18:07 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:18:07 INFO     [msp_validator:2332] Test Name: TEST_STORAGE_PROVISIONING
+2026-07-24 15:18:07 INFO     [msp_validator:2360] Check TEST_STORAGE_PROVISIONING SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_SVC_DISCOVERY_PMSP_SVC
+2026-07-24 15:19:53 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:19:53 INFO     [msp_validator:2332] Test Name: TEST_SVC_DISCOVERY_PMSP_SVC
+2026-07-24 15:19:53 INFO     [msp_validator:2109] No PMSP cluster found on the cluster
+2026-07-24 15:19:53 INFO     [msp_validator:2360] Check TEST_SVC_DISCOVERY_PMSP_SVC SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP
+2026-07-24 15:19:53 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:19:53 INFO     [msp_validator:2332] Test Name: TEST_SVC_DISCOVERY_WITHIN_MSP
+2026-07-24 15:19:53 INFO     [msp_validator:2013] ********** Testing cluster domain entry in dnsmasq.conf of cluster msp **********
+2026-07-24 15:20:17 INFO     [msp_validator:1248] Retry count for resolving fqdn: 0
+2026-07-24 15:22:41 INFO     [msp_validator:853] PING iam-proxy-cac.ntnx-base.s3.msp.cluster.local on 111.222.64.19: 111.222.65.102
+2026-07-24 15:22:41 INFO     [msp_validator:1259] test connectivity of resolved fqdn 111.222.65.102
+2026-07-24 15:22:41 INFO     [msp_validator:2360] Check TEST_SVC_DISCOVERY_WITHIN_MSP SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG
+2026-07-24 15:22:41 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:22:41 INFO     [msp_validator:2332] Test Name: TEST_MSP_NETWORK_SEGMENTATION_CONFIG
+2026-07-24 15:22:41 INFO     [msp_validator:2234] Gathering CMSP information
+2026-07-24 15:22:41 INFO     [msp_validator:2242] Skipping test_msp_network_segmentation_config for msp CMSP
+2026-07-24 15:22:41 INFO     [msp_validator:2245] Skipping test_msp_network_segmentation_config for S3 SMSP cluster
+2026-07-24 15:22:41 INFO     [msp_validator:2360] Check TEST_MSP_NETWORK_SEGMENTATION_CONFIG SUCCEEDED
+[32mSTATUS: SUCCESS[0m
+--------------------------------------------------
+--------------------------------------------------
+Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH
+2026-07-24 15:22:41 INFO     [msp_validator:2331] --------------------------------------------------
+2026-07-24 15:22:41 INFO     [msp_validator:2332] Test Name: TEST_SANITY_MSP_CLUSTER_HEALTH
+2026-07-24 15:22:41 INFO     [msp_validator:2194] ********** Testing Cluster health of MSP cluster msp **********
+2026-07-24 15:22:42 INFO     [msp_validator:2210] Cluster msp is healthy
+2026-07-24 15:22:42 INFO     [msp_validator:2194] ********** Testing Cluster health of MSP cluster S3 **********
+2026-07-24 15:22:44 INFO     [msp_validator:2210] Cluster S3 is healthy
+2026-07-24 15:22:44 INFO     [msp_validator:2360] Check TEST_SANITY_MSP_CLUSTER_HEALTH SUCCEEDED
+[32mSTATUS: SUCCESS[0m

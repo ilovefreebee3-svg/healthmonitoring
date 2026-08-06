@@ -1,0 +1,5 @@
+---
+# defaults file for Role r_allssh_curl_get_catalog_k
+description: allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k'
+idx: idx102
+role: r_allssh_curl_get_catalog_k

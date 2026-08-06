@@ -1,0 +1,5 @@
+---
+# defaults file for Role r_hostssh_sudo_ovn_appctl_connection_status
+description: hostssh sudo ovn_appctl connection-status
+idx: idx6
+role: r_hostssh_sudo_ovn_appctl_connection_status

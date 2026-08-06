@@ -1,0 +1,7 @@
+================== 158.52.129.129 =================
+drw-rw-r--. 46 user1 user1 4.0K Apr 24 20:51 ..
+drw-rw-r--.  2 user1 user1 4.0K Apr 24 20:51 .
+================== 158.52.129.130 =================
+ls: cannot access /usr/local/nutanix/iam-backup: No such file or directory
+================== 158.52.129.131 =================
+ls: cannot access /usr/local/nutanix/iam-backup: No such file or directory

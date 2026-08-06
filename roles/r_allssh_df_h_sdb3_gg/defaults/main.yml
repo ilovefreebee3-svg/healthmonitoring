@@ -1,0 +1,5 @@
+---
+# defaults file for Role r_allssh_df_sdb3_gg
+description: allssh 'df -h /dev/sdb3'
+idx: idx062
+role: r_allssh_df_sdb3_gg

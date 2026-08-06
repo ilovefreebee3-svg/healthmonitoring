@@ -1,0 +1,77 @@
+---
+- name: 1. Declare variables
+  set_fact:
+    cmd_list:
+      - name: hostssh ovn-appctl connection-status
+        argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#      - name: hostssh_ovn_appctl_connection_status
+#        argv: ["hostssh_ovn_appctl_connection_status"]
+
+- name: 2. Execute commands
+  include_tasks: subr.40.testing11_hostssh_ovn_lab_logic.yml
+  loop: "{{ cmd_list }}"
+  loop_control:
+    loop_var: cmd
+
+- name: 3. Read from hardcoded file
+  set_fact:
+    input_filter:
+      stdout: "{{ lookup('file', 'data.40.testing11_hostssh_ovn_lab_logic.txt') }}"
+      stdout_lines: "{{ lookup('file', 'data.40.testing11_hostssh_ovn_lab_logic.txt').splitlines() }}"
+      rc: 0
+      failed: false
+      changed: false
+
+- name: 4. Display hostssh sudo ovn_appctl connection-status output
+  ansible.builtin.debug:
+    msg: "{{ input_filter }}" 
+
+- name: 5. Split lines
+  set_fact:
+    lines: "{{ (input_filter.stdout).split('\n') | map('trim') | reject('equalto','') | list }}"
+
+- name: 6. Initialize results
+  set_fact:
+    num_disconnected: 0
+    remark: ""
+
+- name: 7. Process IP entries safely
+  set_fact:
+    num_disconnected: "{{ (num_disconnected | default(0) | int) + (1 if item_status != 'connected' and is_ip else 0) }}"
+    remark: >-
+      {{
+      remark +
+      (ip ~ ' - ' ~ item_status ~ '; ' if item_status != 'connected' and is_ip else '')
+      }}
+  loop: "{{ range(0, lines | length) | list }}"
+  loop_control:
+    loop_var: ovn_line_index
+  vars:
+    current: "{{ lines[ovn_line_index] }}"
+    next_line: "{{ lines[ovn_line_index + 1] if ovn_line_index + 1 < (lines | length) else '' }}"
+    is_ip: "{{ current is search('=+\\s*[0-9.]+\\s*=+') }}"
+    next_is_ip: "{{ next_line is search('=+') }}"
+    ip: "{{ current | regex_search('([0-9.]+)') }}"
+    item_status: >-
+      {% if is_ip and not next_is_ip %}
+      {{ next_line | trim }}
+      {% else %}
+      {% endif %}
+
+- name: 8. Final answer
+  set_fact:
+    answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
+
+- debug:
+    msg:
+      num_disconnected: "{{ num_disconnected }}"
+      remark: "{{ remark }}"
+      answer: "{{ answer }}"
+
+#- name: 9. Append result to CSV (local)
+#  import_tasks: logd.yml
+
+- name: 99. Include common role
+  ansible.builtin.include_role:
+     name: common

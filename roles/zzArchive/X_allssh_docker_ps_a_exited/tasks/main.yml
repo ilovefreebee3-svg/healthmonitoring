@@ -1,0 +1,44 @@
+---
+- name: Capture file content into a variable
+  set_fact:
+    input_text: "{{ lookup('file', 'allssh_docker_ps_a.txt') }}"
+
+- name: Initialize variables
+  set_fact:
+    lines: "{{ input_text.split('\n') }}"
+    num_container: 0
+    remark_list: []
+    answer: ""
+    current_ip: ""
+
+- name: Process lines with IP + remark
+  set_fact:
+    current_ip: "{{ (item.split('==========')[1] | trim) if '==========' in item else current_ip }}"
+    remark_list: >-
+      {{ remark_list + [
+          current_ip ~ ' | ' ~
+          (item[15:34] | default('') | trim) ~ ' ' ~
+          (item[75:98] | default('') | trim)
+        ] if ('ago' in item) else remark_list }}
+    num_container: "{{ num_container | int + (1 if 'ago' in item else 0) }}"
+  loop: "{{ lines }}"
+
+- name: Build final remark string
+  set_fact:
+    remark: "{{ remark_list | select('!=', '') | join(' | ') }}"
+
+- name: Set final answer
+  set_fact:
+    answer: "{{ 'container error' if num_container | int > 0 else '' }}"
+
+- name: Show result
+  debug:
+    msg:
+      - "IP: {{ current_ip }}"
+      - "Containers found: {{ num_container }}"
+      - "Remark: {{ remark }}"
+      - "Answer: {{ answer }}"
+
+- name: Include common role
+  ansible.builtin.include_role:
+     name: common
