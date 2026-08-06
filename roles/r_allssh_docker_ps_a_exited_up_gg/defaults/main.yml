@@ -1,5 +1,0 @@
----
-# defaults file for Role  r_allssh_docker_ps_a_exited_up_gg
-description: allssh 'docker ps -a | grep -v -e Exited -e Up'
-idx: idx060
-role:  r_allssh_docker_ps_a_exited_up_gg

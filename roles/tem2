@@ -1,1 +1,0 @@
-  when: read_from_file | bool

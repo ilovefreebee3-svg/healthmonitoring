@@ -1,5 +1,0 @@
----
-# defaults file for Role r_mspctl_cluster_health
-description: mspctl cluster health
-idx: idx057
-role: r_mspctl_cluster_health

@@ -1,5 +1,0 @@
----
-# defaults file for r_hostssh_nvidia-smi
-description: hostssh nvidia-smi
-idx: idx016
-role: r_hostssh_nvidia-smi

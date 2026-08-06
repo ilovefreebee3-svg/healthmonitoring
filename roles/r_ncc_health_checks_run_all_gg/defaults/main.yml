@@ -1,5 +1,0 @@
----
-# defaults file for Role r_ncc_health_checks_run_all_gg
-description: ncc health_checks run_all
-idx: idx3
-role: r_ncc_health_checks_run_all_gg

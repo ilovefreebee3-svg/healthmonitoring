@@ -1,9 +1,0 @@
-- name: Run roles dynamically
-  hosts: server_12
-  gather_facts: no
-
-  tasks:
-    - name: Include roles per host
-      include_role:
-        name: "{{ item }}"
-      loop: "{{ host_roles }}"

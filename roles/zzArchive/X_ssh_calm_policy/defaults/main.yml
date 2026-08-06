@@ -1,4 +1,0 @@
----
-# defaults file for r_ssh_calm_policy
-description: ssh <calm policy vm> df -kh
-idx: idx103

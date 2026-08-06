@@ -1,8 +1,0 @@
----
-- name: Append result to CSV (local)
-  delegate_to: localhost
-  lineinfile:
-    path: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
-    create: yes
-    line: "{{ inventory_hostname }}, {{ role }}, {{ vpc }}, {{ description }}, {{ idx }}, {{ answer }}, {{ remark }} "
-

@@ -1,4 +1,0 @@
----
-# defaults file for r_allssh_ll_calm_backup
-description: allssh 'ls -l /home/nutanix/tmp/calm-bkup'
-idx: idx100

@@ -1,9 +1,0 @@
-================== 188.185.11.1 =================
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/sdb3        49G   20G   29G  41% /home
-================== 188.185.11.3 =================
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/sdb3        49G   21G   29G  42% /home
-================== 188.185.11.2 =================
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/sdb3        49G   21G   29G  42% /home
