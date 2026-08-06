@@ -2,4 +2,3 @@ host_roles:
   - role3
   - role6
   - role9
-vpc:

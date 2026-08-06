@@ -8,4 +8,3 @@ host_roles:
   - r_allssh_curl_get_catalog_k_P1SMG025   
   - r_ssh_calm_policy_gg
 
-vpc: "OSIT Calm PC (ITC)"

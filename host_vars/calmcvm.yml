@@ -7,4 +7,3 @@ host_roles:
   - r_allssh_df_h_sdb3_gg
   - r_mspctl_debug_run
 
-vpc: "Infra PC"

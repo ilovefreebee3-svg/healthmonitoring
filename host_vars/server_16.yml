@@ -7,4 +7,3 @@ host_roles:
   - r_allssh_sudo_kubectl_get_pods_a_gg
   - r_allssh_df_h_sdb3_gg
 
-vpc: "OSIT Object PC"
