@@ -10,6 +10,7 @@
   ansible.builtin.wait_for_connection:
     timeout: 5
   register: control_cvm_status
+  ignore_errors: true
 
 # ------------------------------------------------------------
 # SCENARIO 2: Run 'df -kh' and process the output
