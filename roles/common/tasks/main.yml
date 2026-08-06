@@ -1,5 +1,5 @@
 ---
-- name: Append result to CSV (local)
+- name: 99. Append result to CSV (local)
   delegate_to: localhost
   lineinfile:
     path: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
