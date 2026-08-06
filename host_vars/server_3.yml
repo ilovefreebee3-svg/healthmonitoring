@@ -4,5 +4,6 @@ host_roles:
   - r_hostssh_systemctl_status_nvidia_vgpu_mgr
   - r_hostssh_nvidia_smi
 
+vpc: "IKC2 GPU Tenant 2 PE"
 
 
