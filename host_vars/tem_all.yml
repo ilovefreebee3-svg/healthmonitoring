@@ -14,7 +14,7 @@ common
   - r_allssh_docker_ps_a_exited_up_gg      
   - r_mspctl_debug_run_test_exclude_subset
   - r_allssh_ll_calm_backup_gg
-  - r_ncc_health_checks_run_all_gg
+#   - r_ncc_health_checks_run_all_gg
   - r_allssh_ls_larth_iam_backup           
   - r_ssh_calm_policy_gg
   - r_allssh_ls_larth_iam_backup_gg        
