@@ -10,6 +10,7 @@
   ansible.builtin.wait_for_connection:
     timeout: 5
   register: control_cvm_status
+  ignore_errors: true
 
 # ------------------------------------------------------------
 # SCENARIO 2: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
