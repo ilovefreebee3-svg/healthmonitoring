@@ -96,6 +96,6 @@
 #- name: Append result to CSV (local)
 #  import_tasks: logd.yml
 
-- name: 99. Include common role
-  ansible.builtin.include_role:
-     name: common
+#- name: 99. Include common role
+#  ansible.builtin.include_role:
+#     name: common
