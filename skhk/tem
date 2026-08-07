@@ -1,0 +1,4 @@
+  vars:
+    read_from_file: false 
+    enable_logd: false 
+    enable_common: false 
