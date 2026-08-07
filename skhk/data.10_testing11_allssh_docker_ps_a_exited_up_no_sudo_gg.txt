@@ -41,7 +41,7 @@ d924521bb8aa   nutanix/pause:3.1                "/pause"                 4 weeks
 d3890bca4b89   3b63df468a30                     "/usr/local/bin/kube…"   4 weeks ago   Up 4 weeks                           k8s_kube-rbac-proxy_prometheus-operator-774fb648bd-8d27f_ntnx-system_e8d08de8-14a8-4b09-b7a0-fc399fb0b6db_0
 23e8ed209d30   382d8ff866c9                     "/bin/operator --kub…"   4 weeks ago   Up 4 weeks                           k8s_prometheus-operator_prometheus-operator-774fb648bd-8d27f_ntnx-system_e8d08de8-14a8-4b09-b7a0-fc399fb0b6db_0
 58d061ac7ce1   nutanix/pause:3.1                "/pause"                 4 weeks ago   Up 4 weeks                           k8s_POD_prometheus-operator-774fb648bd-8d27f_ntnx-system_e8d08de8-14a8-4b09-b7a0-fc399fb0b6db_0
-ec9ca888f47e   epsilon:latest                   "/bin/sh -c /home/ep…"   4 weeks ago   Up 4 weeks (healthy)                 epsilon
+ec9ca222f47e   epsilon:latest                   "/bin/sh -c /home/ep…"   4 weeks ago   Up 4 weeks (healthy)                 epsilon
 0a8986e4c6e3   e6c43605b714                     "/opt/bin/flanneld -…"   4 weeks ago   Up 4 weeks                           k8s_kube-flannel_kube-flannel-ds-2kh7m_kube-system_7c4f2186-c3b6-4c51-afc6-95a8ac22c3c9_0
 399ec947f504   e6c43605b714                     "sh -c 'iptables -D …"   4 weeks ago   Exited (0) 4 weeks ago               k8s_init-flannel_kube-flannel-ds-2kh7m_kube-system_7c4f2186-c3b6-4c51-afc6-95a8ac22c3c9_0
 f1e677a87846   nutanix/pause:3.1                "/pause"                 4 weeks ago   Up 4 weeks                           k8s_POD_kube-flannel-ds-2kh7m_kube-system_7c4f2186-c3b6-4c51-afc6-95a8ac22c3c9_0
@@ -58,7 +58,7 @@ a408adc7d60a   db9764d7ad38                     "/coredns -conf /etc…"   4 wee
 010fa3e73539   nutanix/pause:3.1                "/pause"                 4 weeks ago   Up 4 weeks                           k8s_POD_coredns-5c647754cf-2x7x5_kube-system_9f9ce57c-fa00-4489-8768-f30fea21361c_0
 df0173536972   aoss_service_manager:5.2         "/bin/sh -c /usr/loc…"   4 weeks ago   Up 4 weeks                           aoss_service_manager
 f5e5a8930b7a   msp-controller:2.7.1.10          "/start.sh -debug=tr…"   4 weeks ago   Up 4 weeks (healthy)                 msp-controller
-e74234415652   2cf555224fb8                     "kube-apiserver --fe…"   4 weeks ago   Up 4 weeks                           k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-1-a-pcvm_kube-system_adeed726dba2b9308a01679d740a710a_7
+e74234415652   2cf111224fb8                     "kube-apiserver --fe…"   4 weeks ago   Up 4 weeks                           k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-1-a-pcvm_kube-system_adeed726dba2b9308a01679d740a710a_7
 d92983a4f3c0   nats:2.10.25-cpaas-linux         "/bin/nats-server -c…"   4 weeks ago   Up 4 weeks                           nats
 4e5fd9d58c9e   nutanix/pause:3.1                "/pause"                 4 weeks ago   Exited (0) 4 weeks ago               k8s_POD_kube-flannel-ds-bcfqn_kube-system_8dd99617-3b89-4d4d-a3c9-8d98724bb2ed_0
 6d393dfa27b2   3b63df468a30                     "/usr/local/bin/kube…"   4 weeks ago   Up 4 weeks                           k8s_kube-rbac-proxy_node-exporter-kp8ct_ntnx-system_57ecd3ce-8245-48c1-a3ea-51837ef3f029_0
@@ -66,7 +66,7 @@ d92983a4f3c0   nats:2.10.25-cpaas-linux         "/bin/nats-server -c…"   4 wee
 abc84ad7c594   nutanix/pause:3.1                "/pause"                 4 weeks ago   Up 4 weeks                           k8s_POD_node-exporter-kp8ct_ntnx-system_57ecd3ce-8245-48c1-a3ea-51837ef3f029_0
 ff9b23e559c4   dd3c014b943b                     "kube-proxy --kubeco…"   4 weeks ago   Up 4 weeks                           k8s_kube-proxy_kube-proxy-ds-wz58n_kube-system_e274981a-08e4-4508-a110-546ab0e69e34_0
 2e366b16ecdf   nutanix/pause:3.1                "/pause"                 4 weeks ago   Up 4 weeks                           k8s_POD_kube-proxy-ds-wz58n_kube-system_e274981a-08e4-4508-a110-546ab0e69e34_0
-3bb14354c83a   2cf555224fb8                     "kube-apiserver --fe…"   4 weeks ago   Exited (1) 4 weeks ago               k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-1-a-pcvm_kube-system_adeed726dba2b9308a01679d740a710a_6
+3bb14354c83a   2cf111224fb8                     "kube-apiserver --fe…"   4 weeks ago   Exited (1) 4 weeks ago               k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-1-a-pcvm_kube-system_adeed726dba2b9308a01679d740a710a_6
 1d7661f7a7d6   976fea1e036f                     "kube-scheduler --ma…"   4 weeks ago   Up 4 weeks                           k8s_kube-scheduler_kube-apiserver-ntnx-123-234-14-1-a-pcvm_kube-system_adeed726dba2b9308a01679d740a710a_0
 9304086f307c   fcca6431bdc1                     "kube-controller-man…"   4 weeks ago   Up 4 weeks                           k8s_kube-controller-manager_kube-apiserver-ntnx-123-234-14-1-a-pcvm_kube-system_adeed726dba2b9308a01679d740a710a_0
 9b8dcfa75510   nutanix/pause:3.1                "/pause"                 4 weeks ago   Up 4 weeks                           k8s_POD_kube-apiserver-ntnx-123-234-14-1-a-pcvm_kube-system_adeed726dba2b9308a01679d740a710a_0
@@ -169,7 +169,7 @@ d21234e225ff   0c33456baaaa                      "/bin/sh -c 'date -u…"    4 w
 ff67736dc7bb   78f227fb191b                      "/bin/prometheus-con…"    4 weeks ago   Exited (0) 4 weeks ago               k8s_init-config-reloader_prometheus-k8s-0_ntnx-system_0527c803-2fcd-40e0-bc11-aa32ba36f262_0
 4ae236525ae0   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_prometheus-k8s-0_ntnx-system_0527c803-2fcd-40e0-bc11-aa32ba36f262_0
 4f3421e24b98   nutanix/ntnx-cloudprovider        "/bin/ntnx-cloudprov…"    4 weeks ago   Up 4 weeks                           k8s_cloud-controller-manager_cloud-controller-manager-77nj8_kube-system_a77c1e1f-02a4-41e5-bc6b-0eceb8545347_0
-82fb119a8886   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_mutator-webhook-dep-7fb67d94d6-8grls_ntnx-system_419b650f-1f6c-41e1-9939-25dea3c858fa_0
+82fb119a2226   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_mutator-webhook-dep-7fb67d94d6-8grls_ntnx-system_419b650f-1f6c-41e1-9939-25dea3c858fa_0
 563332c01468   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_cloud-controller-manager-77nj8_kube-system_a77c1e1f-02a4-41e5-bc6b-0eceb8545347_0
 23e86f7b75f9   db9764d7ad38                      "/coredns -conf /etc…"    4 weeks ago   Up 4 weeks                           k8s_coredns_mspdns-vv6bg_kube-system_0efb28b8-1aea-490e-9ea8-be24fba559db_0
 c519d562df5e   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_mspdns-vv6bg_kube-system_0efb28b8-1aea-490e-9ea8-be24fba559db_0
@@ -223,12 +223,12 @@ b05b94d04cc3   nucalm:latest                     "/bin/sh -c /home/ca…"    4 w
 31fecdcbb380   domain_manager:latest             "/bin/sh -c /home/ca…"    4 weeks ago   Up 4 weeks (healthy)                 domain_manager
 ae38bc16c285   aoss_service_manager:5.2          "/bin/sh -c /usr/loc…"    4 weeks ago   Up 4 weeks                           aoss_service_manager
 a0b3816c5594   msp-controller:2.7.1.10           "/start.sh -debug=tr…"    4 weeks ago   Up 4 weeks (healthy)                 msp-controller
-b96796b1164c   2cf555224fb8                      "kube-apiserver --fe…"    4 weeks ago   Up 4 weeks                           k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-3-a-pcvm_kube-system_f9ad4564f54cebd43afa1ce73e5633cf_7
+b96796b1164c   2cf111224fb8                      "kube-apiserver --fe…"    4 weeks ago   Up 4 weeks                           k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-3-a-pcvm_kube-system_f9ad4564f54cebd43afa1ce73e5633cf_7
 08038e0752e8   nats:2.10.25-cpaas-linux          "/bin/nats-server -c…"    4 weeks ago   Up 4 weeks                           nats
 4b867abd35bf   e6c43605b714                      "/opt/bin/flanneld -…"    4 weeks ago   Up 4 weeks                           k8s_kube-flannel_kube-flannel-ds-bjv92_kube-system_20aaeee9-2b3d-4155-b7cb-66ef5d8bac21_0
 f0e54cb05535   e6c43605b714                      "sh -c 'iptables -D …"    4 weeks ago   Exited (0) 4 weeks ago               k8s_init-flannel_kube-flannel-ds-bjv92_kube-system_20aaeee9-2b3d-4155-b7cb-66ef5d8bac21_0
 7d96c10da440   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_kube-flannel-ds-bjv92_kube-system_20aaeee9-2b3d-4155-b7cb-66ef5d8bac21_0
-0853c1795550   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Exited (0) 4 weeks ago               k8s_POD_mspdns-cjxm8_kube-system_533c2100-99dd-4736-ba29-392684e21736_30
+0853c1791110   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Exited (0) 4 weeks ago               k8s_POD_mspdns-cjxm8_kube-system_533c2100-99dd-4736-ba29-392684e21736_30
 b416409cb428   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Exited (0) 4 weeks ago               k8s_POD_fluent-bit-nbwkn_ntnx-system_d8878f02-75b9-4a3f-b40a-ca20c582944b_36
 a01f74f1d278   3b63df468a30                      "/usr/local/bin/kube…"    4 weeks ago   Up 4 weeks                           k8s_kube-rbac-proxy_node-exporter-gvmw7_ntnx-system_1e30adc1-cb7d-4971-bd77-8ee706da5b68_0
 d5252854e5fa   1dbe0e931976                      "/bin/node_exporter …"    4 weeks ago   Up 4 weeks                           k8s_node-exporter_node-exporter-gvmw7_ntnx-system_1e30adc1-cb7d-4971-bd77-8ee706da5b68_0
@@ -236,7 +236,7 @@ bc4ef1f6fe83   dd3c014b943b                      "kube-proxy --kubeco…"    4 w
 38b1686db3ed   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_kube-proxy-ds-bkhld_kube-system_5121fce6-fe35-4a3b-9cc8-4c62c99505fd_0
 fe19d80650ec   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_node-exporter-gvmw7_ntnx-system_1e30adc1-cb7d-4971-bd77-8ee706da5b68_0
 4a43320968db   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Exited (0) 4 weeks ago               k8s_POD_kube-flannel-ds-kdcdl_kube-system_312a68fe-2f6f-4ef0-9ae2-663129d4b238_0
-98247e73313c   2cf555224fb8                      "kube-apiserver --fe…"    4 weeks ago   Exited (1) 4 weeks ago               k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-3-a-pcvm_kube-system_f9ad4564f54cebd43afa1ce73e5633cf_6
+98247e73313c   2cf111224fb8                      "kube-apiserver --fe…"    4 weeks ago   Exited (1) 4 weeks ago               k8s_kube-apiserver_kube-apiserver-ntnx-123-234-14-3-a-pcvm_kube-system_f9ad4564f54cebd43afa1ce73e5633cf_6
 ed734bc4a6af   nutanix/pause:3.1                 "/pause"                  4 weeks ago   Up 4 weeks                           k8s_POD_kube-apiserver-ntnx-123-234-14-3-a-pcvm_kube-system_f9ad4564f54cebd43afa1ce73e5633cf_0
 cf50f62575ff   nutanix/k8s-fluentbit:2.7.0-20    "/fluent-bit/bin/flu…"    4 weeks ago   Up 4 weeks                           fluent.service
 1abe0f8c3fff   nutanix/etcd:v3.4.17              "/usr/local/bin/etcd…"    4 weeks ago   Up 4 weeks                           ntnx-123-234-14-3-a-pcvm"

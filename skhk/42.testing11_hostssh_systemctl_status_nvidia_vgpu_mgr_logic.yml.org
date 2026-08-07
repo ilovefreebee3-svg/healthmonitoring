@@ -1,24 +1,21 @@
 ---
-- name: Pseudo hostssh - Check dbus across AHV Hosts
+- name: Pseudo hostssh - Check nvidia-vgpu-mgr
   hosts: corecvm
   gather_facts: false
 
+  vars:
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    remote_user_name: nutanix
 
   tasks:
-    - name: -1. Declare flags
+    - name: 1. Declare variables
       set_fact:
-        read_from_file: false 
-        logd_enabled: false 
-        role_enabled: false 
-        remote_user_name: nutanix
-
-    - name: 0. Declare variables
-      set_fact:
-        read_from_file: false 
         answer: "Healthy"
         remark: "No failures or errors detected."
 
-    - name: 1. Get AHV host IP addresses
+    - name: 2. Get AHV host IP addresses
       ansible.builtin.command:
         argv:
           - /bin/bash
@@ -29,7 +26,7 @@
       register: hostips_output
       changed_when: false
 
-    - name: 2. Parse IP addresses into a clean list
+    - name: 3. Parse IP addresses into a clean list
       ansible.builtin.set_fact:
         ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
 
@@ -39,13 +36,11 @@
         input_result_lines_list: []
 
     - name: 5. Calling the subroutine
-      ansible.builtin.include_tasks: subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml
+      ansible.builtin.include_tasks: subr.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml
       loop: "{{ ahv_hosts }}"
       loop_control:
         loop_var: current_host
-      when:
-        - ahv_hosts | length > 0
-        - not (read_from_file | bool)
+      when: ahv_hosts | length > 0
 
     - name: 6. Construct final input_result dictionary
       ansible.builtin.set_fact:
@@ -60,22 +55,22 @@
     - name: 8. Mimic 'cat' register output using lookup
       set_fact:
         input_result:
-          stdout: "{{ lookup('file', 'data.44.testing11_hostssh_systemctl_status_dbus_logic.txt') }}"
-          stdout_lines: "{{ lookup('file', 'data.44.testing11_hostssh_systemctl_status_dbus_logic.txt').splitlines() }}"
+          stdout: "{{ lookup('file', 'data.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.txt').splitlines() }}"
           rc: 0
           failed: false
           changed: false
-      when: read_from_file | bool 
+      when: read_from_file | bool
 
     - name: 9. Display input_result.stdout_lines
       ansible.builtin.debug:
-        msg: "{{ input_result.stdout_lines }}" 
+        msg: "{{ input_result.stdout }}" 
 
     - set_fact:
         svc_list: >-
           {{
             input_result.stdout | regex_findall(
-            '={20}\s*([0-9.]+)\s*={20}.*?\n.*?(dbus\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            '={1,20}\s*([0-9.]+)\s*={1,20}.*?\n.*?(nvidia-vgpu-mgr\.service).*?\n.*?\n.*?Active:\s+(\w+)',
             multiline=True
             )
           }}

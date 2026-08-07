@@ -4,16 +4,12 @@
   hosts: corecvm
   gather_facts: false
 
-  tasks:
-    - name: -1. Declare flags
-      set_fact:
-        read_from_file: false 
-        logd_enabled: false 
-        role_enabled: false 
+  vars:
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
 
-    - name: Process AHV hosts configuration and tracking
-      when: not (read_from_file | bool)
-      block:
+  tasks:
         - name: 1. Declare variables
           ansible.builtin.set_fact:
             remote_user_name: nutanix
@@ -43,7 +39,9 @@
           loop: "{{ ahv_hosts }}"
           loop_control:
             loop_var: current_host
-          when: ahv_hosts | length > 0
+          when:
+            - ahv_hosts | length > 0
+            - not (read_from_file | bool)
 
         - name: 5. Construct final input_filter dictionary
           ansible.builtin.set_fact:

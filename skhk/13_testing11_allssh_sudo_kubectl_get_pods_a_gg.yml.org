@@ -4,13 +4,10 @@
   hosts: calmcvm
   gather_facts: false
 
-  tasks:
-    - name: -1. Declare flags
-      set_fact:
-        read_from_file: false 
-        logd_enabled: false 
-        role_enabled: false 
+  vars:
+    read_from_file: false 
 
+  tasks:
     - name: 0. Set variables default
       set_fact:
         remark_list: []
@@ -33,6 +30,12 @@
         target_cmd: "sudo kubectl get pods -A"
       when: not ( read_from_file | bool )
 
+#    - name: 2. Execute a remote script
+#      ansible.builtin.command: name_of_remote_script
+#      register: input_filter
+#      changed_when: false
+#      ignore_errors: true
+
     - name: 3. Read from hardcoded file
       set_fact:
         input_filter:
@@ -54,6 +57,7 @@
              | reject('search', 'Unable to connect to the server') 
              | select('string') 
              | list }}
+
 
     - name: 5. Parse IP blocks and evaluate pods
       ansible.builtin.set_fact:
@@ -106,5 +110,9 @@
           - "Answer: {{ answer }}"
           - "Remark: {{ remark | default('No issues found') }}"
 
-    - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+    - name: 11. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common

@@ -5,6 +5,8 @@
 
   vars:
     read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
 
   tasks:
     - name: 0. Declare variables
@@ -16,13 +18,7 @@
       register: input_filter
       changed_when: false
       ignore_errors: true
-
-#    - name: 2. Execute cs_grep_v_up_gg
-#      ansible.builtin.command: cs_grep_v_up_gg
-#      register: input_filter
-#      changed_when: false
-#      ignore_errors: true
-#      when: not ( read_from_file | bool )
+      when: not (read_from_file | bool)
 
     - name: 3. Read from hardcoded file
       set_fact:
@@ -67,7 +63,9 @@
     
     - name: 8. Append result to CSV (local)
       import_tasks: logd.yml
+      when: logd_enabled | bool
 
-#    - name: 99. Include common role
-#      ansible.builtin.include_role:
-#         name: common
+    - name: 99. Include common role
+      ansible.builtin.include_role:
+         name: common
+      when: role_enabled | bool

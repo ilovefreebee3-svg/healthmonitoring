@@ -4,12 +4,10 @@
 #  hosts: allcvms
   gather_facts: false
 
+  vars:
+    read_from_file: false 
+
   tasks:
-    - name: -1. Declare flags
-      set_fact:
-        read_from_file: false 
-        logd_enabled: false 
-        role_enabled: false 
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
@@ -120,5 +118,11 @@
           - "Remark: {{ remark }}"
           - "Answer: {{ answer }}"
 
-    - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+    - name: 7. Append result to CSV (local)
+      import_tasks: logd.yml
+
+#    - name: 99. Include common role
+#      ansible.builtin.include_role:
+#         name: common
+
+    

@@ -4,10 +4,13 @@
 #  hosts: pccvm
   gather_facts: no
 
-  vars:
-    read_from_file: false 
-
   tasks:
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
+
     - name: 1. Run mspctl debug run --test_exclude_subset
       ansible.builtin.command:
         argv:
@@ -20,12 +23,6 @@
       changed_when: false
       failed_when: false
       when: not ( read_from_file | bool )
-
-#    - name: 2. Execute a remote script
-#      ansible.builtin.command: name_of_remote_script
-#      register: input_filter
-#      changed_when: false
-#      ignore_errors: true
 
     - name: 3. Read from hardcoded file
       set_fact:
@@ -121,9 +118,5 @@
           - "Remark: {{ remark }}"
           - "Answer: {{ answer }}"
 
-    - name: 13. Append result to CSV (local)
-      import_tasks: logd.yml
-
-#    - name: 99. Include common role
-#      ansible.builtin.include_role:
-#         name: common
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml
