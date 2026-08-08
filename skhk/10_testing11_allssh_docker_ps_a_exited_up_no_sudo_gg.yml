@@ -1,6 +1,7 @@
 ---
 - name: Running docker ps -a
-  hosts: calmcvm
+  hosts: server_12
+#  hosts: calmcvm
 #  hosts: pccvm
   gather_facts: false
 
