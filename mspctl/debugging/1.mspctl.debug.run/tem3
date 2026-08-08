@@ -1,3 +1,0 @@
-            input_result.stdout_lines
-            | map('regex_replace', '\x1B\[[0-9;]*[A-Za-z]', '')
-            | list
