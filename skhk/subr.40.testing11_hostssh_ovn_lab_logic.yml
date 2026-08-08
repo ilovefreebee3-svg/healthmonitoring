@@ -59,21 +59,22 @@
       {{ input_filter.stderr | default('') }}
       ==================================================
 
-#- name: 19. Log output on control node
-#  ansible.builtin.blockinfile:
-#    path: ./tmp/00_run_all_hostssh_commands.log
-#    create: true
-#    marker: ""
-#    block: |
-#      ==================================================
-#      Host    : {{ inventory_hostname }}
-#      Command : {{ cmd.name }}
-#      RC      : {{ input_filter.rc }}
-#
-#      STDOUT:
-#      {{ input_filter.stdout_lines | default('') }}
-#
-#      STDERR:
-#      {{ input_filter.stderr | default('') }}
-#      ==================================================
-#  delegate_to: localhost
+- name: 19. Log output on control node
+  ansible.builtin.blockinfile:
+    path: ./tmp/00_run_all_hostssh_commands.log
+    create: true
+    marker: ""
+    block: |
+      ==================================================
+      Host    : {{ inventory_hostname }}
+      Command : {{ cmd.name }}
+      RC      : {{ input_filter.rc }}
+
+      STDOUT:
+      {{ input_filter.stdout_lines | default('') }}
+
+      STDERR:
+      {{ input_filter.stderr | default('') }}
+      ==================================================
+  delegate_to: localhost
+  ansible_connection: local
