@@ -31,19 +31,7 @@
       failed_when: false
       when: not ( read_from_file | bool )
 
-    - name: 3. Display input_result.stdout_lines
-      ansible.builtin.debug:
-        var: input_result.stdout_lines
-
-    - name: 4. Display input_result.stdout
-      ansible.builtin.debug:
-        var: input_result.stdout
-
-    - name: 5. Display input_result.stderr
-      ansible.builtin.debug:
-        var: input_result.stderr
-
-    - name: 6. Mimic 'cat' register output 
+    - name: 3. Mimic 'cat' register output 
       set_fact:
         input_result:
           stdout: "{{ lookup('file', 'data.35_testing11_mspctl_cluster_health_command_pc.txt') }}"
@@ -52,6 +40,18 @@
           failed: false
           changed: false
       when: read_from_file | bool
+
+    - name: 4. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 5. Display input_result.stdout
+      ansible.builtin.debug:
+        var: input_result.stdout
+
+    - name: 6. Display input_result.stderr
+      ansible.builtin.debug:
+        var: input_result.stderr
 
     - name: 7. Display the return code
       ansible.builtin.debug:

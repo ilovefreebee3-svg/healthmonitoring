@@ -30,7 +30,7 @@
       failed_when: false
       when: not ( read_from_file | bool )
 
-    - name: 3. Mimic 'cat' register output
+    - name: 3. Mimic 'cat' register output 
       set_fact:
         input_result:
           stdout: "{{ lookup('file', 'data.33_testing11_mspctl_cluster_health_command_msp.txt') }}"
