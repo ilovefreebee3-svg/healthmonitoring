@@ -153,3 +153,41 @@ P
 aph 45.testing11_hostssh_no_nvidia_smi_logic.yml
 nvidia-smi not found
 
+
+OUTPUT - from AWX
+Identity added: /runner/artifacts/197/ssh_key_data (user1@aap1)
+
+PLAY [Fetch and process Nutanix NCC health check log] **************************
+
+TASK [-1. Declare flags] *******************************************************
+ok: [corecvm]
+
+TASK [1. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [2. Check if the log file exists] *****************************************
+ok: [corecvm]
+
+TASK [3. Handle missing log file] **********************************************
+skipping: [corecvm]
+
+TASK [Fetch the log file to the Ansible control node] **************************
+ok: [corecvm]
+
+TASK [Isolate the last TIMESTAMP block using awk] ******************************
+ok: [corecvm]
+
+TASK [Parse and cast the trimmed log counters strictly] ************************
+ok: [corecvm]
+
+TASK [Evaluate final cluster health parameters] ********************************
+ok: [corecvm]
+
+TASK [Ensure CSV report directory exists on control node] **********************
+fatal: [corecvm -> localhost]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: ssh: connect to host localhost port 22: Connection refused", "unreachable": true}
+
+NO MORE HOSTS LEFT *************************************************************
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=7    changed=0    unreachable=1    failed=0    skipped=1    rescued=0    ignored=0   
+
