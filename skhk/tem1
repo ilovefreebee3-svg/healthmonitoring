@@ -89,7 +89,6 @@
         create: true
         mode: '0644'
       delegate_to: localhost
-      connection: local 
       run_once: true
 
     - name: Append current host status summary to CSV file
@@ -97,7 +96,6 @@
         path: "{{ csv_report_path }}"
         line: '"{{ inventory_hostname }}","{{ answer }}","{{ remark | trim }}"'
       delegate_to: localhost
-      connection: local 
 
     - name: Debug variables to verify results
       ansible.builtin.debug:
