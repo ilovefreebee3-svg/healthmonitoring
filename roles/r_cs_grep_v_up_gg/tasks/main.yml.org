@@ -9,6 +9,7 @@
   register: input_filter
   changed_when: false
   ignore_errors: true
+  when: not read_from_file | bool
 
 #- name: 2. Execute cs_grep_v_up_gg
 #  ansible.builtin.command: cs_grep_v_up_gg
@@ -24,7 +25,7 @@
       rc: 0
       failed: false
       changed: false
-  when: read_from_file
+  when: read_from_file | bool
 
 - name: 4. Display input_filter.stdout_lines
   ansible.builtin.debug:

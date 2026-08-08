@@ -18,6 +18,7 @@
   ansible.builtin.include_tasks: subr.run_allssh.yml
   vars:
     target_cmd: "docker ps -a"
+  when: not read_from_file | bool
 
 #- name: 2. Execute a remote script
 #  ansible.builtin.command: name_of_remote_script
@@ -33,7 +34,7 @@
       rc: 0
       failed: false
       changed: false
-  when: read_from_file
+  when: read_from_file | bool
 
 - name: 4. Display input_filter 1
   ansible.builtin.debug:

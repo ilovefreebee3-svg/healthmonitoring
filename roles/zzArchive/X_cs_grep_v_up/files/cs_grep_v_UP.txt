@@ -1,9 +1,0 @@
-cs | grep -v UP
-The state of the cluster: start
-Lockdown mode: Disabled
-
-	CVM: 188.185.11.1 Up
-
-	CVM: 188.185.11.2 Up
-
-	CVM: 188.185.11.3 Up, ZeusLeader

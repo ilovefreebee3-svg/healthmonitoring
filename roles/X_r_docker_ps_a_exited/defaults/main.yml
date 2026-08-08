@@ -1,4 +1,0 @@
----
-# defaults file for r_docker_ps_a_existed
-description: docker ps -a | grep -v -e Existed -e Up
-idx: idx060

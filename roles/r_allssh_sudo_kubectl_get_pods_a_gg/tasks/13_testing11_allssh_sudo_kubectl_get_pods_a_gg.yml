@@ -1,10 +1,16 @@
 ---
-- name: Master Playbook to Execute and Process Multiple AllSSH Commands
-  hosts: pccvm
-#  hosts: calmcvm
+- name: Running kubectl get pods -A
+#  hosts: pccvm
+  hosts: calmcvm
   gather_facts: false
 
   tasks:
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
+
     - name: 0. Set variables default
       set_fact:
         remark_list: []
@@ -19,18 +25,13 @@
       register: control_cvm_status
 
     # ------------------------------------------------------------
-    # SCENARIO 2: Run 'kubectl get pods -a' and process the output
+    # SCENARIO 2: Run 'kubectl get pods -A' and process the output
     # ------------------------------------------------------------
     - name: 1. Run sudo kubectl get pods -A 
       ansible.builtin.include_tasks: subr.run_allssh.yml
       vars:
         target_cmd: "sudo kubectl get pods -A"
-
-#    - name: 2. Execute a remote script
-#      ansible.builtin.command: name_of_remote_script
-#      register: input_filter
-#      changed_when: false
-#      ignore_errors: true
+      when: not ( read_from_file | bool )
 
     - name: 3. Read from hardcoded file
       set_fact:
@@ -40,6 +41,7 @@
           rc: 0
           failed: false
           changed: false
+      when: read_from_file | bool
 
     - name: 4. Display input_filter 1
       ansible.builtin.debug:
@@ -52,7 +54,6 @@
              | reject('search', 'Unable to connect to the server') 
              | select('string') 
              | list }}
-
 
     - name: 5. Parse IP blocks and evaluate pods
       ansible.builtin.set_fact:
@@ -105,9 +106,5 @@
           - "Answer: {{ answer }}"
           - "Remark: {{ remark | default('No issues found') }}"
 
-    - name: 11. Append result to CSV (local)
-      import_tasks: logd.yml
-
-#    - name: 99. Include common role
-#      ansible.builtin.include_role:
-#         name: common
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml

@@ -1,3 +1,0 @@
-
-- name: Append result to CSV (local)
-  import_tasks: log.yml

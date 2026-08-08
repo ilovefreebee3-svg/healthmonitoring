@@ -1,7 +1,12 @@
 ---
-- name: 1. Declare variables
+- name: -1. Declare flags
   set_fact:
     read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+
+- name: 1. Declare variables
+  set_fact:
     cmd_list:
       - name: hostssh ovn-appctl connection-status
         argv: ["hostssh", "ovn-appctl", "connection-status"]
@@ -14,7 +19,7 @@
   loop: "{{ cmd_list }}"
   loop_control:
     loop_var: cmd
-  when: not read_from_file | bool
+  when: not ( read_from_file | bool )
 
 - name: 3. Read from hardcoded file
   set_fact:
@@ -58,6 +63,7 @@
     ip: "{{ current | regex_search('([0-9.]+)') }}"
     item_status: "{{ next_line | trim if (is_ip and not next_is_ip) else 'unknown' }}"
 
+
 - name: 8. Final answer
   set_fact:
     answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
@@ -68,9 +74,5 @@
       remark: "{{ remark }}"
       answer: "{{ answer }}"
 
-#- name: 9. Append result to CSV (local)
-#  import_tasks: logd.yml
-
-- name: 99. Include common role
-  ansible.builtin.include_role:
-     name: common
+- name: 99. Include persistency
+  ansible.builtin.include_tasks: incl.logging.yml

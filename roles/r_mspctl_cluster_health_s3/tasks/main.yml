@@ -1,7 +1,12 @@
 ---
-- name: 1. Set cluster
+- name: -1. Declare flags
   set_fact:
     read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+
+- name: 1. Declare variables
+  set_fact:
     cluster: "S3"
     num_unhealthy: 0
     remark: ""
@@ -17,29 +22,30 @@
   register: input_result
   changed_when: false
   failed_when: false
-  when: not read_from_file | bool
+  when: not ( read_from_file | bool )
 
-- name: 3. Display input_result.stdout_lines
-  ansible.builtin.debug:
-    var: input_result.stdout_lines
-
-- name: 4. Display input_result.stdout
-  ansible.builtin.debug:
-    var: input_result.stdout
-
-- name: 5. Display input_result.stderr
-  ansible.builtin.debug:
-    var: input_result.stderr
-
-- name: 6. Mimic 'cat' register output 
+- name: 3. Mimic 'cat' register output 
   set_fact:
     input_result:
       stdout: "{{ lookup('file', 'data.34_testing11_mspctl_cluster_health_command_s3.txt') }}"
       stdout_lines: "{{ lookup('file', 'data.34_testing11_mspctl_cluster_health_command_s3.txt').splitlines() }}"
+      stderr: ""
       rc: 0
       failed: false
       changed: false
   when: read_from_file | bool
+
+- name: 4. Display input_result.stdout_lines
+  ansible.builtin.debug:
+    var: input_result.stdout_lines
+
+- name: 5. Display input_result.stdout
+  ansible.builtin.debug:
+    var: input_result.stdout
+
+- name: 6. Display input_result.stderr
+  ansible.builtin.debug:
+    var: input_result.stderr
 
 - name: 7. Display the return code
   ansible.builtin.debug:
@@ -73,9 +79,5 @@
       remark: "{{ remark }}"
       answer: "{{ answer }}"
 
-#- name: Append result to CSV (local)
-#  import_tasks: logd.yml
-
-- name: 99. Include common role
-  ansible.builtin.include_role:
-     name: common
+- name: 99. Include persistency
+  ansible.builtin.include_tasks: incl.logging.yml

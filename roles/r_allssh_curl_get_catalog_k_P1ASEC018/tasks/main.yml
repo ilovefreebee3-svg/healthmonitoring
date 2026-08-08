@@ -1,7 +1,9 @@
 ---
-- name: 0. Declare variables
+- name: -1. Declare flags
   set_fact:
     read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
 
 # ------------------------------------------------------------
 # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
@@ -10,7 +12,6 @@
   ansible.builtin.wait_for_connection:
     timeout: 5
   register: control_cvm_status
-  ignore_errors: true
 
 # ------------------------------------------------------------
 # SCENARIO 2: Run curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k
@@ -20,7 +21,7 @@
   ansible.builtin.include_tasks: subr.run_allssh_x.yml
   vars:
     target_cmd: "curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k"
-  when: not read_from_file | bool
+  when: not ( read_from_file | bool )
 
 - name: 3. Read from hardcoded file
   set_fact:
@@ -138,10 +139,5 @@
       - "remark = {{ remark }}"
       - "answer = {{ answer }}"
 
-#- name: Append result to CSV (local)
-#  import_tasks: logd.yml
-
-- name: Include common role
-  ansible.builtin.include_role:
-     name: common
-
+- name: 99. Include persistency
+  ansible.builtin.include_tasks: incl.logging.yml

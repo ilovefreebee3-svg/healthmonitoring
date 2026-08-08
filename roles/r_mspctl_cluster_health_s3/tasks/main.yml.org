@@ -17,6 +17,7 @@
   register: input_result
   changed_when: false
   failed_when: false
+  when: not read_from_file | bool
 
 - name: 3. Display input_result.stdout_lines
   ansible.builtin.debug:
@@ -38,7 +39,7 @@
       rc: 0
       failed: false
       changed: false
-  when: read_from_file
+  when: read_from_file | bool
 
 - name: 7. Display the return code
   ansible.builtin.debug:

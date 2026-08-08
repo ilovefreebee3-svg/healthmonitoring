@@ -1,10 +1,16 @@
 ---
-- name: Master Playbook to Execute and Process Multiple AllSSH Commands
+- name:  Run 'ls -larth' and process the output
   hosts: engrcvm
 #  hosts: allcvms
   gather_facts: false
 
   tasks:
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
+
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
@@ -20,6 +26,7 @@
       ansible.builtin.include_tasks: subr.12_testing11_allssh_ls_larth_iam_backup_gg.yml
       vars:
         target_cmd: "ls -larth /usr/local/nutanix/iam-backup"
+      when: not ( read_from_file | bool )
 
     - name: Mimic 'cat' register output using lookup
       set_fact:
@@ -29,6 +36,7 @@
           rc: 0
           failed: false
           changed: false
+      when: read_from_file | bool
 
     - name: Display input_filter 1
       ansible.builtin.debug:
@@ -79,9 +87,5 @@
           - "remark: {{ remark }}"
           - "answer: {{ answer }}"
 
-    - name: Append result to CSV (local)
-      import_tasks: logd.yml
-
-#    - name: 99. Include common role
-#      ansible.builtin.include_role:
-#         name: common
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml

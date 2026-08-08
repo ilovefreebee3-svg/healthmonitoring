@@ -1,19 +1,27 @@
 ---
 - name: Check calm policy
+  hosts: calmcvm
+#  hosts: pccvm
 #  hosts: allcvms
-  hosts: pccvm
   gather_facts: false
 
   tasks:
-    - name: 1. Execute df -kh command
-      ansible.builtin.command: df -kh
-      register: input_result
-      changed_when: false
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
 
-    - name: 2. Set default variables
+    - name: 1. Set default variables
       set_fact:
         monitored_mounts: ["/", "/home", "/var"]
         threshold: 75
+
+    - name: 2. Execute df -kh command
+      ansible.builtin.command: df -kh
+      register: input_result
+      changed_when: false
+      when: not ( read_from_file | bool )
     
     - name: 3. Mimic 'cat' register output using lookup
       set_fact:
@@ -23,6 +31,7 @@
           rc: 0
           failed: false
           changed: false
+      when: read_from_file | bool
     
     - name: 4. Display input_result.stdout_lines
       ansible.builtin.debug:
@@ -63,9 +72,5 @@
           - "Count: {{ num_over75 }}"
           - "Details: {{ remark }}"
     
-    - name: 8. Append result to CSV (local)
-      import_tasks: logd.yml
-
-#    - name: 99. Include common role
-#      ansible.builtin.include_role:
-#         name: common
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml

@@ -1,44 +1,51 @@
 ---
-- name: 0. Declare variables
+- name: -1. Declare flags
   set_fact:
-    remote_user_name: nutanix
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
 
-- name: 1. Get AHV host IP addresses
-  ansible.builtin.command:
-    argv:
-      - /bin/bash
-      - -c
-      - |
-        source /etc/profile
-        hostips
-  register: hostips_output
-  changed_when: false
+- name: Process AHV hosts configuration and tracking
+  when: not (read_from_file | bool)
+  block:
+    - name: 1. Declare variables
+      ansible.builtin.set_fact:
+        remote_user_name: nutanix
 
-- name: 2. Parse IP addresses into a clean list
-  ansible.builtin.set_fact:
-    ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+    - name: 2. Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
 
-- name: Initialize the empty input_filter structures
-  ansible.builtin.set_fact:
-    input_filter_stdout_list: []
-    input_filter_lines_list: []
+    - name: 3. Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
 
-- name: 3. Process each AHV host dynamically
-  ansible.builtin.include_tasks: subr.46.testing11_hostssh_nvidia_smi_logic.yml
-  loop: "{{ ahv_hosts }}"
-  loop_control:
-    loop_var: current_host
-  when:
-    - ahv_hosts | length > 0
-    - not (read_from_file | bool)
+    - name: Initialize the empty input_filter structures
+      ansible.builtin.set_fact:
+        input_filter_stdout_list: []
+        input_filter_lines_list: []
 
-- name: 4. Construct final input_filter dictionary
-  ansible.builtin.set_fact:
-    input_filter:
-      stdout: "{{ input_filter_stdout_list | join('\n') }}"
-      stdout_lines: "{{ input_filter_lines_list }}"
+    - name: 4. Process each AHV host dynamically
+      ansible.builtin.include_tasks: subr.46.testing11_hostssh_nvidia_smi_logic.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when: ahv_hosts | length > 0
 
-- name: 5. Mimic 'cat' register output using lookup
+    - name: 5. Construct final input_filter dictionary
+      ansible.builtin.set_fact:
+        input_filter:
+          stdout: "{{ input_filter_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_filter_lines_list }}"
+
+- name: 6. Mimic 'cat' register output using lookup
   set_fact:
     input_filter:
       stdout: "{{ lookup('file', 'data.46.testing11_hostssh_nvidia_smi_logic.txt') }}"
@@ -48,7 +55,7 @@
       changed: false
   when: read_from_file | bool
 
-- name: 6. Display input_filter.stdout_lines
+- name: 7. Display input_filter.stdout_lines
   ansible.builtin.debug:
     msg: "{{ input_filter.stdout_lines }}" 
 
@@ -101,7 +108,7 @@
   ansible.builtin.set_fact:
     remark: "{{ raw_remark | from_json }}"
 
-- name: Evaluate threshold indicators cleanly using compressed lists
+- name: 8. Evaluate threshold indicators cleanly using compressed lists
   vars:
     raw_answer: >-
       {% if remark | length == 0 %}
@@ -124,15 +131,11 @@
   ansible.builtin.set_fact:
     answer: "{{ raw_answer | from_json }}"
 
-- name: Debug verified output profiles
+- name: 9. Debug verified output profiles
   ansible.builtin.debug:
     msg:
       - "REMARK: {{ remark }}"
       - "ANSWER: {{ answer }}"
 
-#- name: 11. Append result to CSV (local)
-#  import_tasks: logd.yml
-
-- name: 99. Include common role
-  ansible.builtin.include_role:
-     name: common
+- name: 99. Include persistency
+  ansible.builtin.include_tasks: incl.logging.yml

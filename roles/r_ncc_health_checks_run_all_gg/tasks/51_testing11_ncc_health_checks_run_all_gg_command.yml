@@ -4,6 +4,12 @@
   gather_facts: false
 
   tasks:
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
+
     - name: 1. Declare variables
       ansible.builtin.set_fact:
         log_path: "/home/nutanix/data/logs/ncc-output.log"
@@ -74,6 +80,7 @@
         state: directory
         mode: '0755'
       delegate_to: localhost
+      connection: local 
       run_once: true
 
     - name: Ensure CSV header line is present on control node
@@ -83,6 +90,7 @@
         create: true
         mode: '0644'
       delegate_to: localhost
+      connection: local 
       run_once: true
 
     - name: Append current host status summary to CSV file
@@ -90,6 +98,7 @@
         path: "{{ csv_report_path }}"
         line: '"{{ inventory_hostname }}","{{ answer }}","{{ remark | trim }}"'
       delegate_to: localhost
+      connection: local 
 
     - name: Debug variables to verify results
       ansible.builtin.debug:
@@ -97,9 +106,5 @@
           - "Answer: {{ answer }}"
           - "Remark: {{ remark }}"
 
-    - name: Append result to CSV (local)
-      import_tasks: logd.yml
-
-#    - name: 99. Include common role
-#      ansible.builtin.include_role:
-#         name: common
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml

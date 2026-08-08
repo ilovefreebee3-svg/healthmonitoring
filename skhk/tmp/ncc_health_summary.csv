@@ -1,6 +1,0 @@
-Host,Status,Remark
-"corecvm","No log found","Last checked: 2026-07-28"
-"corecvm","Unhealthy","Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55)"
-"engrcvm","Unhealthy","Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 3, Errors: 5)"
-"calmcvm","Unhealthy","Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55)"
-"pecvm","Unhealthy","Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 333, Errors: 666)"

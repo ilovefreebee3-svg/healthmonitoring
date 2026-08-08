@@ -1,9 +1,0 @@
-================== 188.185.12.1 =================
-/dev/sdb3        49G   23G   26G  48% /home
-/dev/sdg1       9.8G  7.9M  9.3G   1% /home/docker/epsilon/elasticsearch
-================== 188.185.12.3 =================
-/dev/sdb3        49G   21G   28G  44% /home
-/dev/sdg1       9.8G  3.1G  6.2G  34% /home/docker/epsilon/elasticsearch
-================== 188.185.12.2 =================
-/dev/sdb3        49G   25G   25G  50% /home
-/dev/sdg1       9.8G  2.9G  6.4G  31% /home/docker/epsilon/elasticsearch

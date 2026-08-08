@@ -7,6 +7,7 @@
   ansible.builtin.command: df -kh
   register: input_result
   changed_when: false
+  when: not read_from_file | bool
 
 - name: 2. Set default variables
   set_fact:
@@ -21,7 +22,7 @@
       rc: 0
       failed: false
       changed: false
-  when: read_from_file
+  when: read_from_file | bool
 
 - name: 4. Display input_result.stdout_lines
   ansible.builtin.debug:

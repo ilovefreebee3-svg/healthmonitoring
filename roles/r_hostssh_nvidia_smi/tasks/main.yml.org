@@ -1,7 +1,7 @@
 ---
 - name: 0. Declare variables
   set_fact:
-    read_from_file: false 
+    remote_user_name: nutanix
 
 - name: 1. Get AHV host IP addresses
   ansible.builtin.command:
@@ -28,7 +28,9 @@
   loop: "{{ ahv_hosts }}"
   loop_control:
     loop_var: current_host
-  when: ahv_hosts | length > 0
+  when:
+    - ahv_hosts | length > 0
+    - not (read_from_file | bool)
 
 - name: 4. Construct final input_filter dictionary
   ansible.builtin.set_fact:
@@ -44,7 +46,7 @@
       rc: 0
       failed: false
       changed: false
-  when: read_from_file
+  when: read_from_file | bool
 
 - name: 6. Display input_filter.stdout_lines
   ansible.builtin.debug:

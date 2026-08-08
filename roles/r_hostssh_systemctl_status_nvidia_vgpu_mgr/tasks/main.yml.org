@@ -31,7 +31,9 @@
   loop: "{{ ahv_hosts }}"
   loop_control:
     loop_var: current_host
-  when: ahv_hosts | length > 0
+  when:
+    - ahv_hosts | length > 0
+    - not (read_from_file | bool)
 
 - name: 6. Construct final input_result dictionary
   ansible.builtin.set_fact:
@@ -51,7 +53,7 @@
       rc: 0
       failed: false
       changed: false
-  when: read_from_file
+  when: read_from_file | bool
 
 - name: 9. Display input_result.stdout_lines
   ansible.builtin.debug:

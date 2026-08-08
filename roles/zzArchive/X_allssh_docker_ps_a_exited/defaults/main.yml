@@ -1,5 +1,0 @@
----
-# defaults file for Role r_docker_ps_a_existed
-description: docker ps -a | grep -v -e Existed -e Up
-idx: idx060
-role: r_docker_ps_a_existed

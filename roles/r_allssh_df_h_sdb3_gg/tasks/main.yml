@@ -1,7 +1,9 @@
 ---
-- name: 0. Declare variables
+- name: -1. Declare flags
   set_fact:
     read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
 
 # ------------------------------------------------------------
 # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
@@ -22,13 +24,7 @@
   ansible.builtin.include_tasks: subr.run_allssh.yml
   vars:
     target_cmd: "df -h /dev/sdb3"
-  when: not read_from_file | bool
-
-#- name: 2. Execute a remote script
-#  ansible.builtin.command: name_of_remote_script
-#  register: input_filter
-#  changed_when: false
-#  ignore_errors: true
+  when: not ( read_from_file | bool )
 
 - name: 3. Read from hardcoded file
   set_fact:
@@ -99,9 +95,5 @@
       - "Remark:"
       - "{{ remark.strip() }}"
 
-#- name: 11. Append result to CSV (local)
-#  import_tasks: logd.yml
-
-- name: 99. Include common role
-  ansible.builtin.include_role:
-     name: common
+- name: 99. Include persistency
+  ansible.builtin.include_tasks: incl.logging.yml

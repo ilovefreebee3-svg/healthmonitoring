@@ -1,363 +1,0 @@
-
----------------------------------
-16_testing10_allssh_curl_get_catalog_k_P1SMG025.yml
----------------------------------
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
----
-- name: Master Playbook to Execute and Process Multiple AllSSH Commands
-  hosts: corecvm
-  gather_facts: false
-
-  tasks:
-    # ------------------------------------------------------------
-    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
-    # ------------------------------------------------------------
-    - name: 1. Verify connectivity to the Control CVM
-      ansible.builtin.wait_for_connection:
-        timeout: 5
-      register: control_cvm_status
-
-    # ------------------------------------------------------------
-    # SCENARIO 2: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
-    # ------------------------------------------------------------
-    - name: 2. Run "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
-      ansible.builtin.include_tasks: subr.run_allssh_x.yml
-      vars:
-        target_cmd: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
-
-    - name: 4. Display input_filter.stdout_lines
-      ansible.builtin.debug:
-        msg: "{{ input_filter.stdout_lines }}" 
-
-    - name: 5. Initialize variables
-      set_fact:
-        remark_list: []
-        status_tracker: []
-        current_ip: ""
-        num_repository: 0
-        repository_error_found: false
-        remark: []
-        answer: ""
-
-    - name: 6. Process input line by line
-      set_fact:
-
-        # Finalize previous block BEFORE changing IP
-        remark: >-
-          {{
-            remark
-            +
-            (
-              [ current_ip ~ ' - No connection to repository' ]
-              if (
-                item is match('^=+')
-                and current_ip != ''
-                and (num_repository | int) == 0
-              )
-              else []
-            )
-          }}
-
-        repository_error_found: >-
-          {{
-            true
-            if (
-              item is match('^=+')
-              and current_ip != ''
-              and (num_repository | int) == 0
-            )
-            else repository_error_found
-          }}
-
-        # Update current IP
-
-
-        current_ip: >-
-          {{
-            (
-              item
-              | regex_replace('^=+', '')
-              | regex_replace('=+$', '')
-              | trim
-            )
-            if item is match('^=+')
-            else current_ip
-          }}
-
-
-        # Reset or increment counter
-        num_repository: >-
-          {{
-            0
-            if item is match('^=+')
-            else
-            (
-              (num_repository | int) + 1
-              if item is search('repositories')
-              else (num_repository | int)
-            )
-          }}
-
-      loop: "{{ input_filter.stdout.split('\n') }}"
-      when:
-        - item is match('^=+') or item is search('repositories')
-
-    - name: Finalize last block
-      set_fact:
-        remark: >-
-          {{
-            remark
-            +
-            (
-              [ current_ip ~ ' - No connection to repository' ]
-              if (num_repository | int) == 0
-              else []
-            )
-          }}
-
-        repository_error_found: >-
-          {{
-            true
-            if (num_repository | int) == 0
-            else repository_error_found
-          }}
-
-    - name: Set final answer
-      set_fact:
-        answer: >-
-          {{
-            'CVM - repository connection error'
-            if repository_error_found
-            else 'ALL CVMs to repository ok'
-          }}
-
-    - name: Show result
-      debug:
-        msg:
-          - "remark = {{ remark }}"
-          - "answer = {{ answer }}"
-
-    - name: Append result to CSV (local)
-      import_tasks: logd.yml
-
-    
-------------------------------------------------------------------
-
-
-aph 16_testing10_allssh_curl_get_catalog_k_P1SMG025.yml
-
-
-Using inventory host.ini in the local folder
-
-
-PLAY [Master Playbook to Execute and Process Multiple AllSSH Commands] *********
-
-TASK [1. Verify connectivity to the Control CVM] *******************************
-ok: [corecvm]
-
-TASK [2. Run "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"] ***
-included: /home/liamhuat/proj/ansible/hm/testing10/skhk/subr.run_allssh_x.yml for corecvm
-
-TASK [Get list of target IPs] **************************************************
-ok: [corecvm]
-
-TASK [Parse IP addresses into a clean list] ************************************
-ok: [corecvm]
-
-TASK [Reorder IP list to put local IP ($IP) at the very end] *******************
-ok: [corecvm]
-
-TASK [Check reachability for all target IPs upfront] ***************************
-ok: [corecvm] => (item=188.185.10.33)
-ok: [corecvm] => (item=188.185.10.34)
-ok: [corecvm] => (item=188.185.10.35)
-ok: [corecvm] => (item=188.185.10.36)
-ok: [corecvm] => (item=188.185.10.38)
-ok: [corecvm] => (item=188.185.10.39)
-
-TASK [Execute commands sequentially on remote hosts] ***************************
-failed: [corecvm] (item=188.185.10.33) => {"ansible_index_var": "loop_index", "ansible_loop_var": "target_ip", "changed": true, "cmd": " /usr/bin/ssh -n -q -o LogLevel=ERROR -o StrictHostKeyChecking=no nutanix@188.185.10.33  \"source /etc/profile; export USE_SAFE_RM=yes; curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k\" \n", "delta": "0:00:15.653648", "end": "2026-07-28 14:51:12.127395", "loop_index": 0, "msg": "non-zero return code", "rc": 6, "start": "2026-07-28 14:50:56.473747", "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg", "stderr_lines": ["  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current", "                                 Dload  Upload   Total   Spent    Left  Speed", "", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg"], "stdout": "", "stdout_lines": [], "target_ip": "188.185.10.33"}
-failed: [corecvm] (item=188.185.10.34) => {"ansible_index_var": "loop_index", "ansible_loop_var": "target_ip", "changed": true, "cmd": " /usr/bin/ssh -n -q -o LogLevel=ERROR -o StrictHostKeyChecking=no nutanix@188.185.10.34  \"source /etc/profile; export USE_SAFE_RM=yes; curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k\" \n", "delta": "0:00:14.758368", "end": "2026-07-28 14:51:27.463472", "loop_index": 1, "msg": "non-zero return code", "rc": 6, "start": "2026-07-28 14:51:12.705104", "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg", "stderr_lines": ["  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current", "                                 Dload  Upload   Total   Spent    Left  Speed", "", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg"], "stdout": "", "stdout_lines": [], "target_ip": "188.185.10.34"}
-failed: [corecvm] (item=188.185.10.35) => {"ansible_index_var": "loop_index", "ansible_loop_var": "target_ip", "changed": true, "cmd": " /usr/bin/ssh -n -q -o LogLevel=ERROR -o StrictHostKeyChecking=no nutanix@188.185.10.35  \"source /etc/profile; export USE_SAFE_RM=yes; curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k\" \n", "delta": "0:00:14.715299", "end": "2026-07-28 14:51:42.836729", "loop_index": 2, "msg": "non-zero return code", "rc": 6, "start": "2026-07-28 14:51:28.121430", "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg", "stderr_lines": ["  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current", "                                 Dload  Upload   Total   Spent    Left  Speed", "", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg"], "stdout": "", "stdout_lines": [], "target_ip": "188.185.10.35"}
-failed: [corecvm] (item=188.185.10.36) => {"ansible_index_var": "loop_index", "ansible_loop_var": "target_ip", "changed": true, "cmd": " /usr/bin/ssh -n -q -o LogLevel=ERROR -o StrictHostKeyChecking=no nutanix@188.185.10.36  \"source /etc/profile; export USE_SAFE_RM=yes; curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k\" \n", "delta": "0:00:14.860445", "end": "2026-07-28 14:51:58.279481", "loop_index": 3, "msg": "non-zero return code", "rc": 6, "start": "2026-07-28 14:51:43.419036", "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg", "stderr_lines": ["  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current", "                                 Dload  Upload   Total   Spent    Left  Speed", "", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg"], "stdout": "", "stdout_lines": [], "target_ip": "188.185.10.36"}
-failed: [corecvm] (item=188.185.10.38) => {"ansible_index_var": "loop_index", "ansible_loop_var": "target_ip", "changed": true, "cmd": " /usr/bin/ssh -n -q -o LogLevel=ERROR -o StrictHostKeyChecking=no nutanix@188.185.10.38  \"source /etc/profile; export USE_SAFE_RM=yes; curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k\" \n", "delta": "0:00:14.646320", "end": "2026-07-28 14:52:13.618583", "loop_index": 4, "msg": "non-zero return code", "rc": 6, "start": "2026-07-28 14:51:58.972263", "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg", "stderr_lines": ["  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current", "                                 Dload  Upload   Total   Spent    Left  Speed", "", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg"], "stdout": "", "stdout_lines": [], "target_ip": "188.185.10.38"}
-failed: [corecvm] (item=188.185.10.39) => {"ansible_index_var": "loop_index", "ansible_loop_var": "target_ip", "changed": true, "cmd": " /usr/bin/ssh -n -q -o LogLevel=ERROR -o StrictHostKeyChecking=no nutanix@188.185.10.39  \"source /etc/profile; export USE_SAFE_RM=yes; curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k\" \n", "delta": "0:00:14.943990", "end": "2026-07-28 14:52:29.173779", "loop_index": 5, "msg": "non-zero return code", "rc": 6, "start": "2026-07-28 14:52:14.229789", "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0\r  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg", "stderr_lines": ["  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current", "                                 Dload  Upload   Total   Spent    Left  Speed", "", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0", "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg"], "stdout": "", "stdout_lines": [], "target_ip": "188.185.10.39"}
-...ignoring
-
-TASK [Consolidate and save all CVM outputs to the input_filter register object] ***
-ok: [corecvm]
-
-TASK [4. Display input_filter.stdout_lines] ************************************
-ok: [corecvm] => {
-    "msg": [
-        "",
-        "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
-        "                                 Dload  Upload   Total   Spent    Left  Speed",
-        "",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg",
-        "",
-        "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
-        "                                 Dload  Upload   Total   Spent    Left  Speed",
-        "",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg",
-        "",
-        "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
-        "                                 Dload  Upload   Total   Spent    Left  Speed",
-        "",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg",
-        "",
-        "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
-        "                                 Dload  Upload   Total   Spent    Left  Speed",
-        "",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg",
-        "",
-        "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
-        "                                 Dload  Upload   Total   Spent    Left  Speed",
-        "",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg",
-        "",
-        "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
-        "                                 Dload  Upload   Total   Spent    Left  Speed",
-        "",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0",
-        "  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg"
-    ]
-}
-
-TASK [5. Initialize variables] *************************************************
-ok: [corecvm]
-
-TASK [6. Process input line by line] *******************************************
-skipping: [corecvm] => (item=) 
-skipping: [corecvm] => (item=  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current) 
-skipping: [corecvm] => (item=                                 Dload  Upload   Total   Spent    Left  Speed) 
-skipping: [corecvm] => (item=  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg) 
-skipping: [corecvm] => (item=) 
-skipping: [corecvm] => (item=  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current) 
-skipping: [corecvm] => (item=                                 Dload  Upload   Total   Spent    Left  Speed) 
-skipping: [corecvm] => (item=  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg) 
-skipping: [corecvm] => (item=) 
-skipping: [corecvm] => (item=  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current) 
-skipping: [corecvm] => (item=                                 Dload  Upload   Total   Spent    Left  Speed) 
-skipping: [corecvm] => (item=  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg) 
-skipping: [corecvm] => (item=) 
-skipping: [corecvm] => (item=  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current) 
-skipping: [corecvm] => (item=                                 Dload  Upload   Total   Spent    Left  Speed) 
-skipping: [corecvm] => (item=  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:14 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg) 
-skipping: [corecvm] => (item=) 
-skipping: [corecvm] => (item=  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current) 
-skipping: [corecvm] => (item=                                 Dload  Upload   Total   Spent    Left  Speed) 
-skipping: [corecvm] => (item=  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg) 
-skipping: [corecvm] => (item=) 
-skipping: [corecvm] => (item=  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current) 
-skipping: [corecvm] => (item=                                 Dload  Upload   Total   Spent    Left  Speed) 
-skipping: [corecvm] => (item=  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:05 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:06 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:07 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:08 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:09 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:10 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:11 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:12 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:13 --:--:--     0curl: (6) Could not resolve host: P1SMG025.dcloudsvc.gov.sg) 
-skipping: [corecvm] => (item=) 
-skipping: [corecvm]
-
-TASK [Finalize last block] *****************************************************
-ok: [corecvm]
-
-TASK [Set final answer] ********************************************************
-ok: [corecvm]
-
-TASK [Show result] *************************************************************
-ok: [corecvm] => {
-    "msg": [
-        "remark = [' - No connection to repository']",
-        "answer = CVM - repository connection error"
-    ]
-}
-
-TASK [Append result to CSV (local)] ********************************************
-changed: [corecvm -> localhost]
-
-PLAY RECAP *********************************************************************
-corecvm                    : ok=14   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=1   
-

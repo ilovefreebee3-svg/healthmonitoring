@@ -1,4 +1,8 @@
 ---
+- name: 0. Declare variables
+  set_fact:
+    read_from_file: false 
+
 # ------------------------------------------------------------
 # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
 # ------------------------------------------------------------
@@ -6,6 +10,7 @@
   ansible.builtin.wait_for_connection:
     timeout: 5
   register: control_cvm_status
+  ignore_errors: true
 
 # ------------------------------------------------------------
 # SCENARIO 2: Run 'ls -larth' and process the output
@@ -14,6 +19,7 @@
   ansible.builtin.include_tasks: subr.12_testing11_allssh_ls_larth_iam_backup_gg.yml
   vars:
     target_cmd: "ls -larth /usr/local/nutanix/iam-backup"
+  when: not read_from_file | bool
 
 - name: Mimic 'cat' register output using lookup
   set_fact:
@@ -23,6 +29,7 @@
       rc: 0
       failed: false
       changed: false
+  when: read_from_file | bool
 
 - name: Display input_filter 1
   ansible.builtin.debug:

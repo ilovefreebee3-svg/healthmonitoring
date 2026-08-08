@@ -10,6 +10,7 @@
   ansible.builtin.wait_for_connection:
     timeout: 5
   register: control_cvm_status
+  ignore_errors: true
 
 # ------------------------------------------------------------
 # SCENARIO 2: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
@@ -18,6 +19,7 @@
   ansible.builtin.include_tasks: subr.run_allssh_x.yml
   vars:
     target_cmd: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+  when: not read_from_file | bool
 
 - name: 3. Read from hardcoded file
   set_fact:
@@ -27,7 +29,7 @@
       rc: 0
       failed: false
       changed: false
-  when: read_from_file
+  when: read_from_file | bool
 
 - name: 4. Display input_filter.stdout_lines
   ansible.builtin.debug:

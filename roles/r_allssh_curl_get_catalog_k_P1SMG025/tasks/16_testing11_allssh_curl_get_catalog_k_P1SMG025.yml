@@ -1,9 +1,15 @@
 ---
-- name: Master Playbook to Execute and Process Multiple AllSSH Commands
+- name: curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k
   hosts: corecvm
   gather_facts: false
 
   tasks:
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
+
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
@@ -19,6 +25,7 @@
       ansible.builtin.include_tasks: subr.run_allssh_x.yml
       vars:
         target_cmd: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+      when: not ( read_from_file | bool )
 
     - name: 3. Read from hardcoded file
       set_fact:
@@ -28,6 +35,7 @@
           rc: 0
           failed: false
           changed: false
+      when: read_from_file | bool 
     
     - name: 4. Display input_filter.stdout_lines
       ansible.builtin.debug:
@@ -45,86 +53,60 @@
 
     - name: 6. Process input line by line
       set_fact:
-
         # Finalize previous block BEFORE changing IP
         remark: >-
           {{
-            remark
-            +
-            (
-              [ current_ip ~ ' - No connection to repository' ]
-              if (
-                item is match('^=+')
-                and current_ip != ''
-                and (num_repository | int) == 0
-              )
-              else []
-            )
+          remark
+          +
+          (
+          [ current_ip ~ ' - No connection to repository' ]
+          if (
+          curl_line is match('^=+')
+          and current_ip != ''
+          and (num_repository | int) == 0
+          )
+          else []
+          )
           }}
-
         repository_error_found: >-
           {{
-            true
-            if (
-              item is match('^=+')
-              and current_ip != ''
-              and (num_repository | int) == 0
-            )
-            else repository_error_found
+          true
+          if (
+          curl_line is match('^=+')
+          and current_ip != ''
+          and (num_repository | int) == 0
+          )
+          else repository_error_found
           }}
-
         # Update current IP
-
-
         current_ip: >-
           {{
-            (
-              item
-              | regex_replace('^=+', '')
-              | regex_replace('=+$', '')
-              | trim
-            )
-            if item is match('^=+')
-            else current_ip
+          (
+          curl_line
+          | regex_replace('^=+', '')
+          | regex_replace('=+$', '')
+          | trim
+          )
+          if curl_line is match('^=+')
+          else current_ip
           }}
-
-
         # Reset or increment counter
         num_repository: >-
           {{
-            0
-            if item is match('^=+')
-            else
-            (
-              (num_repository | int) + 1
-              if item is search('repositories')
-              else (num_repository | int)
-            )
+          0
+          if curl_line is match('^=+')
+          else
+          (
+          (num_repository | int) + 1
+          if curl_line is search('repositories')
+          else (num_repository | int)
+          )
           }}
-
       loop: "{{ input_filter.stdout.split('\n') }}"
+      loop_control:
+        loop_var: curl_line
       when:
-        - item is match('^=+') or item is search('repositories')
-
-    - name: Finalize last block
-      set_fact:
-        remark: >-
-          {{
-            remark
-            +
-            (
-              [ current_ip ~ ' - No connection to repository' ]
-              if (num_repository | int) == 0
-              else []
-            )
-          }}
-
-        repository_error_found: >-
-          {{
-            true
-            if (num_repository | int) == 0
-            else repository_error_found
-          }}
+        - curl_line is match('^=+') or curl_line is search('repositories')
 
     - name: Set final answer
       set_fact:
@@ -141,7 +123,5 @@
           - "remark = {{ remark }}"
           - "answer = {{ answer }}"
 
-    - name: Append result to CSV (local)
-      import_tasks: logd.yml
-
-    
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml
