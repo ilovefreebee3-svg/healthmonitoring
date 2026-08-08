@@ -36,6 +36,7 @@
         input_result:
           stdout: "{{ lookup('file', 'data.35_testing11_mspctl_cluster_health_command_pc.txt') }}"
           stdout_lines: "{{ lookup('file', 'data.35_testing11_mspctl_cluster_health_command_pc.txt').splitlines() }}"
+          stderr: ""
           rc: 0
           failed: false
           changed: false
