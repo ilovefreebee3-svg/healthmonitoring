@@ -1,0 +1,24 @@
+---
+- name: Export CSV from Container to AWX Host
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    # The physical IP address or local network domain of your AWX host machine
+    awx_host_ip: "130.8.20.99" 
+    host_destination_path: "/var/lib/awx/exports/daily_report.csv"
+
+  tasks:
+    - name: 1. Generate the CSV file inside the container
+      community.general.read_csv: # Or your specific CSV generation logic
+        # ... your playbook data collection logic ...
+        dest: "/tmp/container_report.csv"
+
+    - name: 2. Copy file from container to the AWX host filesystem
+      ansible.builtin.copy:
+        src: "/tmp/container_report.csv"
+        dest: "{{ host_destination_path }}"
+        mode: '0644'
+      # This force-routes the execution out of the container and onto the host machine via SSH
+      delegate_to: "{{ awx_host_ip }}"
+
