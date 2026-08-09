@@ -20,6 +20,7 @@
         state: directory
         mode: '0755'
       delegate_to: "{{ awx_host_ip }}"
+      become: true # Tells Ansible to use sudo
 
     - name: 2b. Copy file from container to the AWX host filesystem
       ansible.builtin.copy:
@@ -27,4 +28,6 @@
         dest: "{{ host_destination_path }}"
         mode: '0644'
       delegate_to: "{{ awx_host_ip }}"
+      become: true # Tells Ansible to use sudo
+
 
