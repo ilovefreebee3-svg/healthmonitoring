@@ -14,13 +14,10 @@
         content: "Welcome to {{ inventory_hostname }}. Managed by Ansible.\n"
         dest: "/tmp/container_report.csv"
 
-    - name: 2a. Ensure destination directory exists on the AWX host
-      ansible.builtin.file:
-        path: "/var/lib/awx/exports"
-        state: directory
-        mode: '0755'
+    - name: 2a. Force create destination directory structure on the AWX host
+      ansible.builtin.command: "mkdir -p /var/lib/awx/exports"
       delegate_to: "{{ awx_host_ip }}"
-      become: true # Tells Ansible to use sudo
+      become: true # Uses your AWX sudo password
 
     - name: 2b. Copy file from container to the AWX host filesystem
       ansible.builtin.copy:
@@ -28,6 +25,5 @@
         dest: "{{ host_destination_path }}"
         mode: '0644'
       delegate_to: "{{ awx_host_ip }}"
-      become: true # Tells Ansible to use sudo
-
+      become: true # Uses your AWX sudo password
 
