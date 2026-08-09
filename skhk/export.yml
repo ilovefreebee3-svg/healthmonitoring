@@ -14,11 +14,6 @@
         content: "Welcome to {{ inventory_hostname }}. Managed by Ansible.\n"
         dest: "/tmp/container_report.csv"
 
-    - name: 1. Generate the CSV file inside the container
-      community.general.read_csv: 
-        # ... your playbook data collection logic ...
-        dest: "/tmp/container_report.csv"
-
     - name: 2a. Force create destination directory structure in home folder
       ansible.builtin.command: "mkdir -p /home/your_ssh_username/awx_exports"
       delegate_to: "{{ awx_host_ip }}"
