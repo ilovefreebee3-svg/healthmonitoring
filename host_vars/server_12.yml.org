@@ -1,9 +1,0 @@
-host_roles:
-  - r_ncc_health_checks_run_all_gg
-  - r_mspctl_cluster_health_s3
-  - r_mspctl_debug_run
-  - r_cs_grep_v_up_gg
-  - r_allssh_docker_ps_a_exited_up_gg
-  - r_allssh_sudo_kubectl_get_pods_a_gg
-  - r_allssh_df_h_sdb3_gg
-

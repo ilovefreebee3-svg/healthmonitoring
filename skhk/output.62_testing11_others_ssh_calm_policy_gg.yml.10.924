@@ -1,0 +1,162 @@
+
+---------------------------------
+62_testing11_others_ssh_calm_policy_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Check calm policy
+  hosts: calmcvm
+#  hosts: pccvm
+#  hosts: allcvms
+  gather_facts: false
+
+  tasks:
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
+
+    - name: 1. Set default variables
+      set_fact:
+        monitored_mounts: ["/", "/home", "/var"]
+        threshold: 75
+
+    - name: 2. Execute df -kh command
+      ansible.builtin.command: df -kh
+      register: input_result
+      changed_when: false
+      when: not ( read_from_file | bool )
+    
+    - name: 3. Mimic 'cat' register output using lookup
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.62_testing11_others_ssh_calm_policy_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.62_testing11_others_ssh_calm_policy_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+    
+    - name: 4. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+    
+    - name: 5. Process Disk Data
+      ansible.builtin.set_fact:
+        # Calculate values inside a single block to ensure logic sync
+        disk_stats: >-
+          {%- set results = [] -%}
+          {%- for line in input_result.stdout_lines[1:] -%}
+            {%- set cols = line.split() -%}
+            {%- if cols | length >= 6 -%}
+              {%- set mount = cols[5] -%}
+              {%- set usage = cols[4] | replace('%', '') | int -%}
+              {%- if mount in monitored_mounts and usage > threshold -%}
+                {%- set _ = results.append(mount ~ " (" ~ usage ~ "%)") -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ {
+            'count': results | length,
+            'remark_list': results
+          } | from_yaml }}
+    
+    - name: 6. Assign final variables
+      ansible.builtin.set_fact:
+        num_over75: "{{ disk_stats.count }}"
+        answer: "{{ (disk_stats.count > 0) | ternary('Threshold exceeded', 'Threshold not exceeded') }}"
+        remark: "{{ disk_stats.remark_list | join(', ') if disk_stats.count > 0 else 'All clear' }}"
+    
+    - name: 7. Display Result Information
+      ansible.builtin.debug:
+        msg: 
+          - "IP: {{ ansible_default_ipv4.address | default(inventory_hostname) }}"
+          - "Status: {{ answer }}"
+          - "Threshold: {{ threshold }}"
+          - "Count: {{ num_over75 }}"
+          - "Details: {{ remark }}"
+    
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml
+------------------------------------------------------------------
+
+
+aph 62_testing11_others_ssh_calm_policy_gg.yml
+
+
+PLAY [Check calm policy] *******************************************************
+
+TASK [-1. Declare flags] *******************************************************
+ok: [calmcvm]
+
+TASK [1. Set default variables] ************************************************
+ok: [calmcvm]
+
+TASK [2. Execute df -kh command] ***********************************************
+skipping: [calmcvm]
+
+TASK [3. Mimic 'cat' register output using lookup] *****************************
+ok: [calmcvm]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Filesystem      Size  Used Avail Use% Mounted on",
+        "devtmpfs         31G     0   31G   0% /dev",
+        "tmpfs           512M   92K  512M   1% /dev/shm",
+        "tmpfs            31G  7.2M   31G   1% /run",
+        "tmpfs            31G     0   31G   0% /sys/fs/cgroup",
+        "/dev/sdb2       9.8G  6.9G  2.9G  77% /",
+        "/dev/loop0      488M  824K  451M   1% /tmp",
+        "/dev/loop1      1.5G  420M  992M  30% /var",
+        "/dev/sdb3        49G   21G   28G  43% /home",
+        "/dev/sdf         30G   40K   30G   1% /home/nutanix/upgrade",
+        "/dev/loop2       44M   30M   11M  74% /home/log/audit",
+        "/dev/sdj3       140G   28K  133G   1% /home/nutanix/data/msp-backbone-storage/lcm_partition",
+        "/dev/sdi1       2.5T  685M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_503_04c65818_f8a2_4c6c_9925_8b3a9476c01e",
+        "/dev/sdh1       2.5T  448M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_500_02c4e13c_752f_4110_955d_3fd194e94fe2",
+        "/dev/sdg1       2.5T  926M  2.4T   1% /home/nutanix/data/stargate-storage/disks/NFS_3_0_496_9bb25937_caa6_46fd_a1ed_b6b544ccc8db",
+        "tmpfs           6.5G     0  6.5G   0% /run/user/1000"
+    ]
+}
+
+TASK [5. Process Disk Data] ****************************************************
+ok: [calmcvm]
+
+TASK [6. Assign final variables] ***********************************************
+ok: [calmcvm]
+
+TASK [7. Display Result Information] *******************************************
+ok: [calmcvm] => {
+    "msg": [
+        "IP: calmcvm",
+        "Status: Threshold exceeded",
+        "Threshold: 75",
+        "Count: 1",
+        "Details: / (77%)"
+    ]
+}
+
+TASK [99. Include persistency] *************************************************
+included: /home/user1/proj/hm/healthmonitoring/skhk/incl.logging.yml for calmcvm
+
+TASK [0. Declare variables] ****************************************************
+ok: [calmcvm]
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [calmcvm -> localhost]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+changed: [calmcvm -> 130.8.20.99]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+changed: [calmcvm -> 130.8.20.99]
+
+TASK [99. Include common role] *************************************************
+skipping: [calmcvm]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=12   changed=3    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+

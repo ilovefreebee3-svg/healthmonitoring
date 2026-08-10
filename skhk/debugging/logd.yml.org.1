@@ -1,0 +1,27 @@
+---
+- name: 0. Declare variables
+  set_fact:
+     awx_host_ip: "130.8.20.99" 
+     host_destination_path: "/home/user1/daily_report.csv"
+
+- name: Append result to CSV (local)
+  delegate_to: localhost
+  lineinfile:
+    path: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
+    create: yes
+    line: "{{ inventory_hostname }}, {{ answer }}, {{ remark }}"
+
+- name: 2a. Force create destination directory structure in home folder
+  ansible.builtin.command: "mkdir -p /home/user1/awx_exports"
+  delegate_to: "{{ awx_host_ip }}"
+  # NO become: true here
+
+- name: 2b. Copy file from container to the AWX host filesystem
+  ansible.builtin.copy:
+    src: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
+    # Saving it directly into the new folder
+    dest: "/home/user1/awx_exports/daily_report.csv"
+    mode: '0644'
+  delegate_to: "{{ awx_host_ip }}"
+  # NO become: true here
+

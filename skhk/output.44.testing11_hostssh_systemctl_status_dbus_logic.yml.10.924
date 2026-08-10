@@ -1,0 +1,299 @@
+
+---------------------------------
+44.testing11_hostssh_systemctl_status_dbus_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check dbus across AHV Hosts
+  hosts: corecvm
+  gather_facts: false
+
+
+  tasks:
+    - name: -1. Declare flags
+      set_fact:
+        read_from_file: false 
+        logd_enabled: false 
+        role_enabled: false 
+        remote_user_name: nutanix
+
+    - name: 0. Declare variables
+      set_fact:
+        read_from_file: false 
+        answer: "Healthy"
+        remark: "No failures or errors detected."
+
+    - name: 1. Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: 2. Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: 4. Initialize the empty input_result structures
+      ansible.builtin.set_fact:
+        input_result_stdout_list: []
+        input_result_lines_list: []
+
+    - name: 5. Calling the subroutine
+      ansible.builtin.include_tasks: subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when:
+        - ahv_hosts | length > 0
+        - not (read_from_file | bool)
+
+    - name: 6. Construct final input_result dictionary
+      ansible.builtin.set_fact:
+        input_result:
+          stdout: "{{ input_result_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_result_lines_list }}"
+
+    - name: 7. Debug and display aggregate input_result outputs
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 8. Mimic 'cat' register output using lookup
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.44.testing11_hostssh_systemctl_status_dbus_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.44.testing11_hostssh_systemctl_status_dbus_logic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool 
+
+    - name: 9. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+
+    - set_fact:
+        svc_list: >-
+          {{
+            input_result.stdout | regex_findall(
+            '={20}\s*([0-9.]+)\s*={20}.*?\n.*?(dbus\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            multiline=True
+            )
+          }}
+    
+    - name: 10. Determine svc_list
+      debug:
+        var: svc_list
+
+    - set_fact:
+        answer: "None"
+      when: svc_list | length == 0
+    
+    - set_fact:
+        inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
+      when: svc_list | length > 0
+    
+    - set_fact:
+        answer: >-
+          {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
+        remark: >-
+          {{ inactive_list if inactive_list | length > 0 else '' }}
+      when: svc_list | length > 0
+
+    - name: 11. Display answer and remark
+      debug:
+        msg: "{{ answer }} {{ remark }} "
+
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml
+------------------------------------------------------------------
+
+
+aph 44.testing11_hostssh_systemctl_status_dbus_logic.yml
+
+
+PLAY [Pseudo hostssh - Check dbus across AHV Hosts] ****************************
+
+TASK [-1. Declare flags] *******************************************************
+ok: [corecvm]
+
+TASK [0. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [1. Get AHV host IP addresses] ********************************************
+ok: [corecvm]
+
+TASK [2. Parse IP addresses into a clean list] *********************************
+ok: [corecvm]
+
+TASK [4. Initialize the empty input_result structures] *************************
+ok: [corecvm]
+
+TASK [5. Calling the subroutine] ***********************************************
+skipping: [corecvm] => (item=130.8.20.24) 
+skipping: [corecvm] => (item=130.8.20.25) 
+skipping: [corecvm] => (item=130.8.20.21) 
+skipping: [corecvm] => (item=130.8.20.22) 
+skipping: [corecvm] => (item=130.8.20.23) 
+
+TASK [6. Construct final input_result dictionary] ******************************
+ok: [corecvm]
+
+TASK [7. Debug and display aggregate input_result outputs] *********************
+ok: [corecvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [8. Mimic 'cat' register output using lookup] *****************************
+ok: [corecvm]
+
+TASK [9. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 111.222.10.1 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:52:16 UTC; 3 weeks 3 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6814 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.6M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6814 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 111.222.10.2 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: inactive (running) since Thu 2026-06-25 08:55:01 UTC; 3 weeks 4 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6773 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6773 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 111.222.10.3 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: inactive (running) since Thu 2026-06-25 10:48:24 UTC; 3 weeks 3 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6737 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 5.9M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6737 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 111.222.10.4 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 08:26:42 UTC; 3 weeks 4 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6779 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6779 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 111.222.10.6 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 10:19:23 UTC; 3 weeks 3 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 7002 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.4M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─7002 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "==================== 111.222.10.7 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "   Loaded: loaded (/usr/lib/systemd/system/dbus.service; static; vendor preset: disabled)",
+        "   Active: active (running) since Thu 2026-06-25 09:22:54 UTC; 3 weeks 3 days ago",
+        "     Docs: man:dbus-daemon(1)",
+        " Main PID: 6982 (dbus-daemon)",
+        "    Tasks: 2 (limit: 3355442)",
+        "   Memory: 6.3M",
+        "   CGroup: /system.slice/dbus.service",
+        "           └─6982 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only"
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [10. Determine svc_list] **************************************************
+ok: [corecvm] => {
+    "svc_list": [
+        [
+            "111.222.10.1",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "111.222.10.2",
+            "dbus.service",
+            "inactive"
+        ],
+        [
+            "111.222.10.3",
+            "dbus.service",
+            "inactive"
+        ],
+        [
+            "111.222.10.4",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "111.222.10.6",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "111.222.10.7",
+            "dbus.service",
+            "active"
+        ]
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [11. Display answer and remark] *******************************************
+ok: [corecvm] => {
+    "msg": "Not all active [['111.222.10.2', 'dbus.service', 'inactive'], ['111.222.10.3', 'dbus.service', 'inactive']] "
+}
+
+TASK [99. Include persistency] *************************************************
+included: /home/user1/proj/hm/healthmonitoring/skhk/incl.logging.yml for corecvm
+
+TASK [0. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [corecvm -> localhost]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+changed: [corecvm -> 130.8.20.99]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+changed: [corecvm -> 130.8.20.99]
+
+TASK [99. Include common role] *************************************************
+skipping: [corecvm]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=19   changed=3    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+

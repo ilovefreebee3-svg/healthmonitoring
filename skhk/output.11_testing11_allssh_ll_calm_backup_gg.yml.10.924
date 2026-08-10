@@ -1,3 +1,9 @@
+
+---------------------------------
+11_testing11_allssh_ll_calm_backup_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ---
 - name: Running ls -l /home/nutanix/tmp/calm-bkup
   hosts: calmcvm
@@ -125,3 +131,73 @@
 
     - name: 99. Include persistency
       ansible.builtin.include_tasks: incl.logging.yml
+------------------------------------------------------------------
+
+
+aph 11_testing11_allssh_ll_calm_backup_gg.yml
+
+
+PLAY [Running ls -l /home/nutanix/tmp/calm-bkup] *******************************
+
+TASK [1. Verify connectivity to the Control CVM] *******************************
+ok: [calmcvm]
+
+TASK [2. Run "ls -l /home/nutanix/tmp/calm-bkup"] ******************************
+skipping: [calmcvm]
+
+TASK [3. Initialise variable] **************************************************
+ok: [calmcvm]
+
+TASK [Mimic 'cat' register output using lookup] ********************************
+ok: [calmcvm]
+
+TASK [4. Display input_filter.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "msg": [
+        "================== 192.52.129.1 =================",
+        "total 12345",
+        "ls: cannot access /home/nutanix/tmp/calm-bkup: No such file or directory",
+        "================== 192.52.11.2 =================",
+        "-rw-rw-r-- 1 user1 user1    300 Apr 24 20:51 2025-January-14.backup.log.3721.txt",
+        "-rw-rw-r-- 1 user1 user1   1749 Apr 24 20:51 Policy-Engine-Backup-2025-01-14-1736854242",
+        "-rw-rw-r-- 1 user1 user1 133638 Apr 24 20:51 2025-January-14.3.7.2.1_backup.tar",
+        "================== 192.52.11.3 =================",
+        "-rw-rw-r-- 1 user1 user1    300 Apr 24 20:51 2024-October-24.backup.log.3721.txt",
+        "-rw-rw-r-- 1 user1 user1   1749 Apr 24 20:51 2024-October-24.iam-backup.sql.gz",
+        "-rw-rw-r-- 1 user1 user1   1749 Apr 24 20:51 Policy-Engine-Backup-2024-10-24-1736854242",
+        "-rw-rw-r-- 1 user1 user1   1749 Apr 24 20:51 Policy-Engine-Backup-2024-10-24-1736854242"
+    ]
+}
+
+TASK [5. Parse output and evaluate backup status] ******************************
+ok: [calmcvm]
+
+TASK [6. Debug results] ********************************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Remark:  \n 192.52.129.1 - cannot access --- 192.52.11.2 -  incomplete backup",
+        "Answer: \nIncomplete backup"
+    ]
+}
+
+TASK [99. Include persistency] *************************************************
+included: /home/user1/proj/hm/healthmonitoring/skhk/incl.logging.yml for calmcvm
+
+TASK [0. Declare variables] ****************************************************
+ok: [calmcvm]
+
+TASK [Append result to CSV (local)] ********************************************
+changed: [calmcvm -> localhost]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+changed: [calmcvm -> 130.8.20.99]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+changed: [calmcvm -> 130.8.20.99]
+
+TASK [99. Include common role] *************************************************
+skipping: [calmcvm]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=11   changed=3    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+
