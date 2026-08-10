@@ -1,0 +1,928 @@
+
+---------------------------------
+44.testing11_hostssh_systemctl_status_dbus_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check dbus across AHV Hosts
+  hosts: corecvm
+  gather_facts: false
+
+  vars:
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    log_github_enabled: false 
+
+  tasks:
+    - name: -1. Declare flags
+      set_fact:
+        remote_user_name: nutanix
+
+    - name: 0. Declare variables
+      set_fact:
+        read_from_file: false 
+        answer: "Healthy"
+        remark: "No failures or errors detected."
+
+    - name: 1. Get AHV host IP addresses
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            hostips
+      register: hostips_output
+      changed_when: false
+
+    - name: 2. Parse IP addresses into a clean list
+      ansible.builtin.set_fact:
+        ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+
+    - name: 4. Initialize the empty input_result structures
+      ansible.builtin.set_fact:
+        input_result_stdout_list: []
+        input_result_lines_list: []
+
+    - name: 5. Calling the subroutine
+      ansible.builtin.include_tasks: subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml
+      loop: "{{ ahv_hosts }}"
+      loop_control:
+        loop_var: current_host
+      when:
+        - ahv_hosts | length > 0
+        - not (read_from_file | bool)
+
+    - name: 6. Construct final input_result dictionary
+      ansible.builtin.set_fact:
+        input_result:
+          stdout: "{{ input_result_stdout_list | join('\n') }}"
+          stdout_lines: "{{ input_result_lines_list }}"
+
+    - name: 7. Debug and display aggregate input_result outputs
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 8. Mimic 'cat' register output using lookup
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.44.testing11_hostssh_systemctl_status_dbus_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.44.testing11_hostssh_systemctl_status_dbus_logic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool 
+
+    - name: 9. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+
+    - set_fact:
+        svc_list: >-
+          {{
+            input_result.stdout | regex_findall(
+            '={20}\s*([0-9.]+)\s*={20}.*?\n.*?(dbus\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            multiline=True
+            )
+          }}
+    
+    - name: 10. Determine svc_list
+      debug:
+        var: svc_list
+
+    - set_fact:
+        answer: "None"
+      when: svc_list | length == 0
+    
+    - set_fact:
+        inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
+      when: svc_list | length > 0
+    
+    - set_fact:
+        answer: >-
+          {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
+        remark: >-
+          {{ inactive_list if inactive_list | length > 0 else '' }}
+      when: svc_list | length > 0
+
+    - name: 11. Display answer and remark
+      debug:
+        msg: "{{ answer }} {{ remark }} "
+
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml
+------------------------------------------------------------------
+
+
+aph 44.testing11_hostssh_systemctl_status_dbus_logic.yml
+
+
+PLAY [Pseudo hostssh - Check dbus across AHV Hosts] ****************************
+
+TASK [-1. Declare flags] *******************************************************
+ok: [corecvm]
+
+TASK [0. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [1. Get AHV host IP addresses] ********************************************
+ok: [corecvm]
+
+TASK [2. Parse IP addresses into a clean list] *********************************
+ok: [corecvm]
+
+TASK [4. Initialize the empty input_result structures] *************************
+ok: [corecvm]
+
+TASK [5. Calling the subroutine] ***********************************************
+included: /home/user1/proj/hm/healthmonitoring/skhk/subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=130.8.20.24)
+included: /home/user1/proj/hm/healthmonitoring/skhk/subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=130.8.20.25)
+included: /home/user1/proj/hm/healthmonitoring/skhk/subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=130.8.20.21)
+included: /home/user1/proj/hm/healthmonitoring/skhk/subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=130.8.20.22)
+included: /home/user1/proj/hm/healthmonitoring/skhk/subr.44.testing11_hostssh_systemctl_status_dbus_logic.yml for corecvm => (item=130.8.20.23)
+
+TASK [Check reachability for 130.8.20.24] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.24] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.24] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.24] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 627 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─627 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=2023 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:45 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=661 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.10' (uid=0 pid=629 comm=\"/usr/sbin/NetworkManager --no-daemon \" label=\"unconfined\")",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'",
+        "Agu 10 21:47:31 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.86' (uid=1000 pid=6758 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.25] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.25] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.25] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.25] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 627 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─627 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=2023 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:45 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=661 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.10' (uid=0 pid=629 comm=\"/usr/sbin/NetworkManager --no-daemon \" label=\"unconfined\")",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'",
+        "Agu 10 21:47:31 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.86' (uid=1000 pid=6758 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=1624 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=660 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.fwupd' unit='fwupd.service' requested by ':1.71' (uid=122 pid=3444 comm=\"/usr/bin/fwupdmgr refresh \" label=\"unconfined\")",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.fwupd'",
+        "Agu 10 21:47:31 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.88' (uid=1000 pid=6359 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.21] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.21] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.21] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.21] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 627 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─627 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=2023 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:45 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=661 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.10' (uid=0 pid=629 comm=\"/usr/sbin/NetworkManager --no-daemon \" label=\"unconfined\")",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'",
+        "Agu 10 21:47:31 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.86' (uid=1000 pid=6758 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=1624 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=660 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.fwupd' unit='fwupd.service' requested by ':1.71' (uid=122 pid=3444 comm=\"/usr/bin/fwupdmgr refresh \" label=\"unconfined\")",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.fwupd'",
+        "Agu 10 21:47:31 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.88' (uid=1000 pid=6359 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:20:19 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.106' (uid=1000 pid=4220 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:20:44 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:28:28 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=5032 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:28:53 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:30:13 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=5271 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:30:38 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:44:55 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=6580 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:45:20 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:32 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=7037 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:57 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.22] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.22] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.22] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.22] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 627 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─627 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=2023 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:45 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=661 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.10' (uid=0 pid=629 comm=\"/usr/sbin/NetworkManager --no-daemon \" label=\"unconfined\")",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'",
+        "Agu 10 21:47:31 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.86' (uid=1000 pid=6758 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=1624 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=660 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.fwupd' unit='fwupd.service' requested by ':1.71' (uid=122 pid=3444 comm=\"/usr/bin/fwupdmgr refresh \" label=\"unconfined\")",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.fwupd'",
+        "Agu 10 21:47:31 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.88' (uid=1000 pid=6359 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:20:19 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.106' (uid=1000 pid=4220 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:20:44 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:28:28 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=5032 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:28:53 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:30:13 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=5271 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:30:38 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:44:55 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=6580 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:45:20 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:32 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=7037 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:57 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.22 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:11 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 632 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.7M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─632 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.PackageKit'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.ColorManager' unit='colord.service' requested by ':1.61' (uid=126 pid=3341 comm=\"/usr/libexec/gsd-color \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=3239 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=663 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:47:28 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.85' (uid=1000 pid=36672 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:53 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.23] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.23] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.23] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.23] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 627 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─627 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=2023 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:45 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=661 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.10' (uid=0 pid=629 comm=\"/usr/sbin/NetworkManager --no-daemon \" label=\"unconfined\")",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'",
+        "Agu 10 21:47:31 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.86' (uid=1000 pid=6758 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=1624 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=660 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.fwupd' unit='fwupd.service' requested by ':1.71' (uid=122 pid=3444 comm=\"/usr/bin/fwupdmgr refresh \" label=\"unconfined\")",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.fwupd'",
+        "Agu 10 21:47:31 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.88' (uid=1000 pid=6359 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:20:19 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.106' (uid=1000 pid=4220 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:20:44 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:28:28 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=5032 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:28:53 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:30:13 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=5271 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:30:38 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:44:55 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=6580 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:45:20 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:32 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=7037 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:57 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.22 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:11 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 632 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.7M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─632 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.PackageKit'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.ColorManager' unit='colord.service' requested by ':1.61' (uid=126 pid=3341 comm=\"/usr/libexec/gsd-color \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=3239 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=663 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:47:28 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.85' (uid=1000 pid=36672 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:53 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.23 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 626 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.5M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─626 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:11:04 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=3530 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:11:29 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:11:55 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=3691 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:12:20 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:12:27 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=3832 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:12:52 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:13:46 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=4036 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:14:11 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:29 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.211' (uid=1000 pid=6915 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:54 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        ""
+    ]
+}
+
+TASK [6. Construct final input_result dictionary] ******************************
+ok: [corecvm]
+
+TASK [7. Debug and display aggregate input_result outputs] *********************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "==================== 130.8.20.24 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 627 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─627 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=2023 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:45 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=661 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.10' (uid=0 pid=629 comm=\"/usr/sbin/NetworkManager --no-daemon \" label=\"unconfined\")",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'",
+        "Agu 10 21:47:31 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.86' (uid=1000 pid=6758 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=1624 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=660 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.fwupd' unit='fwupd.service' requested by ':1.71' (uid=122 pid=3444 comm=\"/usr/bin/fwupdmgr refresh \" label=\"unconfined\")",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.fwupd'",
+        "Agu 10 21:47:31 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.88' (uid=1000 pid=6359 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:20:19 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.106' (uid=1000 pid=4220 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:20:44 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:28:28 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=5032 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:28:53 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:30:13 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=5271 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:30:38 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:44:55 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=6580 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:45:20 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:32 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=7037 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:57 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.22 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:11 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 632 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.7M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─632 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.PackageKit'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.ColorManager' unit='colord.service' requested by ':1.61' (uid=126 pid=3341 comm=\"/usr/libexec/gsd-color \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=3239 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=663 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:47:28 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.85' (uid=1000 pid=36672 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:53 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.23 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 626 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.5M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─626 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:11:04 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=3530 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:11:29 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:11:55 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=3691 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:12:20 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:12:27 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=3832 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:12:52 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:13:46 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=4036 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:14:11 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:29 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.211' (uid=1000 pid=6915 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:54 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        ""
+    ]
+}
+
+TASK [8. Mimic 'cat' register output using lookup] *****************************
+skipping: [corecvm]
+
+TASK [9. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 627 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─627 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=2023 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:22 pecvm dbus-daemon[627]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:45 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=661 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service' requested by ':1.10' (uid=0 pid=629 comm=\"/usr/sbin/NetworkManager --no-daemon \" label=\"unconfined\")",
+        "Agu 10 21:38:10 pecvm dbus-daemon[627]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'",
+        "Agu 10 21:47:31 pecvm dbus-daemon[627]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.86' (uid=1000 pid=6758 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pecvm dbus-daemon[627]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:10 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=1624 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 pccvm dbus-daemon[633]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=660 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:13 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.freedesktop.fwupd' unit='fwupd.service' requested by ':1.71' (uid=122 pid=3444 comm=\"/usr/bin/fwupdmgr refresh \" label=\"unconfined\")",
+        "Agu 10 21:12:41 pccvm dbus-daemon[633]: [system] Successfully activated service 'org.freedesktop.fwupd'",
+        "Agu 10 21:47:31 pccvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.88' (uid=1000 pid=6359 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:56 pccvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 633 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.6M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─633 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:20:19 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.106' (uid=1000 pid=4220 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:20:44 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:28:28 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=5032 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:28:53 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:30:13 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=5271 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:30:38 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:44:55 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=6580 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:45:20 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:32 corecvm dbus-daemon[633]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=7037 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:57 corecvm dbus-daemon[633]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.22 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:11 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 632 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.7M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─632 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.PackageKit'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.ColorManager' unit='colord.service' requested by ':1.61' (uid=126 pid=3341 comm=\"/usr/libexec/gsd-color \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.ColorManager'",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='net.reactivated.Fprint' unit='fprintd.service' requested by ':1.45' (uid=126 pid=3239 comm=\"/usr/bin/gnome-shell \" label=\"unconfined\")",
+        "Agu 10 20:53:23 sk1 dbus-daemon[632]: [system] Successfully activated service 'net.reactivated.Fprint'",
+        "Agu 10 20:53:46 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.freedesktop.timedate1' unit='dbus-org.freedesktop.timedate1.service' requested by ':1.25' (uid=0 pid=663 comm=\"/usr/lib/snapd/snapd \" label=\"unconfined\")",
+        "Agu 10 20:58:14 sk1 dbus-daemon[632]: [system] Successfully activated service 'org.freedesktop.timedate1'",
+        "Agu 10 21:47:28 sk1 dbus-daemon[632]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.85' (uid=1000 pid=36672 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:53 sk1 dbus-daemon[632]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "",
+        "==================== 130.8.20.23 ====================",
+        "● dbus.service - D-Bus System Message Bus",
+        "     Loaded: loaded (/lib/systemd/system/dbus.service; static; vendor preset: enabled)",
+        "     Active: active (running) since Mon 2026-08-10 20:53:08 WIB; 55min ago",
+        "TriggeredBy: ● dbus.socket",
+        "       Docs: man:dbus-daemon(1)",
+        "   Main PID: 626 (dbus-daemon)",
+        "      Tasks: 1 (limit: 4574)",
+        "     Memory: 4.5M",
+        "     CGroup: /system.slice/dbus.service",
+        "             └─626 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only",
+        "",
+        "Agu 10 21:11:04 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.127' (uid=1000 pid=3530 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:11:29 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:11:55 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.148' (uid=1000 pid=3691 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:12:20 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:12:27 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.169' (uid=1000 pid=3832 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:12:52 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:13:46 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.190' (uid=1000 pid=4036 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:14:11 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        "Agu 10 21:47:29 calmcvm dbus-daemon[626]: [system] Activating via systemd: service name='org.bluez' unit='dbus-org.bluez.service' requested by ':1.211' (uid=1000 pid=6915 comm=\"/usr/bin/pulseaudio --daemonize=no --log-target=jo\" label=\"unconfined\")",
+        "Agu 10 21:47:54 calmcvm dbus-daemon[626]: [system] Failed to activate service 'org.bluez': timed out (service_start_timeout=25000ms)",
+        ""
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [10. Determine svc_list] **************************************************
+ok: [corecvm] => {
+    "svc_list": [
+        [
+            "130.8.20.24",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "130.8.20.25",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "130.8.20.21",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "130.8.20.22",
+            "dbus.service",
+            "active"
+        ],
+        [
+            "130.8.20.23",
+            "dbus.service",
+            "active"
+        ]
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [11. Display answer and remark] *******************************************
+ok: [corecvm] => {
+    "msg": "All active  "
+}
+
+TASK [99. Include persistency] *************************************************
+included: /home/user1/proj/hm/healthmonitoring/skhk/incl.logging.yml for corecvm
+
+TASK [0. Declare variables] ****************************************************
+skipping: [corecvm]
+
+TASK [Append result to CSV (local)] ********************************************
+skipping: [corecvm]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [corecvm]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [corecvm]
+
+TASK [99. Include common role] *************************************************
+skipping: [corecvm]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=49   changed=0    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+

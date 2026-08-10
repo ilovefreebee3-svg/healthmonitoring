@@ -1,0 +1,168 @@
+
+---------------------------------
+63_testing11_others_ssh_calm_policy_40_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Check calm policy
+  hosts: calmcvm
+#  hosts: pccvm
+#  hosts: allcvms
+  gather_facts: false
+
+  vars:
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    log_github_enabled: false 
+
+  tasks:
+    - name: 1. Set default variables
+      set_fact:
+        monitored_mounts: ["/", "/home", "/var"]
+        threshold: 40
+
+    - name: 2. Execute df -kh command
+      ansible.builtin.command: df -kh
+      register: input_result
+      changed_when: false
+      when: not ( read_from_file | bool )
+    
+    - name: 3. Mimic 'cat' register output using lookup
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.63_testing11_others_ssh_calm_policy_40_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.63_testing11_others_ssh_calm_policy_40_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+    
+    - name: 4. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+    
+    - name: 5. Process Disk Data
+      ansible.builtin.set_fact:
+        # Calculate values inside a single block to ensure logic sync
+        disk_stats: >-
+          {%- set results = [] -%}
+          {%- for line in input_result.stdout_lines[1:] -%}
+            {%- set cols = line.split() -%}
+            {%- if cols | length >= 6 -%}
+              {%- set mount = cols[5] -%}
+              {%- set usage = cols[4] | replace('%', '') | int -%}
+              {%- if mount in monitored_mounts and usage > threshold -%}
+                {%- set _ = results.append(mount ~ " (" ~ usage ~ "%)") -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ {
+            'count': results | length,
+            'remark_list': results
+          } | from_yaml }}
+    
+    - name: 6. Assign final variables
+      ansible.builtin.set_fact:
+        num_over75: "{{ disk_stats.count }}"
+        answer: "{{ (disk_stats.count > 0) | ternary('Threshold exceeded', 'Threshold not exceeded') }}"
+        remark: "{{ disk_stats.remark_list | join(', ') if disk_stats.count > 0 else 'All clear' }}"
+    
+    - name: 7. Display Result Information
+      ansible.builtin.debug:
+        msg: 
+          - "IP: {{ ansible_default_ipv4.address | default(inventory_hostname) }}"
+          - "Status: {{ answer }}"
+          - "Threshold: {{ threshold }}"
+          - "Count: {{ num_over75 }}"
+          - "Details: {{ remark }}"
+    
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml
+------------------------------------------------------------------
+
+
+aph 63_testing11_others_ssh_calm_policy_40_gg.yml
+
+
+PLAY [Check calm policy] *******************************************************
+
+TASK [1. Set default variables] ************************************************
+ok: [calmcvm]
+
+TASK [2. Execute df -kh command] ***********************************************
+ok: [calmcvm]
+
+TASK [3. Mimic 'cat' register output using lookup] *****************************
+skipping: [calmcvm]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Filesystem      Size  Used Avail Use% Mounted on",
+        "udev            1,9G     0  1,9G   0% /dev",
+        "tmpfs           391M  1,2M  390M   1% /run",
+        "/dev/sda2        39G   20G   18G  52% /",
+        "tmpfs           2,0G     0  2,0G   0% /dev/shm",
+        "tmpfs           5,0M     0  5,0M   0% /run/lock",
+        "tmpfs           2,0G     0  2,0G   0% /sys/fs/cgroup",
+        "/dev/loop0      128K  128K     0 100% /snap/bare/5",
+        "/dev/loop3      347M  347M     0 100% /snap/gnome-3-38-2004/119",
+        "/dev/loop2       74M   74M     0 100% /snap/core22/2411",
+        "/dev/loop4      350M  350M     0 100% /snap/gnome-3-38-2004/143",
+        "/dev/loop1       64M   64M     0 100% /snap/core20/2866",
+        "/dev/loop5       92M   92M     0 100% /snap/gtk-common-themes/1535",
+        "/dev/loop7       51M   51M     0 100% /snap/snapd/27591",
+        "/dev/loop6      532M  532M     0 100% /snap/gnome-42-2204/263",
+        "/dev/loop8       64M   64M     0 100% /snap/core20/2769",
+        "/dev/loop9       74M   74M     0 100% /snap/core22/1748",
+        "/dev/loop13      13M   13M     0 100% /snap/snap-store/1216",
+        "/dev/loop10     532M  532M     0 100% /snap/gnome-42-2204/247",
+        "/dev/loop11      46M   46M     0 100% /snap/snap-store/638",
+        "/dev/loop12      51M   51M     0 100% /snap/snapd/27406",
+        "/dev/sda1       511M  6,1M  505M   2% /boot/efi",
+        "tmpfs           391M   20K  391M   1% /run/user/126",
+        "tmpfs           391M     0  391M   0% /run/user/1000"
+    ]
+}
+
+TASK [5. Process Disk Data] ****************************************************
+ok: [calmcvm]
+
+TASK [6. Assign final variables] ***********************************************
+ok: [calmcvm]
+
+TASK [7. Display Result Information] *******************************************
+ok: [calmcvm] => {
+    "msg": [
+        "IP: calmcvm",
+        "Status: Threshold exceeded",
+        "Threshold: 40",
+        "Count: 1",
+        "Details: / (52%)"
+    ]
+}
+
+TASK [99. Include persistency] *************************************************
+included: /home/user1/proj/hm/healthmonitoring/skhk/incl.logging.yml for calmcvm
+
+TASK [0. Declare variables] ****************************************************
+skipping: [calmcvm]
+
+TASK [Append result to CSV (local)] ********************************************
+skipping: [calmcvm]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [calmcvm]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [calmcvm]
+
+TASK [99. Include common role] *************************************************
+skipping: [calmcvm]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=7    changed=0    unreachable=0    failed=0    skipped=6    rescued=0    ignored=0   
+
