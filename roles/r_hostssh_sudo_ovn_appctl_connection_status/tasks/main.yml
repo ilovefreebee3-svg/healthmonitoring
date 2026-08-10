@@ -1,18 +1,12 @@
 ---
-- name: -1. Declare flags
-  set_fact:
-    read_from_file: false 
-    logd_enabled: false 
-    role_enabled: false 
-
 - name: 1. Declare variables
   set_fact:
     cmd_list:
       - name: hostssh ovn-appctl connection-status
         argv: ["hostssh", "ovn-appctl", "connection-status"]
 
-#      - name: hostssh_ovn_appctl_connection_status
-#        argv: ["hostssh_ovn_appctl_connection_status"]
+#          - name: hostssh_ovn_appctl_connection_status
+#            argv: ["hostssh_ovn_appctl_connection_status"]
 
 - name: 2. Execute commands
   include_tasks: subr.40.testing11_hostssh_ovn_lab_logic.yml

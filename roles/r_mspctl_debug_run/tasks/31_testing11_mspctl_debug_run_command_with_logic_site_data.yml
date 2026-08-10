@@ -4,13 +4,14 @@
 #  hosts: pccvm
   gather_facts: no
 
-  tasks:
-    - name: -1. Declare flags
-      set_fact:
-        read_from_file: false 
-        logd_enabled: false 
-        role_enabled: false 
+  vars:
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    log_github_enabled: false 
 
+  tasks:
     - name: 1. Run mspctl debug with command module
       ansible.builtin.command:
         argv:

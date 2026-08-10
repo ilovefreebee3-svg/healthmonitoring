@@ -1,10 +1,4 @@
 ---
-- name: -1. Declare flags
-  set_fact:
-    read_from_file: false 
-    logd_enabled: false 
-    role_enabled: false 
-
 - name: 1. Set default variables
   set_fact:
     monitored_mounts: ["/", "/home", "/var"]
