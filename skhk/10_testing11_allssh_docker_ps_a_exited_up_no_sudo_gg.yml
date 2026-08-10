@@ -4,12 +4,12 @@
 #  hosts: server_12
 #  hosts: pccvm
   gather_facts: false
-#  vars:
-#    read_from_file: false 
-#    logd_enabled: false 
-#    role_enabled: false 
-#    log_filesystem_enabled: false 
-#    log_github_enabled: false 
+  vars:
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    log_github_enabled: false 
 
   tasks:
     # ------------------------------------------------------------

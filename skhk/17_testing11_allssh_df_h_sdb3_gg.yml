@@ -5,13 +5,14 @@
 #  hosts: allcvms
   gather_facts: false
 
-  tasks:
-    - name: -1. Declare flags
-      set_fact:
-        read_from_file: false 
-        logd_enabled: false 
-        role_enabled: false 
+  vars:
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    log_github_enabled: false 
 
+  tasks:
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
