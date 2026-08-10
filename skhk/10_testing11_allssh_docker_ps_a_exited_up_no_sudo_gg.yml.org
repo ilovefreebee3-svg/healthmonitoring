@@ -1,13 +1,15 @@
 ---
 - name: Running docker ps -a
   hosts: calmcvm
+#  hosts: server_12
 #  hosts: pccvm
   gather_facts: false
-
   vars:
     read_from_file: false 
     logd_enabled: false 
     role_enabled: false 
+    log_filesystem_enabled: false 
+    log_github_enabled: false 
 
   tasks:
     # ------------------------------------------------------------
@@ -97,11 +99,5 @@
           - "answer: {{ answer }}"
           - "remark: {{ remark }}"
 
-    - name: 8. Append result to CSV (local)
-      import_tasks: logd.yml
-      when: logd_enabled | bool
-
-    - name: 99. Include common role
-      ansible.builtin.include_role:
-         name: common
-      when: role_enabled | bool
+    - name: 99. Include persistency
+      ansible.builtin.include_tasks: incl.logging.yml
