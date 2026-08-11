@@ -15,12 +15,17 @@
         msg: "The variable 'gh_token' or 'GITHUB_TOKEN' env variable is missing!"
       when: gh_token | length == 0
 
-    - name: Generate the CSV file data
-      copy:
-        content: |
-          Timestamp,Host,Status,CPU_Usage,Memory_Usage
-          {{ ansible_date_time.iso8601 | default(now().iso8601) }},server1,Healthy,12%,45%
-          {{ ansible_date_time.iso8601 | default(now().iso8601) }},server2,Warning,88%,91%
+#    - name: Generate the CSV file data
+#      copy:
+#        content: |
+#          Timestamp,Host,Status,CPU_Usage,Memory_Usage
+#          {{ ansible_date_time.iso8601 | default(now().iso8601) }},server1,Healthy,12%,45%
+#          {{ ansible_date_time.iso8601 | default(now().iso8601) }},server2,Warning,88%,91%
+#        dest: "/tmp/{{ csv_filename }}"
+
+    - name: Set message of the day
+      ansible.builtin.copy:
+        content: "Welcome to {{ inventory_hostname }}. Managed by Ansible.\n"
         dest: "/tmp/{{ csv_filename }}"
 
     - name: Clean up any existing temporary clone directory
