@@ -67,4 +67,4 @@
       file:
         path: "{{ clone_dir }}"
         state: absent
-
+ 
