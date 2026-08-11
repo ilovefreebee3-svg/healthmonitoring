@@ -11,6 +11,12 @@
     log_github_enabled: false 
 
   tasks:
+    - name: 0. Declare role variables
+      ansible.builtin.set_fact:
+        role: r_ncc_health_checks_run_all_gg
+        idx: idx3
+        description: ncc health_checks run_all
+
     - name: 1. Declare variables
       ansible.builtin.set_fact:
         log_path: "/home/nutanix/data/logs/ncc-output.log"
