@@ -9,6 +9,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: hostssh sudo systemctl status nvidia-vgpu-mgr
+    idx: idx015
+    role: r_hostssh_systemctl_status_nvidia-vgpu-mgr
 
   tasks:
     - name: -1. Declare flags

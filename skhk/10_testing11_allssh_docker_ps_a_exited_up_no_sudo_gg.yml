@@ -10,6 +10,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: allssh 'docker ps -a | grep -v -e Exited -e Up'
+    idx: idx060
+    role:  r_allssh_docker_ps_a_exited_up_gg
 
   tasks:
     # ------------------------------------------------------------

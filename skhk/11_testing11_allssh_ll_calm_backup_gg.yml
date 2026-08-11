@@ -10,6 +10,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: allssh 'ls -l /home/nutanix/tmp/calm-bkup'
+    idx: idx100
+    role: r_allssh_ll_calm_backup_gg
 
   tasks:
     # ------------------------------------------------------------

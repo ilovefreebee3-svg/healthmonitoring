@@ -4,12 +4,20 @@
     awx_host_ip: "130.8.20.99"
     host_destination_path: "/home/user1/daily_report.csv"
 
-- name: Append result to CSV (local)
+#- name: Append result to CSV (local)
+#  delegate_to: localhost
+#  lineinfile:
+#    path: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
+#    create: yes
+#    line: "{{ inventory_hostname }}, {{ answer }}, {{ remark }}"
+#  when: logd_enabled | bool
+
+- name: Append result to CSV (role)
   delegate_to: localhost
   lineinfile:
     path: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
     create: yes
-    line: "{{ inventory_hostname }}, {{ answer }}, {{ remark }}"
+    line: "{{ inventory_hostname }}, {{ role }}, {{ vpc }}, {{ description }}, {{ idx }}, {{ answer }}, {{ remark }} "
 
 - name: Export files to AWX host
   delegate_to: "{{ awx_host_ip }}"

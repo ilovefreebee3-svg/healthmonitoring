@@ -10,6 +10,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: mspctl debug run --test_exclude_subset=hosting_pe
+    idx: idx098
+    role: r_mspctl_debug_run_test_exclude_subset
 
   tasks:
     - name: 1. Run mspctl debug run --test_exclude_subset

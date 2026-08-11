@@ -13,6 +13,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: hostssh sudo ovn_appctl connection-status
+    idx: idx6
+    role: r_hostssh_sudo_ovn_appctl_connection_status
 
   tasks:
     - name: 1. Declare variables

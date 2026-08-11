@@ -1,0 +1,59 @@
+
+---------------------------------
+export.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Export CSV from Container to AWX Host
+  hosts: localhost
+  gather_facts: true
+
+  vars:
+    # The physical IP address or local network domain of your AWX host machine
+    awx_host_ip: "130.8.20.99" 
+    host_destination_path: "/home/user1/daily_report.csv"
+
+  tasks:
+    - name: Set message of the day
+      ansible.builtin.copy:
+        content: "Welcome to {{ inventory_hostname }}. Managed by Ansible.\n"
+        dest: "/tmp/container_report.csv"
+
+    - name: 2a. Force create destination directory structure in home folder
+      ansible.builtin.command: "mkdir -p /home/user1/awx_exports"
+      delegate_to: "{{ awx_host_ip }}"
+      # NO become: true here
+
+    - name: 2b. Copy file from container to the AWX host filesystem
+      ansible.builtin.copy:
+        src: "/tmp/container_report.csv"
+        # Saving it directly into the new folder
+        dest: "/home/user1/awx_exports/daily_report.csv"
+        mode: '0644'
+      delegate_to: "{{ awx_host_ip }}"
+      # NO become: true here
+
+------------------------------------------------------------------
+
+
+aph export.yml
+
+
+PLAY [Export CSV from Container to AWX Host] ***********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [localhost]
+
+TASK [Set message of the day] **************************************************
+ok: [localhost]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+changed: [localhost -> 130.8.20.99]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+ok: [localhost -> 130.8.20.99]
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

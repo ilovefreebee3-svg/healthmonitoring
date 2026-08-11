@@ -11,6 +11,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: cs | grep -v UP
+    idx: idx059
+    role: r_cs_grep_v_up_gg
 
   tasks:
     - name: 1. Set default variables

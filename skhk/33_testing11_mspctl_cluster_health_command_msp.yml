@@ -10,6 +10,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: mspctl cluster health msp
+    idx: idx057
+    role: r_mspctl_cluster_health_msp
 
   tasks:
     - name: 1. Declare variables

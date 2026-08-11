@@ -1,0 +1,73 @@
+
+---------------------------------
+subr.12_testing11_allssh_ls_larth_iam_backup_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+# This file contains ONLY the core execution engine logic
+- name: Get list of target IPs
+#  ansible.builtin.shell: svmips
+  ansible.builtin.command:
+    argv:
+      - /bin/bash
+      - -c
+      - |
+        source /etc/profile
+        svmips
+  register: svmips_output
+  changed_when: false
+
+- name: Parse IP addresses into a clean list
+  ansible.builtin.set_fact:
+    ip_list: "{{ svmips_output.stdout.split() }}"
+
+- name: Reorder IP list to put local IP ($IP) at the very end
+  ansible.builtin.set_fact:
+    ordered_ips: "{{ (ip_list | reject('equalto', ans_local_ip) | list) + [ans_local_ip] }}"
+  vars:
+    ans_local_ip: "{{ lookup('ansible.builtin.env', 'IP') | default('', true) }}"
+
+- name: Check reachability for all target IPs upfront
+  ansible.builtin.wait_for:
+    host: "{{ reach_ip }}"
+    port: 22
+    state: started
+    timeout: 3
+  loop: "{{ ordered_ips | reject('equalto', '') | list }}"
+  loop_control:
+    loop_var: reach_ip
+  register: reachability_results
+  ignore_errors: true
+
+- name: Execute commands sequentially on remote hosts
+  ansible.builtin.shell: >
+    {% if host_reachable %}
+    /usr/bin/ssh -n {{ ssh_opts | default('-q -o LogLevel=ERROR -o StrictHostKeyChecking=no') }} {{ ssh_user | default('nutanix') }}@{{ target_ip }} 
+    "source /etc/profile; export USE_SAFE_RM=yes; {{ target_cmd }}"
+    {% endif %}
+  loop: "{{ ordered_ips | reject('equalto', '') | list }}"
+  loop_control:
+    loop_var: target_ip
+    index_var: loop_index
+  register: ssh_results
+  ignore_errors: true
+  vars:
+    host_reachable: "{{ not reachability_results.results[loop_index].failed | default(false) }}"
+
+- name: Consolidate and save all CVM outputs to the input_filter register object
+  ansible.builtin.set_fact:
+    input_filter:
+      stdout: "{{ compiled_text }}"
+      stdout_lines: "{{ compiled_text.splitlines() }}"
+  vars:
+    compiled_text: |
+      {% for result in ssh_results.results %}
+      ================== {{ result.target_ip }} =================
+      {{ result.stdout | default('', true) }}
+      {% if result.failed and result.stderr | length > 0 %}
+      {{ result.stderr }}
+      {% endif %}
+      {% endfor %}
+
+------------------------------------------------------------------

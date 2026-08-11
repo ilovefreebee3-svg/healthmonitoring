@@ -10,6 +10,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: allssh 'ls -larth /usr/local/nutanix/iam-backup'
+    idx: idx101
+    role: r_allssh_ls_larth_iam_backup_gg
 
   tasks:
     # ------------------------------------------------------------

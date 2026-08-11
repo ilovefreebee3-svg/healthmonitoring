@@ -10,6 +10,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: allssh sudo kubectl get pods -A
+    idx: idx061
+    role: r_allssh_sudo_kubectl_get_pods_a_gg
 
   tasks:
     - name: 0. Set variables default

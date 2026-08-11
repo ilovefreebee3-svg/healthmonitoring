@@ -1,4 +1,0 @@
-      ansible.builtin.set_fact:
-        role: r_ncc_health_checks_run_all_gg
-        idx: idx3
-        description: ncc health_checks run_all

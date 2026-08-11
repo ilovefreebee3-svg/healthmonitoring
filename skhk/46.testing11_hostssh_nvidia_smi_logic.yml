@@ -10,6 +10,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: hostssh nvidia-smi
+    idx: idx016
+    role: r_hostssh_nvidia-smi
 
   tasks:
     - name: Process AHV hosts configuration and tracking

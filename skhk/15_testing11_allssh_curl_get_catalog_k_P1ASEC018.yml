@@ -9,6 +9,9 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
+    description: allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k'
+    idx: idx102
+    role: r_allssh_curl_get_catalog_k_P1ASEC018
 
   tasks:
     # ------------------------------------------------------------
