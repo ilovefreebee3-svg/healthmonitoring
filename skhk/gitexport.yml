@@ -47,8 +47,8 @@
 
     - name: Configure Git user identity locally for this execution
       shell: |
-        git config user.name "AWX Automation"
-        git config user.email "awx@internal.local"
+        git config user.name "ilovefreebee3-svg"
+        git config user.email "ilovefreebee3@gmail.com"
       args:
         chdir: "{{ clone_dir }}"
 
