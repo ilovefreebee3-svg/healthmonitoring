@@ -21,6 +21,6 @@
     - name: 2b. Copy file from container to the AWX host filesystem
       ansible.builtin.copy:
         src: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
-        dest: "/home/user1/awx_exports/daily_report.csv"
+        dest: "/home/user1/awx_exports/."
         mode: '0644'
 
