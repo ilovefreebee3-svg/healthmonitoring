@@ -1,0 +1,7 @@
+- name: Fetch log safely in parallel
+  ansible.builtin.fetch:
+    src: /home/nutanix/data/logs/ncc-output.log
+    # Uses the inventory name to completely isolate the files
+    dest: "/runner/project/tmp/ncc-output-{{ inventory_hostname }}.log"
+    flat: yes
+

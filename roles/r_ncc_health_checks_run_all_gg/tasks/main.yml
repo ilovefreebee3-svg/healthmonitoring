@@ -21,7 +21,8 @@
     - name: Fetch the log file to the Ansible control node
       ansible.builtin.fetch:
         src: "{{ log_path }}"
-        dest: "./tmp/"
+#        dest: "./tmp/"
+        dest: "/runner/project/tmp/ncc-output-{{ inventory_hostname }}.log"
         flat: true
 
     - name: Isolate the last TIMESTAMP block using awk
