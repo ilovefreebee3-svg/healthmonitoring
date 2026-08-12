@@ -65,12 +65,21 @@
 
     - name: Commit and push the CSV file if changes exist
       shell: |
-        git add {{ csv_filename }}
-        git commit -m "Automated update: Uploaded {{ csv_filename }} via AWX"
-        git push origin main
+        git add .
+        git commit -m "Automated CSV export update"
+        git push https://x-oauth-basic:{{ gh_token }}@://github.com HEAD:main
       args:
         chdir: "{{ clone_dir }}"
-      when: git_status.stdout | length > 0
+      when: git_changes.changed # Or whatever condition you used to check for changes
+
+#    - name: Commit and push the CSV file if changes exist
+#      shell: |
+#        git add {{ csv_filename }}
+#        git commit -m "Automated update: Uploaded {{ csv_filename }} via AWX"
+#        git push origin main
+#      args:
+#        chdir: "{{ clone_dir }}"
+#      when: git_status.stdout | length > 0
 
     - name: Wipe temporary clone directory to keep AWX environment clean
       file:
