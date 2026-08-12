@@ -1,7 +1,7 @@
 ---
 - name: Export CSV Data and Push to GitHub 
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   vars:
     # Fallback to variable if env is not set
     gh_token: "{{ lookup('env', 'GITHUB_TOKEN') | default(github_token, true) }}"
