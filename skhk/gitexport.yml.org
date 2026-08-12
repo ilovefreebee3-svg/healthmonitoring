@@ -29,7 +29,7 @@
 
     - name: Set message of the day
       ansible.builtin.copy:
-        content: "Welcome to {{ ansible_date_time.time }}. Managed by Ansible. Last updated: 1930\n"
+        content: "Welcome to {{ ansible_date_time.time }}. Managed by Ansible. Last updated: 2024\n"
         dest: "/tmp/{{ csv_filename }}"
 
     - name: Clean up any existing temporary clone directory
@@ -43,6 +43,7 @@
         dest: "{{ clone_dir }}"
         version: main
         force: true
+      no_log: true
 
     - name: Copy generated CSV file to the repository directory
       copy:
@@ -71,6 +72,7 @@
       args:
         chdir: "{{ clone_dir }}"
       when: git_status.stdout | length > 0
+      no_log: true
 
 #    - name: Commit and push the CSV file if changes exist
 #      shell: |
