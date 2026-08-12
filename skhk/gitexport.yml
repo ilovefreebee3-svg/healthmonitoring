@@ -15,6 +15,10 @@
         msg: "The variable 'gh_token' or 'GITHUB_TOKEN' env variable is missing!"
       when: gh_token | length == 0
 
+    - name: display variabe
+      ansible.builtin.debug:
+        var: gh_token
+
 #    - name: Generate the CSV file data
 #      copy:
 #        content: |
