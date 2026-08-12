@@ -35,6 +35,6 @@
 - name: 3. Export file to github
   ansible.builtin.include_tasks: subr.gitexport.yml
   vars:
-    csv_filename: "/tmp/health_report1.csv"
+    csv_filename: "health_report1.csv"
   when: log_github_enabled | bool 
 
