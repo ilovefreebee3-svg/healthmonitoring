@@ -67,7 +67,7 @@
       shell: |
         git add .
         git commit -m "Automated CSV export update"
-        git push https://x-oauth-basic:{{ gh_token }}@github.com HEAD:main
+        git push https://x-oauth-basic:{{ gh_token }}@github.com/ilovefreebee3-svg/healthmonitoring.git HEAD:main
       args:
         chdir: "{{ clone_dir }}"
       when: git_status.stdout | length > 0
