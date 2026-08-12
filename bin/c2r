@@ -1,0 +1,9 @@
+file=$1
+dummyfile=tem999
+
+echo '---' > $dummyfile
+sed '1,/tasks/d' $file  >> $dummyfile
+sed -i 's/^    //' $dummyfile
+
+echo
+echo Output is $dummyfile

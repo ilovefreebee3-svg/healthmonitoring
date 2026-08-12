@@ -1,0 +1,3 @@
+cd "/home/user1/proj/hm/healthmonitoring"
+git add . && git commit -m 'update' && git push
+

@@ -1,0 +1,28 @@
+server_12, r_cs_grep_v_up_gg, Infra PC, cs | grep -v UP, idx059, CVM service(s) all Up, All services healthy 
+calmcvm, r_allssh_docker_ps_a_exited_up_gg, Infra PC, allssh 'docker ps -a | grep -v -e Exited -e Up', idx060, Not healthy, {'130.8.20.24': 0, '130.8.20.25': 0, '130.8.20.21': 0, '130.8.20.22': 1, '130.8.20.23': 0} 
+calmcvm, r_allssh_ll_calm_backup_gg, Infra PC, allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
+Incomplete backup,  
+ 130.8.20.24 -  incomplete backup --- 130.8.20.25 -  incomplete backup --- 130.8.20.21 -  incomplete backup --- 130.8.20.22 - cannot access --- 130.8.20.23 -  incomplete backup 
+engrcvm, r_allssh_ls_larth_iam_backup_gg, Infra PE, allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, iam-backup found, [] 
+calmcvm, r_allssh_sudo_kubectl_get_pods_a_gg, Infra PC, allssh sudo kubectl get pods -A, idx061, Pod issues,             ['130.8.20.24: 1', '130.8.20.25: 1', '130.8.20.21: 1', '130.8.20.22: 1', '130.8.20.23: 1'] 
+calmcvm, r_allssh_df_kh_grep_elastic_sdb3_gg, Infra PC, allssh 'df -kh | grep -e elastic ', idx099, Elasticsearch function not found, 130.8.20.24 --- Elasticsearch function not found
+130.8.20.25 --- Elasticsearch function not found
+130.8.20.21 --- Elasticsearch function not found
+130.8.20.22 --- Elasticsearch function not found
+130.8.20.23 --- Elasticsearch function not found 
+calmcvm, r_allssh_curl_get_catalog_k_P1ASEC018, Infra PC, allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, CVM - repository connection error, [' - No connection to repository'] 
+corecvm, r_allssh_curl_get_catalog_k_P1SMG025, Infra PC, allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
+calmcvm, r_allssh_df_sdb3_gg, Infra PC, allssh 'df -h /dev/sdb3', idx062, Disk space OK,  None  
+calmcvm, r_mspctl_debug_run, Infra PC, mspctl debug run, idx058, STATUS SUCCESS,  
+calmcvm, r_mspctl_debug_run_test_exclude_subset, Infra PC, mspctl debug run --test_exclude_subset=hosting_pe, idx098, STATUS SUCCESS,  
+calmcvm, r_mspctl_cluster_health_msp, Infra PC, mspctl cluster health msp, idx057, Healthy,  
+calmcvm, r_mspctl_cluster_health_s3, Infra PC, mspctl cluster health s3, idx057, Healthy,  
+calmcvm, r_mspctl_cluster_health_pc, Infra PC, mspctl cluster health pc, idx057, Healthy,  
+corecvm, r_hostssh_sudo_ovn_appctl_connection_status, Infra PC, hostssh sudo ovn_appctl connection-status, idx6, Connected,  
+corecvm, r_hostssh_systemctl_status_nvidia-vgpu-mgr, Infra PC, hostssh sudo systemctl status nvidia-vgpu-mgr, idx015, All active,  
+corecvm, r_hostssh_systemctl_status_dbus-mgr, Infra PC, hostssh sudo systemctl status dbus, idx015, All active,  
+corecvm, r_hostssh_nvidia-smi, Infra PC, hostssh nvidia-smi, idx016,  None ,    
+corecvm, r_hostssh_nvidia-smi, Infra PC, hostssh nvidia-smi, idx016, ['None'], [] 
+corecvm, r_ncc_health_checks_run_all_gg, Infra PC, ncc health_checks run_all (non-role), idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
+calmcvm, r_cs_grep_v_up_gg, Infra PC, cs | grep -v UP, idx059, Threshold not exceeded, All clear 
+calmcvm, r_cs_grep_v_up_gg, Infra PC, cs | grep -v UP, idx059, Threshold exceeded, / (52%) 
