@@ -63,7 +63,7 @@
       shell: |
         git add {{ csv_filename }}
         git commit -m "Automated update: Uploaded {{ csv_filename }} via AWX"
-        git push https://{{ gh_token }}@{{ repo_url }} main
+        git push origin main
       args:
         chdir: "{{ clone_dir }}"
       when: git_status.stdout | length > 0
