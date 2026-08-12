@@ -25,7 +25,7 @@
 
     - name: Set message of the day
       ansible.builtin.copy:
-        content: "Welcome to {{ inventory_hostname }}. Managed by Ansible.\n"
+        content: "Welcome to {{ inventory_hostname }}. Managed by Ansible. Last updated: 1539H\n"
         dest: "/tmp/{{ csv_filename }}"
 
     - name: Clean up any existing temporary clone directory
