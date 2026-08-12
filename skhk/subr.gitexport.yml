@@ -14,10 +14,10 @@
   ansible.builtin.debug:
     var: gh_token
 
-- name: Set message of the day
-  ansible.builtin.copy:
-    content: "WeLcOmE to {{ ansible_date_time.time }}. Managed by Ansible. Last updated: 2046\n"
-    dest: "/tmp/{{ csv_filename }}"
+#- name: Set message of the day
+#  ansible.builtin.copy:
+#    content: "WeLcOmE to {{ ansible_date_time.time }}. Managed by Ansible. Last updated: 2046\n"
+#    dest: "/tmp/{{ csv_filename }}"
 
 - name: Clean up any existing temporary clone directory
   file:
