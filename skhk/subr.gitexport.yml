@@ -4,7 +4,7 @@
     repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
     clone_dir: "/tmp/healthmonitoring"
 #    csv_filename: "health_report.csv"
-    csv_filename: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
+    csv_filename: "output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
 
 - name: Ensure GitHub token is provided
   fail:
@@ -35,7 +35,7 @@
     dest: "{{ clone_dir }}"
     version: main
     force: true
-  no_log: true
+  no_log: false
 
 - name: Copy generated CSV file to the repository directory
   copy:
@@ -64,7 +64,7 @@
   args:
     chdir: "{{ clone_dir }}"
   when: git_status.stdout | length > 0
-  no_log: true
+  no_log: false
 
 #- name: Commit and push the CSV file if changes exist
 #  shell: |
