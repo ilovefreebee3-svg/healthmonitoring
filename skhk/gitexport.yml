@@ -70,7 +70,7 @@
         git push https://x-oauth-basic:{{ gh_token }}@://github.com HEAD:main
       args:
         chdir: "{{ clone_dir }}"
-      when: git_changes.changed # Or whatever condition you used to check for changes
+      when: git_status.stdout | length > 0
 
 #    - name: Commit and push the CSV file if changes exist
 #      shell: |
