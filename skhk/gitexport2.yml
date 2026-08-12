@@ -37,7 +37,7 @@
             dest: "{{ clone_dir }}"
             version: main
             force: true
-            no_log: true
+          no_log: true
 
         - name: Copy generated CSV file to the repository directory
           copy:
