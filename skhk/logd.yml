@@ -36,5 +36,5 @@
   ansible.builtin.include_tasks: subr.gitexport.yml
   vars:
     csv_filename: "health_report1.csv"
-  when: github_enabled | bool 
+  when: log_github_enabled | bool 
 
