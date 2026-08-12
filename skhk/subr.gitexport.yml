@@ -4,6 +4,7 @@
     repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
     clone_dir: "/tmp/healthmonitoring"
 #    csv_filename: "health_report.csv"
+    csv_filename: "./output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
 
 - name: Ensure GitHub token is provided
   fail:
