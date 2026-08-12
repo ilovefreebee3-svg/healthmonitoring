@@ -2,13 +2,15 @@
 - name: Export CSV Data and Push to GitHub 
   hosts: localhost
   gather_facts: true
-    # Fallback to variable if env is not set
-    gh_token: "{{ lookup('env', 'GITHUB_TOKEN') | default(github_token, true) }}"
-    repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
-    clone_dir: "/tmp/healthmonitoring"
-    csv_filename: "health_report.csv"
 
   tasks:
+    - name: "1. Declar github variables"
+      ansible.builtin.set_fact:
+        gh_token: "{{ lookup('env', 'GITHUB_TOKEN') | default(github_token, true) }}"
+        repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
+        clone_dir: "/tmp/healthmonitoring"
+        csv_filename: "health_report.csv"
+
     - name: Ensure GitHub token is provided
       fail:
         msg: "The variable 'gh_token' or 'GITHUB_TOKEN' env variable is missing!"
@@ -20,7 +22,7 @@
 
     - name: Set message of the day
       ansible.builtin.copy:
-        content: "WELCOME to {{ ansible_date_time.time }}. Managed by Ansible. Last updated: 2027\n"
+        content: "WeLcOmE to {{ ansible_date_time.time }}. Managed by Ansible. Last updated: 2046\n"
         dest: "/tmp/{{ csv_filename }}"
 
     - name: Clean up any existing temporary clone directory
