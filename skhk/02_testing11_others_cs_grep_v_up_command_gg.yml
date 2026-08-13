@@ -11,6 +11,7 @@
     description: cs | grep -v UP
     idx: idx059
     role: r_cs_grep_v_up_gg
+    vpc: tbd
 
   tasks:
     - name: 0. Declare variables
@@ -66,4 +67,5 @@
           - "Remark: {{ remark }}"
     
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool
