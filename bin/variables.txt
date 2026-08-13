@@ -1,0 +1,7 @@
+repo_url_lab: github.com/ilovefreebee3-svg/healthmonitoring.git
+repo_url_gh: https://dev-gitlab.dev.sg/qliamhua/infra-healthcheck.git
+
+url_ilovefreebee3: https://x-oauth-basic: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@github.com/ilovefreebee3-svg/healthmonitoring.git 
+github_token_gitlab: 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
+GITHUB_TOKEN_GITLAB: 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
+
