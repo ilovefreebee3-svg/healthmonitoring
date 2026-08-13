@@ -13,6 +13,7 @@
     description: allssh 'df -kh | grep -e elastic '
     idx: idx099
     role: r_allssh_df_kh_grep_elastic_sdb3_gg
+    vpc: tbd
 
   tasks:
     # ------------------------------------------------------------
@@ -93,4 +94,5 @@
           - "ANSWER: {{ answer }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

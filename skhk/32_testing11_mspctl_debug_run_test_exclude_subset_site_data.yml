@@ -13,6 +13,7 @@
     description: mspctl debug run --test_exclude_subset=hosting_pe
     idx: idx098
     role: r_mspctl_debug_run_test_exclude_subset
+    vpc: tbd
 
   tasks:
     - name: 1. Run mspctl debug run --test_exclude_subset
@@ -123,4 +124,5 @@
           - "Answer: {{ answer }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

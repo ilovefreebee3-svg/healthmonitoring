@@ -12,6 +12,7 @@
     description: allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k'
     idx: idx102
     role: r_allssh_curl_get_catalog_k_P1SMG025
+    vpc: tbd
 
   tasks:
     # ------------------------------------------------------------
@@ -128,4 +129,5 @@
           - "answer = {{ answer }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

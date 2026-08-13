@@ -9,9 +9,10 @@
     role_enabled: false 
     log_filesystem_enabled: false 
     log_github_enabled: false 
-    role: r_ncc_health_checks_run_all_gg
     idx: idx3
     description: ncc health_checks run_all (non-role)
+    role: r_ncc_health_checks_run_all_gg
+    vpc: tbd
 
   tasks:
 #    - name: 0. Declare role variables
@@ -117,4 +118,5 @@
           - "Remark: {{ remark }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

@@ -13,6 +13,7 @@
     description: mspctl debug run
     idx: idx058
     role: r_mspctl_debug_run
+    vpc: tbd
 
   tasks:
     - name: 1. Run mspctl debug with command module
@@ -123,4 +124,5 @@
           - "Answer: {{ answer }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

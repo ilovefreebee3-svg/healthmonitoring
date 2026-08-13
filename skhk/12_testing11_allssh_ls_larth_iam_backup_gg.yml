@@ -13,6 +13,7 @@
     description: allssh 'ls -larth /usr/local/nutanix/iam-backup'
     idx: idx101
     role: r_allssh_ls_larth_iam_backup_gg
+    vpc: tbd
 
   tasks:
     # ------------------------------------------------------------
@@ -92,4 +93,5 @@
           - "answer: {{ answer }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

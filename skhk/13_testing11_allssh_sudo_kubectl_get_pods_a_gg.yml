@@ -13,6 +13,7 @@
     description: allssh sudo kubectl get pods -A
     idx: idx061
     role: r_allssh_sudo_kubectl_get_pods_a_gg
+    vpc: tbd
 
   tasks:
     - name: 0. Set variables default
@@ -111,4 +112,5 @@
           - "Remark: {{ remark | default('No issues found') }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

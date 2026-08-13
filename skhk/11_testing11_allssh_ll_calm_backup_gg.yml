@@ -13,6 +13,7 @@
     description: allssh 'ls -l /home/nutanix/tmp/calm-bkup'
     idx: idx100
     role: r_allssh_ll_calm_backup_gg
+    vpc: tbd
 
   tasks:
     # ------------------------------------------------------------
@@ -126,4 +127,5 @@
           - "Answer: {{ answer }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

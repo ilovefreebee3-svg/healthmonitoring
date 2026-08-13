@@ -13,6 +13,7 @@
     description: mspctl cluster health msp
     idx: idx057
     role: r_mspctl_cluster_health_msp
+    vpc: tbd
 
   tasks:
     - name: 1. Declare variables
@@ -90,4 +91,5 @@
           answer: "{{ answer }}"
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool

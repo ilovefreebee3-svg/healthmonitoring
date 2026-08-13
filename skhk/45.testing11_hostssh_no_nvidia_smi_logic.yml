@@ -13,6 +13,7 @@
     description: hostssh nvidia-smi
     idx: idx016
     role: r_hostssh_nvidia-smi
+    vpc: tbd
 
   tasks:
     - name: Process AHV hosts configuration and tracking
@@ -115,4 +116,5 @@
           var: answer
 
     - name: 99. Include persistency
-      ansible.builtin.include_tasks: incl.logging.yml
+      import_tasks: logd.yml
+      when: logd_enabled | bool
