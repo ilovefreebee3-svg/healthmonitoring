@@ -4,7 +4,7 @@
     repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
     clone_dir: "/tmp/healthmonitoring"
 #    csv_filename: "health_report.csv"
-    csv_filename: "output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
+#    csv_filename: "output_{{ lookup('pipe','date +%Y%m%d') }}.csv"
 
 - name: Ensure GitHub token is provided
   fail:
@@ -19,10 +19,10 @@
   ansible.builtin.debug:
     var: gh_token
 
-- name: Set message of the day
-  ansible.builtin.copy:
-    content: "WeLcOmE to . Managed by Ansible. Last updated: 2150\n"
-    dest: "/tmp/{{ csv_filename }}"
+#- name: Set message of the day
+#  ansible.builtin.copy:
+#    content: "WeLcOmE to . Managed by Ansible. Last updated: 2150\n"
+#    dest: "/tmp/{{ csv_filename }}"
 
 - name: Clean up any existing temporary clone directory
   file:
