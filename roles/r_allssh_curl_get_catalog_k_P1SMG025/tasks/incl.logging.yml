@@ -1,8 +1,0 @@
-    - name: 98. Append result to CSV (local)
-      import_tasks: logd.yml
-      when: logd_enabled | bool
-
-#    - name: 99. Include common role
-#      ansible.builtin.include_role:
-#         name: common
-#      when: role_enabled | bool

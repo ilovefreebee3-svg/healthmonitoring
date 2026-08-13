@@ -52,4 +52,5 @@
       - "Remark: {{ remark }}"
 
 - name: 99. Include persistency
-  ansible.builtin.include_tasks: incl.logging.yml
+  import_tasks: logd.yml
+  when: logd_enabled | bool
