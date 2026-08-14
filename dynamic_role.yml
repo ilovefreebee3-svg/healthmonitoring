@@ -1,7 +1,7 @@
 - name: Run roles dynamically
   hosts: lab
   gather_facts: no
-#  serial: 1
+  serial: 1
 
   tasks:
     - name: Include roles per host
