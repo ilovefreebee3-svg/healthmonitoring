@@ -8,7 +8,7 @@
         - name: "1. Declar github variables"
           ansible.builtin.set_fact:
             gh_token: "{{ lookup('env', 'GITHUB_TOKEN') | default(github_token, true) }}"
-            repo_url: "://github.com"
+            repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
             clone_dir: "/tmp/healthmonitoring"
             csv_filename: "health_report.csv"
 
@@ -62,7 +62,7 @@
           shell: |
             git add .
             git commit -m "Automated CSV export update"
-            git push https://x-oauth-basic:{{ gh_token }}@://github.com HEAD:main
+            git push https://x-oauth-basic:{{ gh_token }}@github.com/ilovefreebee3-svg/healthmonitoring.git HEAD:main
           args:
             chdir: "{{ clone_dir }}"
           when: git_status.stdout | length > 0

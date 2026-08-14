@@ -36,20 +36,20 @@ TASK [6. Convert parsed data to native structure] *****************************
 An exception occurred during task execution. To see the full traceback, use -vvv. The error was:   in "<unicode string>", line 2, column 1
 fatal: [pccvm]: FAILED! => {"changed": false}
 
- 38
- 39 TASK [4. Display input_filter 1] ***********************************************
- 40 ok: [pccvm] => {
- 41     "msg": [
- 42         "================== 130.8.20.21 =================",
- 43         "",
- 44         "sudo: kubectl: command not found",
- 45         "================== 130.8.20.24 =================",
- 46         "",
- 47         "sudo: kubectl: command not found",
- 48         "================== 130.8.20.25 =================",
- 49         "",
- 50         "sudo: kubectl: command not found
-O
+
+TASK [4. Display input_filter 1] ***********************************************
+ok: [pccvm] => {
+    "msg": [
+        "================== 130.8.20.21 =================",
+        "",
+        "sudo: kubectl: command not found",
+        "================== 130.8.20.24 =================",
+        "",
+        "sudo: kubectl: command not found",
+        "================== 130.8.20.25 =================",
+        "",
+        "sudo: kubectl: command not found
+
 
 If kubctl command is not found, the output will be incorrect.
 
