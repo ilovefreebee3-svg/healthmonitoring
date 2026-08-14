@@ -1,0 +1,10 @@
+- name: Run roles dynamically
+  hosts: lab1
+  gather_facts: no
+  serial: 1
+
+  tasks:
+    - name: Include roles per host
+      include_role:
+        name: "{{ item }}"
+      loop: "{{ host_roles }}"
