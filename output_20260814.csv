@@ -69,3 +69,4 @@ server_19, r_allssh_ll_calm_backup_gg, OSIT Calm PC (OTC), allssh 'ls -l /home/n
 Incomplete backup,  
  192.52.129.1 - cannot access --- 192.52.11.2 -  incomplete backup 
 server_19, r_allssh_ls_larth_iam_backup_gg, OSIT Calm PC (OTC), allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, No iam-backup found, ['188.185.14.1 cannot access', '188.185.14.2 cannot access', '188.185.14.3 cannot access'] 
+server_19, r_allssh_curl_get_catalog_k_P1ASEC018, OSIT Calm PC (OTC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
