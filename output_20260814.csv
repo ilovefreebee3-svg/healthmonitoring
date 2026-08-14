@@ -72,3 +72,4 @@ server_19, r_allssh_ls_larth_iam_backup_gg, OSIT Calm PC (OTC), allssh 'ls -lart
 server_19, r_allssh_curl_get_catalog_k_P1ASEC018, OSIT Calm PC (OTC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
 server_19, r_allssh_curl_get_catalog_k_P1SMG025, OSIT Calm PC (OTC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
 server_19, r_ssh_calm_policy_gg, OSIT Calm PC (OTC), ssh into Calm Policy VM , ssh <calm policy vm> df -kh, idx103, Threshold exceeded, / (77%) 
+server_2, r_ncc_health_checks_run_all_gg, IKCS Tenant 1 PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
