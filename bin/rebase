@@ -1,3 +1,9 @@
+# What it does: This is a two-step command. First, it fetches the newest 
+# changes from GitHub. Second, it takes any local commits you made on 
+# your AWX server and temporarily sets them aside. It applies GitHub's 
+# new changes first, and then replays your local commits on top of them.
+
+
 cd "/home/git/proj/hm/healthmonitoring"
 git pull --rebase origin main
 git push origin main
