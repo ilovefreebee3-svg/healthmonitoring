@@ -1,3 +1,0 @@
-    - name: 99. Include persistency
-      import_tasks: logd.yml
-      when: logd_enabled | bool

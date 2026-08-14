@@ -17,6 +17,10 @@
             msg: "The variable 'gh_token' or 'GITHUB_TOKEN' env variable is missing!"
           when: gh_token | length == 0
 
+        - name: display repo_url
+          ansible.builtin.debug:
+            var: repo_url
+
         - name: display variabe
           ansible.builtin.debug:
             var: gh_token
