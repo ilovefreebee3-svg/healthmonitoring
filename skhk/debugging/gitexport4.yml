@@ -3,8 +3,8 @@
   hosts: localhost
   gather_facts: true
   vars:
-    repo_url: "xxxgithub.com/ilovefreebee3-svg/healthmonitoring.git"
-    clone_dir: "/tmp/healthmonitoring"
+    repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
+    clone_dir: "/tmp/{{ inventory_hostname}}.healthmonitoring"
     csv_filename: "health_report.csv"
 
   tasks:
