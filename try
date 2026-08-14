@@ -1,6 +1,0 @@
-github_token=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
-repo_url=@github.com/ilovefreebee3-svg/healthmonitoring.git 
-
-#git push https://x-oauth-basic:{{ gh_token }}@github.com/ilovefreebee3-svg/healthmonitoring.git HEAD:main
-git push https://x-oauth-basic:${github_token}${repo_url} HEAD:main
-

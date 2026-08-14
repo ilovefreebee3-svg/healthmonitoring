@@ -1,3 +1,6 @@
-cd "/home/user1/proj/hm/healthmonitoring"
+#git pull --rebase origin main
+#git push origin main
+
+cd "/home/git/proj/hm/healthmonitoring"
 git add . && git commit -m 'update' && git push origin main
 
