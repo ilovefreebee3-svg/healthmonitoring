@@ -21,3 +21,4 @@ server_12, r_mspctl_cluster_health_s3, Infra PC, mspctl cluster health s3, idx05
 server_12, r_mspctl_debug_run, Infra PC, mspctl debug run, idx058, STATUS Not Success, TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
 server_12, r_cs_grep_v_up_gg, Infra PC, cs | grep -v UP, idx059, CVM service(s) down, [{'ip': '123.234.14.2', 'status': 'Down'}] 
 server_12, r_allssh_docker_ps_a_exited_up_gg, Infra PC, allssh 'docker ps -a | grep -v -e Exited -e Up', idx060, Not healthy, {'123.234.14.1': 3, '123.234.14.2': 0, '123.234.14.3': 1} 
+server_12, r_allssh_sudo_kubectl_get_pods_a_gg, Infra PC, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['123.234.14.1: 1', '123.234.14.3: 2'] 
