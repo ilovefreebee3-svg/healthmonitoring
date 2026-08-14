@@ -16,3 +16,4 @@ server_13, r_allssh_docker_ps_a_exited_up_gg, IKC2 Tenant PC, allssh 'docker ps 
 server_13, r_allssh_sudo_kubectl_get_pods_a_gg, IKC2 Tenant PC, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['123.234.14.1: 1', '123.234.14.3: 2'] 
 server_13, r_allssh_df_sdb3_gg, IKC2 Tenant PC, allssh 'df -h /dev/sdb3', idx062, Disk space /dev/sdb3 exceeded,   IP: 338.325.14.1 Filesystem: /dev/sdb3 Use%: 93%    
 server_14, r_ncc_health_checks_run_all_gg, OSIT Tenant PC, ncc health_checks run_all, idx3, No log found, Last checked: 2026-08-14 
+server_14, r_mspctl_cluster_health_s3, OSIT Tenant PC, mspctl cluster health s3, idx057, Unhealthy, LB:false  
