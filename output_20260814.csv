@@ -56,3 +56,4 @@ server_18, r_allssh_df_kh_grep_elastic_sdb3_gg, OSIT Calm PC (ITC), allssh 'df -
 server_18, r_allssh_ll_calm_backup_gg, OSIT Calm PC (ITC), allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
 Incomplete backup,  
  192.52.129.1 - cannot access --- 192.52.11.2 -  incomplete backup 
+server_18, r_allssh_ls_larth_iam_backup_gg, OSIT Calm PC (ITC), allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, No iam-backup found, ['188.185.14.1 cannot access', '188.185.14.2 cannot access', '188.185.14.3 cannot access'] 
