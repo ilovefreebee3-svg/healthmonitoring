@@ -30,3 +30,4 @@ server_15, r_allssh_docker_ps_a_exited_up_gg, IKC2 Object , allssh 'docker ps -a
 server_15, r_allssh_sudo_kubectl_get_pods_a_gg, IKC2 Object , allssh sudo kubectl get pods -A, idx061, Pod issues,       ['123.234.14.1: 1', '123.234.14.3: 2'] 
 server_15, r_allssh_df_sdb3_gg, IKC2 Object , allssh 'df -h /dev/sdb3', idx062, Disk space /dev/sdb3 exceeded,   IP: 338.325.14.1 Filesystem: /dev/sdb3 Use%: 93%    
 server_16, r_ncc_health_checks_run_all_gg, OSIT Object PC, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 3, Errors: 5) 
+server_16, r_mspctl_cluster_health_s3, OSIT Object PC, mspctl cluster health s3, idx057, Unhealthy, LB:false  
