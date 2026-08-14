@@ -11,3 +11,4 @@ server_12, r_allssh_df_sdb3_gg, Infra PC, allssh 'df -h /dev/sdb3', idx062, Disk
 server_13, r_ncc_health_checks_run_all_gg, IKC2 Tenant PC, ncc health_checks run_all, idx3, No log found, Last checked: 2026-08-14 
 server_13, r_mspctl_cluster_health_s3, IKC2 Tenant PC, mspctl cluster health s3, idx057, Unhealthy, LB:false  
 server_13, r_mspctl_debug_run, IKC2 Tenant PC, mspctl debug run, idx058, STATUS Not Success, TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
+server_13, r_cs_grep_v_up_gg, IKC2 Tenant PC, cs | grep -v UP, idx059, CVM service(s) down, [{'ip': '123.234.14.2', 'status': 'Down'}] 
