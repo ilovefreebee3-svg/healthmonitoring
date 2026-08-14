@@ -41,3 +41,6 @@ server_17, r_mspctl_debug_run_test_exclude_subset, IKC2 Calm PC (OTC), mspctl de
 server_17, r_allssh_df_kh_grep_elastic_sdb3_gg, IKC2 Calm PC (OTC), allssh 'df -kh | grep -e elastic ', idx099, Elasticsearch function found, 111.222.12.1 --- Elasticsearch function found
 111.222.12.2 --- Elasticsearch function found
 111.222.12.3 --- Elasticsearch function found 
+server_17, r_allssh_ll_calm_backup_gg, IKC2 Calm PC (OTC), allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
+Incomplete backup,  
+ 192.52.129.1 - cannot access --- 192.52.11.2 -  incomplete backup 
