@@ -18,3 +18,4 @@ server_7, r_ncc_health_checks_run_all_gg, OSIT Tenant 1 PE, ncc health_checks ru
 server_8, r_ncc_health_checks_run_all_gg, OSIT GPU Tenant 2 PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
 server_9, r_ncc_health_checks_run_all_gg, OSIT Service PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
 server_12, r_mspctl_cluster_health_s3, Infra PC, mspctl cluster health s3, idx057, Unhealthy, LB:false  
+server_12, r_mspctl_debug_run, Infra PC, mspctl debug run, idx058, STATUS Not Success, TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
