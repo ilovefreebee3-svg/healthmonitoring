@@ -1,0 +1,4 @@
+cd "/home/git/proj/hm/healthmonitoring"
+git pull --rebase origin main
+git push origin main
+
