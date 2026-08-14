@@ -1,4 +1,0 @@
-        - name: display repo_url
-          ansible.builtin.debug:
-            var: repo_url
-
