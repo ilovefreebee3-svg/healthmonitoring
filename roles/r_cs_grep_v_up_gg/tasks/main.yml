@@ -51,6 +51,15 @@
       - "Answer: {{ answer }}"
       - "Remark: {{ remark }}"
 
-- name: 99. Include persistency
-  import_tasks: logd.yml
-  when: logd_enabled | bool
+- name: 97. Log to local
+  import_tasks: log_local.yml
+  when: log_local_enabled | bool
+
+- name: 98. Log to external
+  import_tasks: log_ext.yml
+  when: log_ext_enabled | bool
+
+- name: 98. Log to local
+  import_tasks: log_github.yml
+  when: log_github_enabled | bool
+

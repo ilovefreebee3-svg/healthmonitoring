@@ -6,11 +6,13 @@
   gather_facts: false
 
   vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
     read_from_file: false 
     logd_enabled: false 
     role_enabled: false 
     log_filesystem_enabled: false 
-    log_github_enabled: false 
     description: cs | grep -v UP
     idx: idx059
     role: r_cs_grep_v_up_gg
@@ -76,7 +78,16 @@
           - "Threshold: {{ threshold }}"
           - "Count: {{ num_over75 }}"
           - "Details: {{ remark }}"
-    
-    - name: 99. Include persistency
-      import_tasks: logd.yml
-      when: logd_enabled | bool
+
+    - name: 97. Log to local
+      import_tasks: log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 99. Log to local
+      import_tasks: log_github.yml
+      when: log_github_enabled | bool
+

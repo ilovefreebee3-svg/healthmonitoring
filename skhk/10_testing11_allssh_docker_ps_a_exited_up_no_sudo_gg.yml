@@ -5,11 +5,13 @@
 #  hosts: pccvm
   gather_facts: false
   vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
     read_from_file: false 
     logd_enabled: false 
     role_enabled: false 
     log_filesystem_enabled: false 
-    log_github_enabled: false 
     description: allssh 'docker ps -a | grep -v -e Exited -e Up'
     idx: idx060
     role:  r_allssh_docker_ps_a_exited_up_gg
@@ -103,6 +105,15 @@
           - "answer: {{ answer }}"
           - "remark: {{ remark }}"
 
-    - name: 99. Include persistency
-      import_tasks: logd.yml
-      when: logd_enabled | bool
+    - name: 97. Log to local
+      import_tasks: log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 98. Log to local
+      import_tasks: log_github.yml
+      when: log_github_enabled | bool
+
