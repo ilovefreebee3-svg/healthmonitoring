@@ -1,0 +1,28 @@
+- name: Run roles dynamically
+  hosts: lab
+  gather_facts: no
+  serial: 1
+
+  tasks:
+    - name: Handle host connectivity and execution
+      block:
+        - name: Check if the remote computer is alive
+          ansible.builtin.ping:
+
+        - name: Include roles per host
+          ansible.builtin.include_role:
+            name: "{{ item }}"
+          loop: "{{ host_roles }}"
+
+      rescue:
+        - name: Log unreachable host status to a local file
+          ansible.builtin.lineinfile:
+            path: /path/to/your/unreachable_hosts.log
+            line: "{{ ansible_date_time.iso8601 | default('N/A') }} - Host {{ inventory_hostname }} is down or unreachable."
+            create: yes
+          delegate_to: localhost
+
+        - name: Skip to the next host gracefully
+          ansible.builtin.meta: clear_host_errors
+
+

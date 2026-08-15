@@ -1,9 +1,31 @@
 - name: Run roles dynamically
   hosts: server_10
   gather_facts: no
+  serial: 1
+  any_errors_fatal: no  # Ensures an unreachable host doesn't halt the whole play
 
   tasks:
-    - name: Include roles per host
-      include_role:
+    - name: Check if the remote computer is alive
+      ansible.builtin.ping:
+      ignore_unreachable: yes
+      register: ping_result
+
+    - name: display ping_result
+      ansible.builtin.debug:
+        msg: "{{ ping_result }}"
+
+    - name: Log unreachable host status to a local file
+      ansible.builtin.lineinfile:
+        path: "/tmp/unreachable_hosts.log"
+        line: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }} - Host {{ inventory_hostname }} is down or unreachable."
+        create: yes
+      delegate_to: localhost
+      when: ping_result.unreachable is defined and ping_result.unreachable
+
+    - name: Include roles per host (only if alive)
+      ansible.builtin.include_role:
         name: "{{ item }}"
       loop: "{{ host_roles }}"
+      when: ping_result.unreachable is not defined
+
+

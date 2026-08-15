@@ -1,0 +1,18 @@
+sed 's/lab/server_3/' try.yml  > dynamic_role_s3.yml
+sed 's/lab/server_4/' try.yml  > dynamic_role_s4.yml
+sed 's/lab/server_5/' try.yml  > dynamic_role_s5.yml
+sed 's/lab/server_6/' try.yml  > dynamic_role_s6.yml
+sed 's/lab/server_7/' try.yml  > dynamic_role_s7.yml
+sed 's/lab/server_8/' try.yml  > dynamic_role_s8.yml
+sed 's/lab/server_9/' try.yml  > dynamic_role_s9.yml
+sed 's/lab/server_10/' try.yml  > dynamic_role_s10.yml
+sed 's/lab/server_11/' try.yml  > dynamic_role_s11.yml
+sed 's/lab/server_12/' try.yml  > dynamic_role_s12.yml
+sed 's/lab/server_13/' try.yml  > dynamic_role_s13.yml
+sed 's/lab/server_14/' try.yml  > dynamic_role_s14.yml
+sed 's/lab/server_15/' try.yml  > dynamic_role_s15.yml
+sed 's/lab/server_16/' try.yml  > dynamic_role_s16.yml
+sed 's/lab/server_17/' try.yml  > dynamic_role_s17.yml
+sed 's/lab/server_18/' try.yml  > dynamic_role_s18.yml
+sed 's/lab/server_19/' try.yml  > dynamic_role_s19.yml
+

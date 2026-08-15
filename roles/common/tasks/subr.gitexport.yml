@@ -3,7 +3,6 @@
     gh_token: "{{ lookup('env', 'GITHUB_TOKEN') | default(github_token, true) }}"
     repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
     clone_dir: "/tmp/healthmonitoring"
-##    clone_dir: "/tmp/{{ inventory_hostname}}.healthmonitoring"
 
 - name: Ensure GitHub token is provided
   fail:
