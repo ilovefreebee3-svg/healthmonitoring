@@ -27,3 +27,4 @@ server_15, r_mspctl_cluster_health_s3, IKC2 Object , mspctl cluster health s3, i
 server_15, r_mspctl_debug_run, IKC2 Object , mspctl debug run, idx058, STATUS Not Success, TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
 server_15, r_cs_grep_v_up_gg, IKC2 Object , cs | grep -v UP, idx059, CVM service(s) down, [{'ip': '123.234.14.2', 'status': 'Down'}] 
 server_15, r_allssh_docker_ps_a_exited_up_gg, IKC2 Object , allssh 'docker ps -a | grep -v -e Exited -e Up', idx060, Not healthy, {'123.234.14.1': 3, '123.234.14.2': 0, '123.234.14.3': 1} 
+server_15, r_allssh_sudo_kubectl_get_pods_a_gg, IKC2 Object , allssh sudo kubectl get pods -A, idx061, Pod issues,       ['123.234.14.1: 1', '123.234.14.3: 2'] 
