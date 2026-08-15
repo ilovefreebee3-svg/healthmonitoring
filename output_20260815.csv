@@ -61,3 +61,4 @@ server_18, r_allssh_curl_get_catalog_k_P1ASEC018, OSIT Calm PC (ITC), allssh 'cu
 server_18, r_allssh_curl_get_catalog_k_P1SMG025, OSIT Calm PC (ITC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
 server_18, r_ssh_calm_policy_gg, OSIT Calm PC (ITC), ssh into Calm Policy VM , ssh <calm policy vm> df -kh, idx103, Threshold exceeded, / (77%) 
 server_19, r_ncc_health_checks_run_all_gg, OSIT Calm PC (OTC), ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
+server_19, r_mspctl_debug_run_test_exclude_subset, OSIT Calm PC (OTC), mspctl debug run --test_exclude_subset=hosting_pe, idx098, STATUS Not Success, TEST_PING_REGISTRY_WITHIN_MSP -> xUCCESS -- TEST_PING_REGISTRY_FROM_PC -> FAIL -- TEST_MSP_NETWORK_SEGMENTATION_CONFIG -> FAIL -- TEST_SANITY_MSP_CLUSTER_HEALTH -> FAIL 
