@@ -22,3 +22,4 @@ server_5, r_hostssh_sudo_ovn_appctl_connection_status, IKC2 Tenant 4 PE, hostssh
 server_3, r_hostssh_sudo_ovn_appctl_connection_status, IKC2 GPU Tenant 2 PE, hostssh sudo ovn_appctl connection-status, idx6, Disconnected, 188.185.10.1 - disconnected;  
 server_7, r_hostssh_sudo_ovn_appctl_connection_status, OSIT Tenant 1 PE, hostssh sudo ovn_appctl connection-status, idx6, Disconnected, 188.185.10.1 - disconnected;  
 server_8, r_hostssh_sudo_ovn_appctl_connection_status, OSIT GPU Tenant 2 PE, hostssh sudo ovn_appctl connection-status, idx6, Disconnected, 188.185.10.1 - disconnected;  
+server_8, r_hostssh_systemctl_status_nvidia-vgpu-mgr, OSIT GPU Tenant 2 PE, hostssh sudo systemctl status nvidia-vgpu-mgr, idx015, Not all active, [['888.555.10.4', 'nvidia-vgpu-mgr.service', 'inactive']] 
