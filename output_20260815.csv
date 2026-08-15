@@ -15,3 +15,10 @@ server_13, r_cs_grep_v_up_gg, IKC2 Tenant PC, cs | grep -v UP, idx059, CVM servi
 server_13, r_allssh_docker_ps_a_exited_up_gg, IKC2 Tenant PC, allssh 'docker ps -a | grep -v -e Exited -e Up', idx060, Not healthy, {'123.234.14.1': 3, '123.234.14.2': 0, '123.234.14.3': 1} 
 server_13, r_allssh_sudo_kubectl_get_pods_a_gg, IKC2 Tenant PC, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['123.234.14.1: 1', '123.234.14.3: 2'] 
 server_13, r_allssh_df_sdb3_gg, IKC2 Tenant PC, allssh 'df -h /dev/sdb3', idx062, Disk space /dev/sdb3 exceeded,   IP: 338.325.14.1 Filesystem: /dev/sdb3 Use%: 93%    
+server_14, r_ncc_health_checks_run_all_gg, OSIT Tenant PC, ncc health_checks run_all, idx3, No log found, Last checked: 2026-08-15 
+server_14, r_mspctl_cluster_health_s3, OSIT Tenant PC, mspctl cluster health s3, idx057, Unhealthy, LB:false  
+server_14, r_mspctl_debug_run, OSIT Tenant PC, mspctl debug run, idx058, STATUS Not Success, TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
+server_14, r_cs_grep_v_up_gg, OSIT Tenant PC, cs | grep -v UP, idx059, CVM service(s) down, [{'ip': '123.234.14.2', 'status': 'Down'}] 
+server_14, r_allssh_docker_ps_a_exited_up_gg, OSIT Tenant PC, allssh 'docker ps -a | grep -v -e Exited -e Up', idx060, Not healthy, {'123.234.14.1': 3, '123.234.14.2': 0, '123.234.14.3': 1} 
+server_14, r_allssh_sudo_kubectl_get_pods_a_gg, OSIT Tenant PC, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['123.234.14.1: 1', '123.234.14.3: 2'] 
+server_14, r_allssh_df_sdb3_gg, OSIT Tenant PC, allssh 'df -h /dev/sdb3', idx062, Disk space /dev/sdb3 exceeded,   IP: 338.325.14.1 Filesystem: /dev/sdb3 Use%: 93%    
