@@ -10,3 +10,4 @@ server_12, r_allssh_sudo_kubectl_get_pods_a_gg, Infra PC, allssh sudo kubectl ge
 server_12, r_allssh_df_sdb3_gg, Infra PC, allssh 'df -h /dev/sdb3', idx062, Disk space /dev/sdb3 exceeded,   IP: 338.325.14.1 Filesystem: /dev/sdb3 Use%: 93%    
 server_13, r_ncc_health_checks_run_all_gg, IKC2 Tenant PC, ncc health_checks run_all, idx3, No log found, Last checked: 2026-08-15 
 server_13, r_mspctl_cluster_health_s3, IKC2 Tenant PC, mspctl cluster health s3, idx057, Unhealthy, LB:false  
+server_13, r_mspctl_debug_run, IKC2 Tenant PC, mspctl debug run, idx058, STATUS Not Success, TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
