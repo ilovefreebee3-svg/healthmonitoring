@@ -47,3 +47,4 @@ Incomplete backup,
 server_17, r_allssh_ls_larth_iam_backup_gg, IKC2 Calm PC (OTC), allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, No iam-backup found, ['188.185.14.1 cannot access', '188.185.14.2 cannot access', '188.185.14.3 cannot access'] 
 server_17, r_allssh_curl_get_catalog_k_P1ASEC018, IKC2 Calm PC (OTC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
 server_17, r_allssh_curl_get_catalog_k_P1SMG025, IKC2 Calm PC (OTC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
+server_17, r_ssh_calm_policy_gg, IKC2 Calm PC (OTC), ssh into Calm Policy VM , ssh <calm policy vm> df -kh, idx103, Threshold exceeded, / (77%) 
