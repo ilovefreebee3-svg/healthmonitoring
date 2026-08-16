@@ -65,3 +65,8 @@ Incomplete backup,
 calmcvm, r_allssh_ll_calm_backup_gg, tbd, allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
 Incomplete backup,  
  130.8.20.24 -  incomplete backup --- 130.8.20.25 -  incomplete backup --- 130.8.20.21 -  incomplete backup --- 130.8.20.22 - cannot access --- 130.8.20.23 -  incomplete backup 
+calmcvm, r_allssh_df_kh_grep_elastic_sdb3_gg, tbd, allssh 'df -kh | grep -e elastic ', idx099, Elasticsearch function not found, 130.8.20.24 --- Elasticsearch function not found
+130.8.20.25 --- Elasticsearch function not found
+130.8.20.21 --- Elasticsearch function not found
+130.8.20.22 --- Elasticsearch function not found
+130.8.20.23 --- Elasticsearch function not found 
