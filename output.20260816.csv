@@ -91,3 +91,7 @@ server_5, r_hostssh_sudo_ovn_appctl_connection_status, IKC2 Tenant 4 PE, hostssh
 server_6, r_ncc_health_checks_run_all_gg, IKC2 Service PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
 server_7, r_ncc_health_checks_run_all_gg, OSIT Tenant 1 PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
 server_7, r_hostssh_sudo_ovn_appctl_connection_status, OSIT Tenant 1 PE, hostssh sudo ovn_appctl connection-status, idx6, Connected,  
+server_8, r_ncc_health_checks_run_all_gg, OSIT GPU Tenant 2 PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
+server_8, r_hostssh_sudo_ovn_appctl_connection_status, OSIT GPU Tenant 2 PE, hostssh sudo ovn_appctl connection-status, idx6, Connected,  
+server_8, r_hostssh_systemctl_status_nvidia-vgpu-mgr, OSIT GPU Tenant 2 PE, hostssh sudo systemctl status nvidia-vgpu-mgr, idx015, All active,  
+server_8, r_hostssh_nvidia-smi, OSIT GPU Tenant 2 PE, hostssh nvidia-smi, idx016, ['None'], [] 
