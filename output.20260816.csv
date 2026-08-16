@@ -62,3 +62,6 @@ calmcvm, r_cs_grep_v_up_gg, tbd, cs | grep -v UP, idx059, Threshold exceeded, / 
 calmcvm, r_allssh_ll_calm_backup_gg, tbd, allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
 Incomplete backup,  
  130.8.20.24 -  incomplete backup --- 130.8.20.25 -  incomplete backup --- 130.8.20.21 -  incomplete backup --- 130.8.20.22 - cannot access --- 130.8.20.23 -  incomplete backup 
+calmcvm, r_allssh_ll_calm_backup_gg, tbd, allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
+Incomplete backup,  
+ 130.8.20.24 -  incomplete backup --- 130.8.20.25 -  incomplete backup --- 130.8.20.21 -  incomplete backup --- 130.8.20.22 - cannot access --- 130.8.20.23 -  incomplete backup 
