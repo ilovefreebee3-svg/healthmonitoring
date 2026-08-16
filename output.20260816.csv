@@ -71,3 +71,6 @@ calmcvm, r_allssh_df_kh_grep_elastic_sdb3_gg, tbd, allssh 'df -kh | grep -e elas
 130.8.20.22 --- Elasticsearch function not found
 130.8.20.23 --- Elasticsearch function not found 
 calmcvm, r_cs_grep_v_up_gg, tbd, cs | grep -v UP, idx059, Threshold exceeded, / (52%) 
+calmcvm, r_allssh_ll_calm_backup_gg, tbd, allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
+Incomplete backup,  
+ 192.52.129.1 - cannot access --- 192.52.11.2 -  incomplete backup 
