@@ -1,13 +1,90 @@
 
-    - name: 97. Log to local
-      import_tasks: log_local.yml
-      when: log_local_enabled | bool
+Using inventory inventory.ini in the local folder
 
-    - name: 98. Log to external
-      import_tasks: log_ext.yml
-      when: log_ext_enabled | bool
 
-    - name: 99. Log to local
-      import_tasks: log_github.yml
-      when: log_github_enabled | bool
+PLAY [Check CVM cluster status] ************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [server_12]
+
+TASK [0. set csv_filename] *****************************************************
+ok: [server_12]
+
+TASK [0. Declare variables] ****************************************************
+ok: [server_12]
+
+TASK [1. Execute /home/nutanix/cluster/bin/cluster status] *********************
+fatal: [server_12]: FAILED! => {"changed": false, "cmd": "/home/nutanix/cluster/bin/cluster status", "msg": "[Errno 2] No such file or directory: b'/home/nutanix/cluster/bin/cluster'", "rc": 2, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [3. Read from hardcoded file] *********************************************
+skipping: [server_12]
+
+TASK [4. Display input_filter.stdout_lines] ************************************
+ok: [server_12] => {
+    "msg": []
+}
+
+TASK [444. Display csv_filename] ***********************************************
+ok: [server_12] => {
+    "msg": "output.20260816.csv"
+}
+
+TASK [5. Parse output and evaluate status] *************************************
+ok: [server_12]
+
+TASK [6. Set final answer and remark variables] ********************************
+ok: [server_12]
+
+TASK [7. Display results] ******************************************************
+ok: [server_12] => {
+    "msg": [
+        "Answer: CVM service(s) all Up",
+        "Remark: All services healthy"
+    ]
+}
+
+TASK [Append result to CSV] ****************************************************
+ok: [server_12 -> localhost]
+
+TASK [0. Declare variables] ****************************************************
+skipping: [server_12]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [server_12]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [server_12]
+
+TASK [3. Export file to github] ************************************************
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.gitexport.yml for server_12
+
+TASK [1. Declare github variables] *********************************************
+ok: [server_12]
+
+TASK [Ensure GitHub token is provided] *****************************************
+skipping: [server_12]
+
+TASK [999 display csv_filename] ************************************************
+ok: [server_12] => {
+    "msg": "csv_filename"
+}
+
+TASK [display variabe] *********************************************************
+ok: [server_12] => {
+    "gh_token": "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"
+}
+
+TASK [Clean up any existing temporary clone directory] *************************
+changed: [server_12]
+
+TASK [Clone the healthmonitoring repository using token authentication] ********
+changed: [server_12]
+
+TASK [Copy generated CSV file to the repository directory] *********************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: If you are using a module and expect the file to exist on the remote, see the remote_src option
+fatal: [server_12]: FAILED! => {"changed": false, "msg": "Could not find or access '/tmp/csv_filename' on the Ansible Controller.\nIf you are using a module and expect the file to exist on the remote, see the remote_src option"}
+
+PLAY RECAP *********************************************************************
+server_12                  : ok=16   changed=2    unreachable=0    failed=1    skipped=5    rescued=0    ignored=1   
 

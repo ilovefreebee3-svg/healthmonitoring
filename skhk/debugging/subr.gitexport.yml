@@ -1,0 +1,80 @@
+- name: "1. Declare github variables"
+  ansible.builtin.set_fact:
+    gh_token: "{{ lookup('env', 'GITHUB_TOKEN') | default(github_token, true) }}"
+    repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
+    clone_dir: "/tmp/{{ inventory_hostname}}.healthmonitoring"
+#    clone_dir: "/tmp/healthmonitoring"
+
+- name: Ensure GitHub token is provided
+  fail:
+    msg: "The variable 'gh_token' or 'GITHUB_TOKEN' env variable is missing!"
+  when: gh_token | length == 0
+
+- name: display csv_filename
+  ansible.builtin.debug:
+    var: csv_filename
+
+- name: display variabe
+  ansible.builtin.debug:
+    var: gh_token
+
+- name: Clean up any existing temporary clone directory
+  file:
+    path: "{{ clone_dir }}"
+    state: absent
+
+- name: Clone the healthmonitoring repository using token authentication
+  git:
+    repo: "https://{{ gh_token }}@{{ repo_url }}"
+    dest: "{{ clone_dir }}"
+    version: main
+    force: true
+  no_log: false
+  register: git_clone_result
+  retries: 3           # If it fails, try up to 3 more times before crashing
+  delay: 15            # Wait 15 seconds between tries to let local file locks clear
+  until: git_clone_result is succeeded
+
+- name: Copy generated CSV file to the repository directory
+  copy:
+    src: "/tmp/{{ csv_filename }}"
+    dest: "{{ clone_dir }}/{{ csv_filename }}"
+
+- name: Configure Git user identity locally for this execution
+  shell: |
+    git config user.name "ilovefreebee3-svg"
+    git config user.email "ilovefreebee3@gmail.com"
+  args:
+    chdir: "{{ clone_dir }}"
+
+- name: Check if there are changes to commit
+  shell: git status --porcelain
+  args:
+    chdir: "{{ clone_dir }}"
+  register: git_status
+  changed_when: false
+
+- name: Commit and push the CSV file if changes exist
+  shell: |
+    git add .
+    git commit -m "Automated CSV export update"
+    git push https://x-oauth-basic:{{ gh_token }}@{{ repo_url }} HEAD:main
+  args:
+    chdir: "{{ clone_dir }}"
+  when: git_status.stdout | length > 0
+  no_log: false
+
+#- name: Commit and push the CSV file if changes exist
+#  shell: |
+#    git add {{ csv_filename }}
+#    git commit -m "Automated update: Uploaded {{ csv_filename }} via AWX"
+#    git push origin main
+#  args:
+#    chdir: "{{ clone_dir }}"
+#  when: git_status.stdout | length > 0
+
+- name: Wipe temporary clone directory to keep AWX environment clean
+  file:
+    path: "{{ clone_dir }}"
+    state: absent
+ 

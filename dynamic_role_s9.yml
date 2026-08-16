@@ -1,6 +1,6 @@
 - name: Run roles dynamically
   hosts: server_9
-  gather_facts: no
+  gather_facts: yes
   serial: 1
   any_errors_fatal: no  # Ensures an unreachable host doesn't halt the whole play
 
@@ -30,9 +30,9 @@
 
 
     - name: 98. Log to external
-      import_tasks: log_ext.yml
+      import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
     - name: 99. Log to local
-      import_tasks: log_github.yml
+      import_tasks: subr.log_github.yml
       when: log_github_enabled | bool

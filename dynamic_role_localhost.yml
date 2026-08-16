@@ -1,6 +1,6 @@
 - name: Run roles dynamically
   hosts: localhost
-  gather_facts: no
+  gather_facts: yes
 
   tasks:
     - name: Include roles per host

@@ -1,0 +1,201 @@
+
+---------------------------------
+02_testing11_others_cs_grep_v_up_command_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Check CVM cluster status
+  hosts: server_12
+  gather_facts: true
+  vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    description: cs | grep -v UP
+    idx: idx059
+    role: r_cs_grep_v_up_gg
+    vpc: tbd
+
+  tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
+    - name: 0. Declare variables
+      set_fact:
+        down_services: []
+
+    - name: 1. Execute /home/nutanix/cluster/bin/cluster status
+      ansible.builtin.command: /home/nutanix/cluster/bin/cluster status
+      register: input_filter
+      changed_when: false
+      ignore_errors: true
+      when: not (read_from_file | bool)
+
+    - name: 3. Read from hardcoded file
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.02_testing11_others_cs_grep_v_up_command_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.02_testing11_others_cs_grep_v_up_command_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+    
+    - name: 4. Display input_filter.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+    
+    - name: 444. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ csv_filename }}" 
+    
+    - name: 5. Parse output and evaluate status
+      ansible.builtin.set_fact:
+        down_services: >-
+          {%- set lines = input_filter.stdout_lines -%}
+          {%- set filtered = [] -%}
+          {%- for raw_line in lines -%}
+            {%- set line = raw_line.replace(',', ' ') -%}
+            {%- if 'CVM:' in line -%}
+              {%- set cols = line.split() -%}
+              {%- if cols | length >= 3 and cols[2] != 'Up' -%}
+                {%- set _ = filtered.append({'ip': cols[1], 'status': cols[2]}) -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ filtered }}
+    
+    - name: 6. Set final answer and remark variables
+      ansible.builtin.set_fact:
+        answer: "{{ 'CVM service(s) down' if down_services | length > 0 else 'CVM service(s) all Up' }}"
+        remark: "{{ down_services if down_services | length > 0 else 'All services healthy' }}"
+    
+    - name: 7. Display results
+      ansible.builtin.debug:
+        msg:
+          - "Answer: {{ answer }}"
+          - "Remark: {{ remark }}"
+
+    - name: 97. Log to local
+      import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 99. Log to github
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
+
+#    - name: 99. Log to github
+#      ansible.builtin.import_tasks:
+#        file: subr.log_github.yml
+#      vars:
+#        csv_filename1: csv_filename  
+#      when: log_github_enabled | bool
+
+------------------------------------------------------------------
+
+
+aph 02_testing11_others_cs_grep_v_up_command_gg.yml
+
+
+Using inventory inventory.ini in the local folder
+
+
+PLAY [Check CVM cluster status] ************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [server_12]
+
+TASK [0. set csv_filename] *****************************************************
+ok: [server_12]
+
+TASK [0. Declare variables] ****************************************************
+ok: [server_12]
+
+TASK [1. Execute /home/nutanix/cluster/bin/cluster status] *********************
+fatal: [server_12]: FAILED! => {"changed": false, "cmd": "/home/nutanix/cluster/bin/cluster status", "msg": "[Errno 2] No such file or directory: b'/home/nutanix/cluster/bin/cluster'", "rc": 2, "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [3. Read from hardcoded file] *********************************************
+skipping: [server_12]
+
+TASK [4. Display input_filter.stdout_lines] ************************************
+ok: [server_12] => {
+    "msg": []
+}
+
+TASK [444. Display csv_filename] ***********************************************
+ok: [server_12] => {
+    "msg": "output.20260816.csv"
+}
+
+TASK [5. Parse output and evaluate status] *************************************
+ok: [server_12]
+
+TASK [6. Set final answer and remark variables] ********************************
+ok: [server_12]
+
+TASK [7. Display results] ******************************************************
+ok: [server_12] => {
+    "msg": [
+        "Answer: CVM service(s) all Up",
+        "Remark: All services healthy"
+    ]
+}
+
+TASK [Append result to CSV] ****************************************************
+skipping: [server_12]
+
+TASK [0. Declare variables] ****************************************************
+skipping: [server_12]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [server_12]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [server_12]
+
+TASK [1. Declare github variables] *********************************************
+skipping: [server_12]
+
+TASK [Ensure GitHub token is provided] *****************************************
+skipping: [server_12]
+
+TASK [999 display output.20260816.csv] *****************************************
+skipping: [server_12]
+
+TASK [display variabe] *********************************************************
+skipping: [server_12]
+
+TASK [Clean up any existing temporary clone directory] *************************
+skipping: [server_12]
+
+TASK [Clone the healthmonitoring repository using token authentication] ********
+skipping: [server_12]
+
+TASK [Copy generated CSV file to the repository directory] *********************
+skipping: [server_12]
+
+TASK [Configure Git user identity locally for this execution] ******************
+skipping: [server_12]
+
+TASK [Check if there are changes to commit] ************************************
+skipping: [server_12]
+
+TASK [Commit and push the CSV file if changes exist] ***************************
+skipping: [server_12]
+
+TASK [Wipe temporary clone directory to keep AWX environment clean] ************
+skipping: [server_12]
+
+PLAY RECAP *********************************************************************
+server_12                  : ok=9    changed=0    unreachable=0    failed=0    skipped=16   rescued=0    ignored=1   
+

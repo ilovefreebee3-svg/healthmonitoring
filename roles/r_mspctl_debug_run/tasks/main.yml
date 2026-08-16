@@ -1,4 +1,7 @@
 ---
+- name: 0. Initialising csv_filename
+  import_tasks: subr.log_settings.yml
+
 - name: 1. Run mspctl debug with command module
   ansible.builtin.command:
     argv:
@@ -107,14 +110,14 @@
       - "Answer: {{ answer }}"
 
 - name: 97. Log to local
-  import_tasks: log_local.yml
+  import_tasks: subr.log_local.yml
   when: log_local_enabled | bool
 
 #- name: 98. Log to external
-#  import_tasks: log_ext.yml
+#  import_tasks: subr.log_ext.yml
 #  when: log_ext_enabled | bool
-#
+
 #- name: 99. Log to local
-#  import_tasks: log_github.yml
+#  import_tasks: subr.log_github.yml
 #  when: log_github_enabled | bool
 

@@ -1,0 +1,266 @@
+
+---------------------------------
+40.testing11_hostssh_ovn_lab_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 1. Run diagnostic commands on all CVMs
+  hosts: corecvm
+#  hosts: engrcvm
+#  hosts: pecvm
+#  hosts: allcvms
+  gather_facts: true
+#  serial: 1
+
+  vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    description: hostssh sudo ovn_appctl connection-status
+    idx: idx6
+    role: r_hostssh_sudo_ovn_appctl_connection_status
+    vpc: tbd
+
+  tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
+    - name: 1. Declare variables
+      set_fact:
+        cmd_list:
+          - name: hostssh ovn-appctl connection-status
+            argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+#          - name: hostssh_ovn_appctl_connection_status
+#            argv: ["hostssh_ovn_appctl_connection_status"]
+
+    - name: 2. Execute commands
+      include_tasks: subr.40.testing11_hostssh_ovn_lab_logic.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+      when: not ( read_from_file | bool )
+
+    - name: 3. Read from hardcoded file
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.40.testing11_hostssh_ovn_lab_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.40.testing11_hostssh_ovn_lab_logic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 4. Display hostssh sudo ovn_appctl connection-status output
+      ansible.builtin.debug:
+        msg: "{{ input_filter }}" 
+
+    - name: 5. Split lines
+      set_fact:
+        lines: "{{ (input_filter.stdout).split('\n') | map('trim') | reject('equalto','') | list }}"
+
+    - name: 6. Initialize results
+      set_fact:
+        num_disconnected: 0
+        remark: ""
+
+    - name: 7. Process IP entries safely
+      set_fact:
+        num_disconnected: "{{ (num_disconnected | default(0) | int) + (1 if item_status != 'connected' and is_ip else 0) }}"
+        remark: >-
+          {{
+          remark +
+          (ip ~ ' - ' ~ item_status ~ '; ' if item_status != 'connected' and is_ip else '')
+          }}
+      loop: "{{ range(0, lines | length) | list }}"
+      loop_control:
+        loop_var: ovn_line_index
+      vars:
+        current: "{{ lines[ovn_line_index] }}"
+        next_line: "{{ lines[ovn_line_index + 1] if ovn_line_index + 1 < (lines | length) else '' }}"
+        is_ip: "{{ current is search('=+\\s*[0-9.]+\\s*=+') }}"
+        next_is_ip: "{{ next_line is search('=+') }}"
+        ip: "{{ current | regex_search('([0-9.]+)') }}"
+        item_status: "{{ next_line | trim if (is_ip and not next_is_ip) else 'unknown' }}"
+
+
+    - name: 8. Final answer
+      set_fact:
+        answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
+
+    - debug:
+        msg:
+          num_disconnected: "{{ num_disconnected }}"
+          remark: "{{ remark }}"
+          answer: "{{ answer }}"
+
+    - name: 97. Log to local
+      import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 99. Log to local
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
+
+------------------------------------------------------------------
+
+
+aph 40.testing11_hostssh_ovn_lab_logic.yml
+
+
+Using inventory inventory.ini in the local folder
+
+
+PLAY [1. Run diagnostic commands on all CVMs] **********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [corecvm]
+
+TASK [0. set csv_filename] *****************************************************
+ok: [corecvm]
+
+TASK [1. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [2. Execute commands] *****************************************************
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.40.testing11_hostssh_ovn_lab_logic.yml for corecvm => (item={'name': 'hostssh ovn-appctl connection-status', 'argv': ['hostssh', 'ovn-appctl', 'connection-status']})
+
+TASK [11. Display host and command] ********************************************
+ok: [corecvm] => {
+    "msg": [
+        "Host    : corecvm",
+        "Command : hostssh ovn-appctl connection-status"
+    ]
+}
+
+TASK [12. Run command] *********************************************************
+ok: [corecvm]
+
+TASK [13. Declare variables] ***************************************************
+ok: [corecvm]
+
+TASK [15. Return code] *********************************************************
+ok: [corecvm] => {
+    "input_filter.rc": "127"
+}
+
+TASK [16. Debug the captured output] *******************************************
+ok: [corecvm] => {
+    "input_filter.stdout_lines": []
+}
+
+TASK [17. Display the captured output] *****************************************
+ok: [corecvm] => {
+    "input_filter.stdout": ""
+}
+
+TASK [18. Display ['hostssh', 'ovn-appctl', 'connection-status'] command output] ***
+ok: [corecvm] => {
+    "msg": "==================================================\nHost    : corecvm\nCommand : hostssh ovn-appctl connection-status\nRC      : 127\n\nSTDOUT:\n[]\n\nSTDERR:\n/bin/bash: line 1: hostssh: command not found\n==================================================\n"
+}
+
+TASK [3. Read from hardcoded file] *********************************************
+skipping: [corecvm]
+
+TASK [4. Display hostssh sudo ovn_appctl connection-status output] *************
+ok: [corecvm] => {
+    "msg": {
+        "changed": false,
+        "cmd": [
+            "/bin/bash",
+            "-c",
+            "source /etc/profile\nhostssh ovn-appctl connection-status\n"
+        ],
+        "delta": "0:00:00.002699",
+        "end": "2026-08-16 15:14:30.213018",
+        "failed": false,
+        "failed_when_result": false,
+        "msg": "non-zero return code",
+        "rc": 127,
+        "start": "2026-08-16 15:14:30.210319",
+        "stderr": "/bin/bash: line 1: hostssh: command not found",
+        "stderr_lines": [
+            "/bin/bash: line 1: hostssh: command not found"
+        ],
+        "stdout": "",
+        "stdout_lines": []
+    }
+}
+
+TASK [5. Split lines] **********************************************************
+ok: [corecvm]
+
+TASK [6. Initialize results] ***************************************************
+ok: [corecvm]
+
+TASK [7. Process IP entries safely] ********************************************
+
+TASK [8. Final answer] *********************************************************
+ok: [corecvm]
+
+TASK [debug] *******************************************************************
+ok: [corecvm] => {
+    "msg": {
+        "answer": "Connected",
+        "num_disconnected": 0,
+        "remark": ""
+    }
+}
+
+TASK [Append result to CSV] ****************************************************
+skipping: [corecvm]
+
+TASK [0. Declare variables] ****************************************************
+skipping: [corecvm]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [corecvm]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [corecvm]
+
+TASK [1. Declare github variables] *********************************************
+skipping: [corecvm]
+
+TASK [Ensure GitHub token is provided] *****************************************
+skipping: [corecvm]
+
+TASK [999 display output.20260816.csv] *****************************************
+skipping: [corecvm]
+
+TASK [display variabe] *********************************************************
+skipping: [corecvm]
+
+TASK [Clean up any existing temporary clone directory] *************************
+skipping: [corecvm]
+
+TASK [Clone the healthmonitoring repository using token authentication] ********
+skipping: [corecvm]
+
+TASK [Copy generated CSV file to the repository directory] *********************
+skipping: [corecvm]
+
+TASK [Configure Git user identity locally for this execution] ******************
+skipping: [corecvm]
+
+TASK [Check if there are changes to commit] ************************************
+skipping: [corecvm]
+
+TASK [Commit and push the CSV file if changes exist] ***************************
+skipping: [corecvm]
+
+TASK [Wipe temporary clone directory to keep AWX environment clean] ************
+skipping: [corecvm]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=16   changed=0    unreachable=0    failed=0    skipped=17   rescued=0    ignored=0   
+

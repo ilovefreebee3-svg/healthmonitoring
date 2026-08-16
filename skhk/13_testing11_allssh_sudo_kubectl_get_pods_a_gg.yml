@@ -2,7 +2,7 @@
 - name: Running kubectl get pods -A
 #  hosts: pccvm
   hosts: calmcvm
-  gather_facts: false
+  gather_facts: true
 
   vars:
     log_local_enabled: false 
@@ -18,6 +18,9 @@
     vpc: tbd
 
   tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
     - name: 0. Set variables default
       set_fact:
         remark_list: []
@@ -114,14 +117,14 @@
           - "Remark: {{ remark | default('No issues found') }}"
 
     - name: 97. Log to local
-      import_tasks: log_local.yml
+      import_tasks: subr.log_local.yml
       when: log_local_enabled | bool
 
     - name: 98. Log to external
-      import_tasks: log_ext.yml
+      import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
     - name: 99. Log to local
-      import_tasks: log_github.yml
+      import_tasks: subr.log_github.yml
       when: log_github_enabled | bool
 

@@ -1,0 +1,110 @@
+
+---------------------------------
+62_testing11_others_ssh_calm_policy_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Check calm policy
+  hosts: calmcvm
+#  hosts: pccvm
+#  hosts: allcvms
+  gather_facts: true
+
+  vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    description: cs | grep -v UP
+    idx: idx059
+    role: r_cs_grep_v_up_gg
+    vpc: tbd
+
+  tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
+    - name: 1. Set default variables
+      set_fact:
+        monitored_mounts: ["/", "/home", "/var"]
+        threshold: 75
+
+    - name: 2. Execute df -kh command
+      ansible.builtin.command: df -kh
+      register: input_result
+      changed_when: false
+      when: not ( read_from_file | bool )
+    
+    - name: 3. Mimic 'cat' register output using lookup
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.62_testing11_others_ssh_calm_policy_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.62_testing11_others_ssh_calm_policy_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+    
+    - name: 4. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout_lines }}" 
+    
+    - name: 5. Process Disk Data
+      ansible.builtin.set_fact:
+        # Calculate values inside a single block to ensure logic sync
+        disk_stats: >-
+          {%- set results = [] -%}
+          {%- for line in input_result.stdout_lines[1:] -%}
+            {%- set cols = line.split() -%}
+            {%- if cols | length >= 6 -%}
+              {%- set mount = cols[5] -%}
+              {%- set usage = cols[4] | replace('%', '') | int -%}
+              {%- if mount in monitored_mounts and usage > threshold -%}
+                {%- set _ = results.append(mount ~ " (" ~ usage ~ "%)") -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ {
+            'count': results | length,
+            'remark_list': results
+          } | from_yaml }}
+    
+    - name: 6. Assign final variables
+      ansible.builtin.set_fact:
+        num_over75: "{{ disk_stats.count }}"
+        answer: "{{ (disk_stats.count > 0) | ternary('Threshold exceeded', 'Threshold not exceeded') }}"
+        remark: "{{ disk_stats.remark_list | join(', ') if disk_stats.count > 0 else 'All clear' }}"
+    
+    - name: 7. Display Result Information
+      ansible.builtin.debug:
+        msg: 
+          - "IP: {{ ansible_default_ipv4.address | default(inventory_hostname) }}"
+          - "Status: {{ answer }}"
+          - "Threshold: {{ threshold }}"
+          - "Count: {{ num_over75 }}"
+          - "Details: {{ remark }}"
+
+    - name: 97. Log to local
+      import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 99. Log to local
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
+
+------------------------------------------------------------------
+
+
+aph 62_testing11_others_ssh_calm_policy_gg.yml
+
+
+Using inventory inventory.ini in the local folder
+

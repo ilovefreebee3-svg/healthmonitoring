@@ -1,0 +1,25 @@
+
+---------------------------------
+subr.log_ext.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: 0. Declare variables
+  set_fact:
+    awx_host_ip: "user1@130.8.20.99"
+    awx_host_dir: /home/user1/awx_exports/
+
+- name: Export files to AWX host
+  delegate_to: "{{ awx_host_ip }}"
+  block:
+    - name: 2a. Force create destination directory structure in home folder
+      ansible.builtin.command: "mkdir -p {{  awx_host_dir }}"
+
+    - name: 2b. Copy file from container to the AWX host filesystem
+      ansible.builtin.copy:
+        src: "/tmp/{{ csv_filename }}"
+        dest: "{{ awx_host_dir }}"
+        mode: '0644'
+
+------------------------------------------------------------------

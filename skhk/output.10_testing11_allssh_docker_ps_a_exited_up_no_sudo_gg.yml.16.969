@@ -1,0 +1,271 @@
+
+---------------------------------
+10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Running docker ps -a
+  hosts: calmcvm
+#  hosts: server_12
+#  hosts: pccvm
+  gather_facts: true
+  vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    description: allssh 'docker ps -a | grep -v -e Exited -e Up'
+    idx: idx060
+    role:  r_allssh_docker_ps_a_exited_up_gg
+    vpc: tbd
+
+  tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
+    # ------------------------------------------------------------
+    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
+    # ------------------------------------------------------------
+    - name: Verify connectivity to the Control CVM
+      ansible.builtin.wait_for_connection:
+        timeout: 5
+      register: control_cvm_status
+
+    # ------------------------------------------------------------
+    # SCENARIO 2: Run 'docker ps -a' and process the output
+    # ------------------------------------------------------------
+    - name: 1. Run docker ps -a
+      ansible.builtin.include_tasks: subr.run_allssh.yml
+      vars:
+        target_cmd: "docker ps -a"
+      when: not (read_from_file | bool)
+
+#    - name: 2. Execute a remote script
+#      ansible.builtin.command: name_of_remote_script
+#      register: input_filter
+#      changed_when: false
+#      ignore_errors: true
+
+    - name: 3. Read from hardcoded file
+      set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 4. Display input_filter 1
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}" 
+
+    - name: 5. Process cluster container health
+      ansible.builtin.set_fact:
+        # Group variables dynamically into a single dictionary mapping
+        health_assessment: >-
+          {%- set output = input_filter.stdout.split('\n') -%}
+          {%- set hosts_data = {} -%}
+          {%- set current_ip = ['Unknown'] -%}
+          {%- set current_containers = [] -%}
+          {%- set total_downed = [0] -%}
+          
+          {%- for line in output -%}
+            {%- if '==========' in line -%}
+              {%- if current_containers | length > 0 or current_ip[0] != 'Unknown' -%}
+                {%- set downed_count = current_containers | length -%}
+                {%- set _ = total_downed.append(total_downed.pop() + downed_count) -%}
+                {%- set _ = hosts_data.update({current_ip[0]: downed_count}) -%}
+                {%- set _ = current_containers.clear() -%}
+              {%- endif -%}
+              {%- set ip = line | regex_search('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}') -%}
+              {%- set _ = current_ip.insert(0, ip if ip else 'Unknown') -%}
+            {%- else -%}
+              {%- if line.strip() and not line.startswith('CONTAINER ID') and 'Exited' not in line and 'Up' not in line and 'unreachable' not in line -%}
+                {%- set _ = current_containers.append(line) -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          
+          {%- if current_containers | length > 0 or current_ip[0] != 'Unknown' -%}
+            {%- set downed_count = current_containers | length -%}
+            {%- set _ = total_downed.append(total_downed.pop() + downed_count) -%}
+            {%- set _ = hosts_data.update({current_ip[0]: downed_count}) -%}
+          {%- endif -%}
+          
+          {%- set final_answer = 'Not healthy' if total_downed[0] > 0 else 'Healthy' -%}
+          {%- set final_remark = hosts_data if total_downed[0] > 0 else '' -%}
+          {{ {'answer': final_answer, 'remark': final_remark} }}
+
+    - name: 6. Assign final variables
+      ansible.builtin.set_fact:
+        answer: "{{ health_assessment.answer }}"
+        remark: "{{ health_assessment.remark }}"
+
+    - name: 7. Display Summary
+      ansible.builtin.debug:
+        msg:
+          - "Overall Status (answer): {{ answer }}"
+          - "Breakdown per IP (remark): {{ remark }}"
+          - "answer: {{ answer }}"
+          - "remark: {{ remark }}"
+
+    - name: 97. Log to local
+      import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 98. Log to local
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
+
+------------------------------------------------------------------
+
+
+aph 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml
+
+
+Using inventory inventory.ini in the local folder
+
+
+PLAY [Running docker ps -a] ****************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [calmcvm]
+
+TASK [0. set csv_filename] *****************************************************
+ok: [calmcvm]
+
+TASK [Verify connectivity to the Control CVM] **********************************
+ok: [calmcvm]
+
+TASK [1. Run docker ps -a] *****************************************************
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.run_allssh.yml for calmcvm
+
+TASK [Get list of target IPs] **************************************************
+ok: [calmcvm]
+
+TASK [Parse IP addresses into a clean list] ************************************
+ok: [calmcvm]
+
+TASK [Reorder IP list to put local IP ($IP) at the very end] *******************
+ok: [calmcvm]
+
+TASK [Check reachability for all target IPs upfront] ***************************
+ok: [calmcvm] => (item=130.8.20.24)
+ok: [calmcvm] => (item=130.8.20.25)
+ok: [calmcvm] => (item=130.8.20.21)
+ok: [calmcvm] => (item=130.8.20.22)
+ok: [calmcvm] => (item=130.8.20.23)
+
+TASK [Execute commands sequentially on remote hosts] ***************************
+changed: [calmcvm] => (item=130.8.20.24)
+changed: [calmcvm] => (item=130.8.20.25)
+changed: [calmcvm] => (item=130.8.20.21)
+changed: [calmcvm] => (item=130.8.20.22)
+changed: [calmcvm] => (item=130.8.20.23)
+
+TASK [Consolidate and save all CVM outputs to the input_filter register object] ***
+ok: [calmcvm]
+
+TASK [3. Read from hardcoded file] *********************************************
+skipping: [calmcvm]
+
+TASK [4. Display input_filter 1] ***********************************************
+ok: [calmcvm] => {
+    "msg": [
+        "================== 130.8.20.24 =================",
+        "CONTAINER ID   IMAGE           COMMAND                  CREATED       STATUS                  PORTS     NAMES",
+        "559aeafba101   nginx:alpine    \"/docker-entrypoint.…\"   2 weeks ago   Exited (0) 7 days ago             simple_web_server-web-server-1",
+        "189185669fca   alpine:latest   \"sh -c 'apk add --no…\"   2 weeks ago   Exited (0) 7 days ago             simple_web_server-certs-generator-1",
+        "================== 130.8.20.25 =================",
+        "CONTAINER ID   IMAGE           COMMAND                  CREATED       STATUS                  PORTS     NAMES",
+        "f94829d6784f   nginx:alpine    \"/docker-entrypoint.…\"   3 weeks ago   Exited (0) 7 days ago             simple_web_server-web-server-1",
+        "82949c55f720   alpine:latest   \"sh -c 'apk add --no…\"   3 weeks ago   Exited (0) 7 days ago             simple_web_server-certs-generator-1",
+        "================== 130.8.20.21 =================",
+        "CONTAINER ID   IMAGE           COMMAND                  CREATED       STATUS                  PORTS     NAMES",
+        "d9d9c07dc1c1   nginx:alpine    \"/docker-entrypoint.…\"   3 weeks ago   Exited (0) 7 days ago             simple_web_server-web-server-1",
+        "b19f4806a210   alpine:latest   \"sh -c 'apk add --no…\"   3 weeks ago   Exited (0) 7 days ago             simple_web_server-certs-generator-1",
+        "================== 130.8.20.22 =================",
+        "CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS                          PORTS                               NAMES",
+        "9b714b293c19   flask-proxy        \"nginx -g 'daemon of…\"   18 months ago   Up 2 hours                      0.0.0.0:80->80/tcp, :::80->80/tcp   flask-proxy-1",
+        "ba5f4d40939b   flask-backend      \"flask run\"              18 months ago   Restarting (1) 21 seconds ago                                       flask-backend-1",
+        "35142c18dda3   mariadb:10-focal   \"docker-entrypoint.s…\"   18 months ago   Up 2 hours (healthy)            3306/tcp, 33060/tcp                 flask-db-1",
+        "================== 130.8.20.23 =================",
+        "CONTAINER ID   IMAGE           COMMAND                  CREATED       STATUS                  PORTS     NAMES",
+        "d9d9c07dc1c1   nginx:alpine    \"/docker-entrypoint.…\"   3 weeks ago   Exited (0) 7 days ago             simple_web_server-web-server-1",
+        "b19f4806a210   alpine:latest   \"sh -c 'apk add --no…\"   3 weeks ago   Exited (0) 7 days ago             simple_web_server-certs-generator-1"
+    ]
+}
+
+TASK [5. Process cluster container health] *************************************
+ok: [calmcvm]
+
+TASK [6. Assign final variables] ***********************************************
+ok: [calmcvm]
+
+TASK [7. Display Summary] ******************************************************
+ok: [calmcvm] => {
+    "msg": [
+        "Overall Status (answer): Not healthy",
+        "Breakdown per IP (remark): {'130.8.20.24': 0, '130.8.20.25': 0, '130.8.20.21': 0, '130.8.20.22': 1, '130.8.20.23': 0}",
+        "answer: Not healthy",
+        "remark: {'130.8.20.24': 0, '130.8.20.25': 0, '130.8.20.21': 0, '130.8.20.22': 1, '130.8.20.23': 0}"
+    ]
+}
+
+TASK [Append result to CSV] ****************************************************
+skipping: [calmcvm]
+
+TASK [0. Declare variables] ****************************************************
+skipping: [calmcvm]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [calmcvm]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [calmcvm]
+
+TASK [1. Declare github variables] *********************************************
+skipping: [calmcvm]
+
+TASK [Ensure GitHub token is provided] *****************************************
+skipping: [calmcvm]
+
+TASK [999 display output.20260816.csv] *****************************************
+skipping: [calmcvm]
+
+TASK [display variabe] *********************************************************
+skipping: [calmcvm]
+
+TASK [Clean up any existing temporary clone directory] *************************
+skipping: [calmcvm]
+
+TASK [Clone the healthmonitoring repository using token authentication] ********
+skipping: [calmcvm]
+
+TASK [Copy generated CSV file to the repository directory] *********************
+skipping: [calmcvm]
+
+TASK [Configure Git user identity locally for this execution] ******************
+skipping: [calmcvm]
+
+TASK [Check if there are changes to commit] ************************************
+skipping: [calmcvm]
+
+TASK [Commit and push the CSV file if changes exist] ***************************
+skipping: [calmcvm]
+
+TASK [Wipe temporary clone directory to keep AWX environment clean] ************
+skipping: [calmcvm]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=14   changed=1    unreachable=0    failed=0    skipped=16   rescued=0    ignored=0   
+

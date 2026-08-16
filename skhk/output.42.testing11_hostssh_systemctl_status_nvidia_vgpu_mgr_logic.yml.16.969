@@ -1,0 +1,785 @@
+
+---------------------------------
+42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: Pseudo hostssh - Check nvidia-vgpu-mgr
+  hosts: corecvm
+  gather_facts: true
+
+  vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    description: hostssh sudo systemctl status nvidia-vgpu-mgr
+    idx: idx015
+    role: r_hostssh_systemctl_status_nvidia-vgpu-mgr
+    vpc: tbd
+
+  tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
+    - name: -1. Declare flags
+      set_fact:
+        remote_user_name: nutanix
+
+    - name: Process AHV hosts configuration and tracking
+      when: not (read_from_file | bool)
+      block:
+        - name: 1. Declare variables
+          set_fact:
+            answer: "Healthy"
+            remark: "No failures or errors detected."
+    
+        - name: 2. Get AHV host IP addresses
+          ansible.builtin.command:
+            argv:
+              - /bin/bash
+              - -c
+              - |
+                source /etc/profile
+                hostips
+          register: hostips_output
+          changed_when: false
+    
+        - name: 3. Parse IP addresses into a clean list
+          ansible.builtin.set_fact:
+            ahv_hosts: "{{ hostips_output.stdout | regex_findall('[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+    
+        - name: 4. Initialize the empty input_result structures
+          ansible.builtin.set_fact:
+            input_result_stdout_list: []
+            input_result_lines_list: []
+    
+        - name: 5. Calling the subroutine
+          ansible.builtin.include_tasks: subr.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml
+          loop: "{{ ahv_hosts }}"
+          loop_control:
+            loop_var: current_host
+          when: ahv_hosts | length > 0
+    
+        - name: 6. Construct final input_result dictionary
+          ansible.builtin.set_fact:
+            input_result:
+              stdout: "{{ input_result_stdout_list | join('\n') }}"
+              stdout_lines: "{{ input_result_lines_list }}"
+
+        - name: 7. Debug and display aggregate input_result outputs
+          ansible.builtin.debug:
+            var: input_result.stdout_lines
+
+    - name: 8. Mimic 'cat' register output using lookup
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 9. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_result.stdout }}" 
+
+    - set_fact:
+        svc_list: >-
+          {{
+            input_result.stdout | regex_findall(
+            '={1,20}\s*([0-9.]+)\s*={1,20}.*?\n.*?(nvidia-vgpu-mgr\.service).*?\n.*?\n.*?Active:\s+(\w+)',
+            multiline=True
+            )
+          }}
+    
+    - name: 10. Determine svc_list
+      debug:
+        var: svc_list
+
+    - set_fact:
+        answer: "None"
+      when: svc_list | length == 0
+    
+    - set_fact:
+        inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
+      when: svc_list | length > 0
+    
+    - set_fact:
+        answer: >-
+          {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
+        remark: >-
+          {{ inactive_list if inactive_list | length > 0 else '' }}
+      when: svc_list | length > 0
+
+    - name: 11. Display answer and remark
+      debug:
+        msg: "{{ answer }} {{ remark }} "
+
+    - name: 97. Log to local
+      import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 99. Log to local
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
+
+------------------------------------------------------------------
+
+
+aph 42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml
+
+
+Using inventory inventory.ini in the local folder
+
+
+PLAY [Pseudo hostssh - Check nvidia-vgpu-mgr] **********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [corecvm]
+
+TASK [0. set csv_filename] *****************************************************
+ok: [corecvm]
+
+TASK [-1. Declare flags] *******************************************************
+ok: [corecvm]
+
+TASK [1. Declare variables] ****************************************************
+ok: [corecvm]
+
+TASK [2. Get AHV host IP addresses] ********************************************
+ok: [corecvm]
+
+TASK [3. Parse IP addresses into a clean list] *********************************
+ok: [corecvm]
+
+TASK [4. Initialize the empty input_result structures] *************************
+ok: [corecvm]
+
+TASK [5. Calling the subroutine] ***********************************************
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=130.8.20.24)
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=130.8.20.25)
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=130.8.20.21)
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=130.8.20.22)
+included: /home/git/proj/hm/healthmonitoring/skhk/subr.42.testing11_hostssh_systemctl_status_nvidia_vgpu_mgr_logic.yml for corecvm => (item=130.8.20.23)
+
+TASK [Check reachability for 130.8.20.24] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.24] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.24] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.24] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:22 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20516 sleep 5",
+        "",
+        "Agu 16 15:14:00 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:05 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:10 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:15 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:20 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:25 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:30 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:35 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:40 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:45 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.25] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.25] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.25] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.25] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:22 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20516 sleep 5",
+        "",
+        "Agu 16 15:14:00 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:05 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:10 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:15 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:20 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:25 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:30 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:35 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:40 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:45 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:24 WIB; 1h 59min ago",
+        "   Main PID: 736 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 660.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  736 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20041 sleep 5",
+        "",
+        "Agu 16 15:14:01 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.21] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.21] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.21] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.21] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:22 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20516 sleep 5",
+        "",
+        "Agu 16 15:14:00 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:05 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:10 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:15 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:20 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:25 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:30 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:35 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:40 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:45 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:24 WIB; 1h 59min ago",
+        "   Main PID: 736 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 660.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  736 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20041 sleep 5",
+        "",
+        "Agu 16 15:14:01 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:19 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─44278 sleep 5",
+        "",
+        "Agu 16 15:14:01 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.22] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.22] *************************************
+fatal: [corecvm]: FAILED! => {"changed": false, "cmd": "ssh -o StrictHostKeyChecking=no nutanix@130.8.20.22 'systemctl status nvidia-vgpu-mgr --no-pager'", "delta": "0:00:00.241464", "end": "2026-08-16 15:14:48.109810", "msg": "non-zero return code", "rc": 4, "start": "2026-08-16 15:14:47.868346", "stderr": "Unit nvidia-vgpu-mgr.service could not be found.", "stderr_lines": ["Unit nvidia-vgpu-mgr.service could not be found."], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Display execution stderr when command fails on 130.8.20.22] **************
+ok: [corecvm] => {
+    "msg": "HOST 130.8.20.22 FAILED. STDERR: Unit nvidia-vgpu-mgr.service could not be found."
+}
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.22] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:22 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20516 sleep 5",
+        "",
+        "Agu 16 15:14:00 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:05 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:10 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:15 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:20 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:25 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:30 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:35 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:40 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:45 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:24 WIB; 1h 59min ago",
+        "   Main PID: 736 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 660.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  736 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20041 sleep 5",
+        "",
+        "Agu 16 15:14:01 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:19 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─44278 sleep 5",
+        "",
+        "Agu 16 15:14:01 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.22 ====================",
+        ""
+    ]
+}
+
+TASK [Check reachability for 130.8.20.23] **************************************
+ok: [corecvm]
+
+TASK [Run systemctl status on 130.8.20.23] *************************************
+ok: [corecvm]
+
+TASK [Display execution stderr when command fails on 130.8.20.23] **************
+skipping: [corecvm]
+
+TASK [Format and collect execution strings] ************************************
+ok: [corecvm]
+
+TASK [Append raw stdout block to accumulator] **********************************
+ok: [corecvm]
+
+TASK [Append stdout_lines to accumulator] **************************************
+ok: [corecvm]
+
+TASK [9. Display input_result_list 130.8.20.23] ********************************
+ok: [corecvm] => {
+    "msg": [
+        "==================== 130.8.20.24 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:22 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20516 sleep 5",
+        "",
+        "Agu 16 15:14:00 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:05 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:10 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:15 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:20 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:25 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:30 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:35 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:40 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:45 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:24 WIB; 1h 59min ago",
+        "   Main PID: 736 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 660.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  736 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20041 sleep 5",
+        "",
+        "Agu 16 15:14:01 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:19 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─44278 sleep 5",
+        "",
+        "Agu 16 15:14:01 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.22 ====================",
+        "",
+        "==================== 130.8.20.23 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:20 WIB; 1h 59min ago",
+        "   Main PID: 735 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 640.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  735 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─61169 sleep 5",
+        "",
+        "Agu 16 15:14:02 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:07 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:12 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:17 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:22 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:27 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:32 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:37 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:42 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:47 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        ""
+    ]
+}
+
+TASK [6. Construct final input_result dictionary] ******************************
+ok: [corecvm]
+
+TASK [7. Debug and display aggregate input_result outputs] *********************
+ok: [corecvm] => {
+    "input_result.stdout_lines": [
+        "==================== 130.8.20.24 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:22 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20516 sleep 5",
+        "",
+        "Agu 16 15:14:00 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:05 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:10 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:15 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:20 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:25 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:30 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:35 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:40 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:45 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.25 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:24 WIB; 1h 59min ago",
+        "   Main PID: 736 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 660.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  736 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─20041 sleep 5",
+        "",
+        "Agu 16 15:14:01 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.21 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:19 WIB; 1h 59min ago",
+        "   Main PID: 740 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 652.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─44278 sleep 5",
+        "",
+        "Agu 16 15:14:01 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:06 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:11 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:16 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:21 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:26 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:31 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:36 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:41 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:46 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...",
+        "",
+        "==================== 130.8.20.22 ====================",
+        "",
+        "==================== 130.8.20.23 ====================",
+        "● nvidia-vgpu-mgr.service - My nvidia-vgpu-service",
+        "     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)",
+        "     Active: active (running) since Sun 2026-08-16 13:15:20 WIB; 1h 59min ago",
+        "   Main PID: 735 (nvidia-vgpu-mgr)",
+        "      Tasks: 2 (limit: 4574)",
+        "     Memory: 640.0K",
+        "     CGroup: /system.slice/nvidia-vgpu-mgr.service",
+        "             ├─  735 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh",
+        "             └─61169 sleep 5",
+        "",
+        "Agu 16 15:14:02 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:07 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:12 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:17 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:22 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:27 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:32 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:37 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:42 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        "Agu 16 15:14:47 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...",
+        ""
+    ]
+}
+
+TASK [8. Mimic 'cat' register output using lookup] *****************************
+skipping: [corecvm]
+
+TASK [9. Display input_result.stdout_lines] ************************************
+ok: [corecvm] => {
+    "msg": "==================== 130.8.20.24 ====================\n● nvidia-vgpu-mgr.service - My nvidia-vgpu-service\n     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)\n     Active: active (running) since Sun 2026-08-16 13:15:22 WIB; 1h 59min ago\n   Main PID: 740 (nvidia-vgpu-mgr)\n      Tasks: 2 (limit: 4574)\n     Memory: 652.0K\n     CGroup: /system.slice/nvidia-vgpu-mgr.service\n             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh\n             └─20516 sleep 5\n\nAgu 16 15:14:00 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:05 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:10 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:15 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:20 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:25 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:30 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:35 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:40 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:45 pecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\n\n==================== 130.8.20.25 ====================\n● nvidia-vgpu-mgr.service - My nvidia-vgpu-service\n     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)\n     Active: active (running) since Sun 2026-08-16 13:15:24 WIB; 1h 59min ago\n   Main PID: 736 (nvidia-vgpu-mgr)\n      Tasks: 2 (limit: 4574)\n     Memory: 660.0K\n     CGroup: /system.slice/nvidia-vgpu-mgr.service\n             ├─  736 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh\n             └─20041 sleep 5\n\nAgu 16 15:14:01 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:06 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:11 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:16 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:21 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:26 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:31 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:36 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:41 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:46 pccvm nvidia-vgpu-mgr-service.sh[736]: nvidia vgpu mgr service is running smoothly...\n\n==================== 130.8.20.21 ====================\n● nvidia-vgpu-mgr.service - My nvidia-vgpu-service\n     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)\n     Active: active (running) since Sun 2026-08-16 13:15:19 WIB; 1h 59min ago\n   Main PID: 740 (nvidia-vgpu-mgr)\n      Tasks: 2 (limit: 4574)\n     Memory: 652.0K\n     CGroup: /system.slice/nvidia-vgpu-mgr.service\n             ├─  740 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh\n             └─44278 sleep 5\n\nAgu 16 15:14:01 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:06 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:11 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:16 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:21 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:26 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:31 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:36 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:41 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:46 corecvm nvidia-vgpu-mgr-service.sh[740]: nvidia vgpu mgr service is running smoothly...\n\n==================== 130.8.20.22 ====================\n\n\n==================== 130.8.20.23 ====================\n● nvidia-vgpu-mgr.service - My nvidia-vgpu-service\n     Loaded: loaded (/etc/systemd/system/nvidia-vgpu-mgr.service; enabled; vendor preset: enabled)\n     Active: active (running) since Sun 2026-08-16 13:15:20 WIB; 1h 59min ago\n   Main PID: 735 (nvidia-vgpu-mgr)\n      Tasks: 2 (limit: 4574)\n     Memory: 640.0K\n     CGroup: /system.slice/nvidia-vgpu-mgr.service\n             ├─  735 /bin/bash /usr/local/bin/nvidia-vgpu-mgr-service.sh\n             └─61169 sleep 5\n\nAgu 16 15:14:02 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:07 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:12 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:17 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:22 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:27 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:32 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:37 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:42 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\nAgu 16 15:14:47 calmcvm nvidia-vgpu-mgr-service.sh[735]: nvidia vgpu mgr service is running smoothly...\n"
+}
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [10. Determine svc_list] **************************************************
+ok: [corecvm] => {
+    "svc_list": [
+        [
+            "130.8.20.24",
+            "nvidia-vgpu-mgr.service",
+            "active"
+        ],
+        [
+            "130.8.20.25",
+            "nvidia-vgpu-mgr.service",
+            "active"
+        ],
+        [
+            "130.8.20.21",
+            "nvidia-vgpu-mgr.service",
+            "active"
+        ],
+        [
+            "130.8.20.23",
+            "nvidia-vgpu-mgr.service",
+            "active"
+        ]
+    ]
+}
+
+TASK [set_fact] ****************************************************************
+skipping: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [set_fact] ****************************************************************
+ok: [corecvm]
+
+TASK [11. Display answer and remark] *******************************************
+ok: [corecvm] => {
+    "msg": "All active  "
+}
+
+TASK [Append result to CSV] ****************************************************
+skipping: [corecvm]
+
+TASK [0. Declare variables] ****************************************************
+skipping: [corecvm]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [corecvm]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [corecvm]
+
+TASK [1. Declare github variables] *********************************************
+skipping: [corecvm]
+
+TASK [Ensure GitHub token is provided] *****************************************
+skipping: [corecvm]
+
+TASK [999 display output.20260816.csv] *****************************************
+skipping: [corecvm]
+
+TASK [display variabe] *********************************************************
+skipping: [corecvm]
+
+TASK [Clean up any existing temporary clone directory] *************************
+skipping: [corecvm]
+
+TASK [Clone the healthmonitoring repository using token authentication] ********
+skipping: [corecvm]
+
+TASK [Copy generated CSV file to the repository directory] *********************
+skipping: [corecvm]
+
+TASK [Configure Git user identity locally for this execution] ******************
+skipping: [corecvm]
+
+TASK [Check if there are changes to commit] ************************************
+skipping: [corecvm]
+
+TASK [Commit and push the CSV file if changes exist] ***************************
+skipping: [corecvm]
+
+TASK [Wipe temporary clone directory to keep AWX environment clean] ************
+skipping: [corecvm]
+
+PLAY RECAP *********************************************************************
+corecvm                    : ok=51   changed=0    unreachable=0    failed=0    skipped=21   rescued=0    ignored=1   
+

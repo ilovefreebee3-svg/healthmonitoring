@@ -1,7 +1,7 @@
 ---
 - name: Check CVM cluster status
   hosts: server_12
-  gather_facts: false
+  gather_facts: true
   vars:
     log_local_enabled: false 
     log_ext_enabled: false 
@@ -16,6 +16,9 @@
     vpc: tbd
 
   tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
     - name: 0. Declare variables
       set_fact:
         down_services: []
@@ -40,6 +43,10 @@
     - name: 4. Display input_filter.stdout_lines
       ansible.builtin.debug:
         msg: "{{ input_filter.stdout_lines }}" 
+    
+    - name: 444. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ csv_filename }}" 
     
     - name: 5. Parse output and evaluate status
       ansible.builtin.set_fact:
@@ -69,14 +76,21 @@
           - "Remark: {{ remark }}"
 
     - name: 97. Log to local
-      import_tasks: log_local.yml
+      import_tasks: subr.log_local.yml
       when: log_local_enabled | bool
 
     - name: 98. Log to external
-      import_tasks: log_ext.yml
+      import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
-    - name: 98. Log to local
-      import_tasks: log_github.yml
+    - name: 99. Log to github
+      import_tasks: subr.log_github.yml
       when: log_github_enabled | bool
+
+#    - name: 99. Log to github
+#      ansible.builtin.import_tasks:
+#        file: subr.log_github.yml
+#      vars:
+#        csv_filename1: csv_filename  
+#      when: log_github_enabled | bool
 

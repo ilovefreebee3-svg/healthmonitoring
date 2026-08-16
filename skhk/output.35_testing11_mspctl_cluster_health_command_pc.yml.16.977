@@ -1,0 +1,224 @@
+
+---------------------------------
+35_testing11_mspctl_cluster_health_command_pc.yml
+---------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+- name: how to run mspctl cluster health
+  hosts: calmcvm
+#  hosts: pccvm
+  gather_facts: true
+
+  vars:
+    log_local_enabled: false 
+    log_ext_enabled: false 
+    log_github_enabled: false 
+    read_from_file: false 
+    logd_enabled: false 
+    role_enabled: false 
+    log_filesystem_enabled: false 
+    description: mspctl cluster health pc
+    idx: idx057
+    role: r_mspctl_cluster_health_pc
+    vpc: tbd
+
+  tasks:
+    - name: 0. Initialising csv_filename
+      import_tasks: subr.log_settings.yml
+
+    - name: 1. Declare variables
+      set_fact:
+        read_from_file: false 
+        cluster: "prism-central"
+        num_unhealthy: 0
+        remark: ""
+
+    - name: 2. Run mspctl cluster health {{ cluster }} with command module
+      ansible.builtin.command:
+        argv:
+          - /bin/bash
+          - -c
+          - |
+            source /etc/profile
+            mspctl cluster health {{ cluster }}
+      register: input_result
+      changed_when: false
+      failed_when: false
+      when: not ( read_from_file | bool )
+
+    - name: 3. Mimic 'cat' register output 
+      set_fact:
+        input_result:
+          stdout: "{{ lookup('file', 'data.35_testing11_mspctl_cluster_health_command_pc.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.35_testing11_mspctl_cluster_health_command_pc.txt').splitlines() }}"
+          stderr: ""
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 4. Display input_result.stdout_lines
+      ansible.builtin.debug:
+        var: input_result.stdout_lines
+
+    - name: 5. Display input_result.stdout
+      ansible.builtin.debug:
+        var: input_result.stdout
+
+    - name: 6. Display input_result.stderr
+      ansible.builtin.debug:
+        var: input_result.stderr
+
+    - name: 7. Display the return code
+      ansible.builtin.debug:
+        var: input_result.rc
+
+    - name: 8. Process each line
+      set_fact:
+        num_unhealthy: "{{ num_unhealthy | int + (1 if healthy | lower != 'true' else 0) }}"
+        remark: >-
+          {{ remark +
+          (component ~ ':' ~ healthy ~ ' ' if healthy | lower != 'true' else '') }}
+      loop: "{{ input_result.stdout_lines }}"
+      loop_control:
+        loop_var: cluster_line
+      vars:
+        line: "{{ cluster_line | trim }}"
+        is_valid: "{{ line != '' and not line.startswith('COMPONENT') }}"
+        parsed: "{{ line | regex_findall('^(\\S+)\\s+(\\S+)\\s+(.*)$') }}"
+        component: "{{ parsed[0][0] if parsed else '' }}"
+        healthy: "{{ parsed[0][1] if parsed else '' }}"
+      when: is_valid and parsed | length > 0
+
+    - name: 9. Final answer
+      set_fact:
+        answer: "{{ 'Unhealthy' if (num_unhealthy | int) > 0 else 'Healthy' }}"
+    
+    - name: 10. Show results
+      debug:
+        msg:
+          num_unhealthy: "{{ num_unhealthy }}"
+          remark: "{{ remark }}"
+          answer: "{{ answer }}"
+
+    - name: 97. Log to local
+      import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 99. Log to local
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
+
+------------------------------------------------------------------
+
+
+aph 35_testing11_mspctl_cluster_health_command_pc.yml
+
+
+Using inventory inventory.ini in the local folder
+
+
+PLAY [how to run mspctl cluster health] ****************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [calmcvm]
+
+TASK [0. set csv_filename] *****************************************************
+ok: [calmcvm]
+
+TASK [1. Declare variables] ****************************************************
+ok: [calmcvm]
+
+TASK [2. Run mspctl cluster health prism-central with command module] **********
+ok: [calmcvm]
+
+TASK [3. Mimic 'cat' register output] ******************************************
+skipping: [calmcvm]
+
+TASK [4. Display input_result.stdout_lines] ************************************
+ok: [calmcvm] => {
+    "input_result.stdout_lines": []
+}
+
+TASK [5. Display input_result.stdout] ******************************************
+ok: [calmcvm] => {
+    "input_result.stdout": ""
+}
+
+TASK [6. Display input_result.stderr] ******************************************
+ok: [calmcvm] => {
+    "input_result.stderr": "/bin/bash: line 1: mspctl: command not found"
+}
+
+TASK [7. Display the return code] **********************************************
+ok: [calmcvm] => {
+    "input_result.rc": "127"
+}
+
+TASK [8. Process each line] ****************************************************
+
+TASK [9. Final answer] *********************************************************
+ok: [calmcvm]
+
+TASK [10. Show results] ********************************************************
+ok: [calmcvm] => {
+    "msg": {
+        "answer": "Healthy",
+        "num_unhealthy": 0,
+        "remark": ""
+    }
+}
+
+TASK [Append result to CSV] ****************************************************
+skipping: [calmcvm]
+
+TASK [0. Declare variables] ****************************************************
+skipping: [calmcvm]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+skipping: [calmcvm]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+skipping: [calmcvm]
+
+TASK [1. Declare github variables] *********************************************
+skipping: [calmcvm]
+
+TASK [Ensure GitHub token is provided] *****************************************
+skipping: [calmcvm]
+
+TASK [999 display output.20260816.csv] *****************************************
+skipping: [calmcvm]
+
+TASK [display variabe] *********************************************************
+skipping: [calmcvm]
+
+TASK [Clean up any existing temporary clone directory] *************************
+skipping: [calmcvm]
+
+TASK [Clone the healthmonitoring repository using token authentication] ********
+skipping: [calmcvm]
+
+TASK [Copy generated CSV file to the repository directory] *********************
+skipping: [calmcvm]
+
+TASK [Configure Git user identity locally for this execution] ******************
+skipping: [calmcvm]
+
+TASK [Check if there are changes to commit] ************************************
+skipping: [calmcvm]
+
+TASK [Commit and push the CSV file if changes exist] ***************************
+skipping: [calmcvm]
+
+TASK [Wipe temporary clone directory to keep AWX environment clean] ************
+skipping: [calmcvm]
+
+PLAY RECAP *********************************************************************
+calmcvm                    : ok=10   changed=0    unreachable=0    failed=0    skipped=17   rescued=0    ignored=0   
+
