@@ -64,3 +64,17 @@ server_18, r_allssh_ls_larth_iam_backup_gg, OSIT Calm PC (ITC), allssh 'ls -lart
 server_18, r_allssh_curl_get_catalog_k_P1ASEC018, OSIT Calm PC (ITC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, CVM - repository connection error, [' - No connection to repository'] 
 server_18, r_allssh_curl_get_catalog_k_P1SMG025, OSIT Calm PC (ITC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
 server_18, r_ssh_calm_policy_gg, OSIT Calm PC (ITC), ssh into Calm Policy VM , ssh <calm policy vm> df -kh, idx103, Threshold not exceeded, All clear 
+server_19, r_ncc_health_checks_run_all_gg, OSIT Calm PC (OTC), ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
+server_19, r_mspctl_debug_run_test_exclude_subset, OSIT Calm PC (OTC), mspctl debug run --test_exclude_subset=hosting_pe, idx098, STATUS SUCCESS,  
+server_19, r_allssh_df_kh_grep_elastic_sdb3_gg, OSIT Calm PC (OTC), allssh 'df -kh | grep -e elastic ', idx099, Elasticsearch function not found, 130.8.20.24 --- Elasticsearch function not found
+130.8.20.25 --- Elasticsearch function not found
+130.8.20.21 --- Elasticsearch function not found
+130.8.20.22 --- Elasticsearch function not found
+130.8.20.23 --- Elasticsearch function not found 
+server_19, r_allssh_ll_calm_backup_gg, OSIT Calm PC (OTC), allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, 
+Incomplete backup,  
+ 130.8.20.24 -  incomplete backup --- 130.8.20.25 -  incomplete backup --- 130.8.20.21 -  incomplete backup --- 130.8.20.22 - cannot access --- 130.8.20.23 -  incomplete backup 
+server_19, r_allssh_ls_larth_iam_backup_gg, OSIT Calm PC (OTC), allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, iam-backup found, [] 
+server_19, r_allssh_curl_get_catalog_k_P1ASEC018, OSIT Calm PC (OTC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, CVM - repository connection error, [' - No connection to repository'] 
+server_19, r_allssh_curl_get_catalog_k_P1SMG025, OSIT Calm PC (OTC), allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
+server_19, r_ssh_calm_policy_gg, OSIT Calm PC (OTC), ssh into Calm Policy VM , ssh <calm policy vm> df -kh, idx103, Threshold not exceeded, All clear 
