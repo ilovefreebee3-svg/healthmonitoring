@@ -1,5 +1,5 @@
 - name: Run roles dynamically
-  hosts: lab
+  hosts: lab3
   gather_facts: yes
   serial: 1
   any_errors_fatal: no  # Ensures an unreachable host doesn't halt the whole play
