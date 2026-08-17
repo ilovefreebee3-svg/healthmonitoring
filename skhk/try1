@@ -1,3 +1,0 @@
-run_script -e log_local_enabled=true -e log_ext_enabled=true -e log_github_enabled=true -e github_token=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
-
-run_script -e log_local_enabled=true -e log_github_enabled=true -e github_token=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
