@@ -17,7 +17,7 @@
       rescue:
         - name: Log unreachable host status to a local file
           ansible.builtin.lineinfile:
-            path: /path/to/your/unreachable_hosts.log
+            path: unreachable_hosts.log
             line: "{{ ansible_date_time.iso8601 | default('N/A') }} - Host {{ inventory_hostname }} is down or unreachable."
             create: yes
           delegate_to: localhost

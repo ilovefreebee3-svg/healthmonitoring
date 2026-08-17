@@ -2761,8 +2761,8 @@ One or more plugins were disabled on one or more nodes during maintenance/upgrad
 | Pass          | 245   |
 | Info          | 6     |
 | Warning       | 7     |
-| Fail          | 33    |
-| Error         | 55    |
+| Fail          | 3     |
+| Error         | 5     |
 | Total Plugins | 266   |
 +-----------------------+
 Plugin output written to /home/nutanix/data/logs/ncc-output-latest.log
