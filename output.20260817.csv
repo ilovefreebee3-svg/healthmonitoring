@@ -80,3 +80,7 @@ server_19, r_allssh_curl_get_catalog_k_P1SMG025, OSIT Calm PC (OTC), allssh 'cur
 server_19, r_ssh_calm_policy_gg, OSIT Calm PC (OTC), ssh into Calm Policy VM , ssh <calm policy vm> df -kh, idx103, Threshold not exceeded, All clear 
 server_2, r_ncc_health_checks_run_all_gg, IKCS Tenant 1 PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
 server_2, r_hostssh_sudo_ovn_appctl_connection_status, IKCS Tenant 1 PE, hostssh sudo ovn_appctl connection-status, idx6, Connected,  
+server_3, r_ncc_health_checks_run_all_gg, IKC2 GPU Tenant 2 PE, ncc health_checks run_all, idx3, Unhealthy, Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 33, Errors: 55) 
+server_3, r_hostssh_sudo_ovn_appctl_connection_status, IKC2 GPU Tenant 2 PE, hostssh sudo ovn_appctl connection-status, idx6, Connected,  
+server_3, r_hostssh_systemctl_status_nvidia-vgpu-mgr, IKC2 GPU Tenant 2 PE, hostssh sudo systemctl status nvidia-vgpu-mgr, idx015, All active,  
+server_3, r_hostssh_nvidia-smi, IKC2 GPU Tenant 2 PE, hostssh nvidia-smi, idx016, ['None'], [] 
