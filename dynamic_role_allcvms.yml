@@ -1,0 +1,37 @@
+- name: Run roles dynamically
+  hosts: allcvms
+  gather_facts: yes
+  serial: 1
+  any_errors_fatal: no  # Ensures an unreachable host doesn't halt the whole play
+
+  tasks:
+    - name: Check if the remote computer is alive
+      ansible.builtin.ping:
+      ignore_unreachable: yes
+      register: ping_result
+
+    - name: display ping_result
+      ansible.builtin.debug:
+        msg: "{{ ping_result }}"
+
+    - name: Log unreachable host status to a local file
+      ansible.builtin.lineinfile:
+        path: "unreachable_hosts.log"
+        line: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }} - Host {{ inventory_hostname }} is down or unreachable."
+        create: yes
+      delegate_to: localhost
+      when: ping_result.unreachable is defined and ping_result.unreachable
+
+    - name: Include roles per host (only if alive)
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop: "{{ host_roles }}"
+      when: ping_result.unreachable is not defined
+
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+    - name: 99. Log to local
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
