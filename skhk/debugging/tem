@@ -1,3 +1,0 @@
-    - name: 0. Initialising csv_filename
-      import_tasks: subr.log_settings.yml
-

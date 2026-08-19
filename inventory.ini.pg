@@ -1,0 +1,97 @@
+qlhvm  ansible_user=liamhuat ansible_host=188.181.19.76 ansible_password=P@ssw0rd12345$
+calmcvm  ansible_user=nutanix ansible_host=188.185.12.250 ansible_password=nutanix/4u
+corecvm  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+engrcvm  ansible_user=nutanix ansible_host=188.185.20.250 ansible_password=nutanix/4u
+pccvm  ansible_user=nutanix ansible_host=188.185.14.250 ansible_password=nutanix/4u
+pecvm  ansible_user=nutanix ansible_host=188.185.13.250 ansible_password=nutanix/4u
+calmcvm  ansible_user=nutanix ansible_host=188.185.12.250 ansible_password=nutanix/4u
+server_1  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_2  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_3  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_4  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_5  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_6  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_7  ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_8 ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_9 ansible_user=nutanix ansible_host=188.185.10.250 ansible_password=nutanix/4u
+server_10 ansible_user=nutanix ansible_host=188.185.13.250 ansible_password=nutanix/4u
+server_11 ansible_user=nutanix ansible_host=188.185.13.250 ansible_password=nutanix/4u
+server_12 ansible_user=nutanix ansible_host=130.8.20.22 ansible_password=nutanix/4u
+server_13 ansible_user=nutanix ansible_host=130.8.20.22 ansible_password=nutanix/4u
+server_14 ansible_user=nutanix ansible_host=130.8.20.22 ansible_password=nutanix/4u
+server_15 ansible_user=nutanix ansible_host=188.185.14.250 ansible_password=nutanix/4u
+server_16 ansible_user=nutanix ansible_host=188.185.14.250 ansible_password=nutanix/4u
+server_17 ansible_user=nutanix ansible_host=188.185.12.250 ansible_password=nutanix/4u
+server_18 ansible_user=nutanix ansible_host=188.185.12.250 ansible_password=nutanix/4u
+server_19 ansible_user=nutanix ansible_host=188.185.12.250 ansible_password=nutanix/4u
+
+
+[all:vars]
+log_ext_enabled=false
+log_local_enabled=false
+log_github_enabled=false
+read_from_file=true
+repo_url=github.com/ilovefreebee3-svg/healthmonitoring.git
+awx_host_ip=liamhuat@188.181.19.76
+awx_host_dir=/home/nutanix/awx_exports/
+
+[allcvms]
+calmcvm
+corecvm
+engrcvm
+pccvm
+pecvm
+
+[allcvms:vars]
+log_ext_enabled=false
+log_local_enabled=false
+log_github_enabled=false
+read_from_file=true
+repo_url=github.com/ilovefreebee3-svg/healthmonitoring.git
+awx_host_ip=nutanix@130.8.20.21
+awx_host_dir=/home/nutanix/awx_exports/
+
+[lab]
+server_1
+server_2
+server_3
+server_4
+server_5
+server_6
+server_7
+server_8
+server_9
+server_10
+server_11
+server_12
+server_13
+server_14
+server_15
+server_16
+server_17
+server_18
+server_19
+
+[lab1]
+server_1
+server_2
+server_3
+server_4
+server_5
+server_6
+server_7
+server_8
+server_9
+server_10
+server_11
+server_12
+
+[lab2]
+server_13
+server_14
+server_15
+server_16
+server_17
+server_18
+server_19
+

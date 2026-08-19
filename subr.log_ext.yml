@@ -16,3 +16,10 @@
         dest: "{{ awx_host_dir }}"
         mode: '0644'
 
+    - name: 2c. Copy file from container to the AWX host filesystem
+      ansible.builtin.copy:
+        src: "/tmp/unreachable_hosts.log"
+        dest: "{{ awx_host_dir }}"
+        mode: '0644'
+      when: ping_result.unreachable is defined and ping_result.unreachable
+
