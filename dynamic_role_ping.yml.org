@@ -3,16 +3,9 @@
   gather_facts: no            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
-  pre_tasks:
-
-    - name: 0. Initialising csv_filename
-      ansible.builtin.import_tasks: subr.log_settings.yml
-
   tasks:
-
     - name: Process host connectivity safely
       block:
-
         - name: Check network/SSH responsiveness
           ansible.builtin.wait_for_connection:
             timeout: 5
@@ -26,15 +19,14 @@
           loop: "{{ host_roles }}"
 
         - name: 98. Log to external
-          ansible.builtin.import_tasks: subr.log_ext.yml
+          import_tasks: subr.log_ext.yml
           when: log_ext_enabled | bool
 
         - name: 99. Log to local
-          ansible.builtin.import_tasks: subr.log_github.yml
+          import_tasks: subr.log_github.yml
           when: log_github_enabled | bool
 
       rescue:
-
         - name: Log unreachable host status to a local file
           ansible.builtin.lineinfile:
             path: "/tmp/unreachable_hosts.log"
@@ -44,3 +36,4 @@
 
         - name: Clear host error to move onto the next host in serial queue
           ansible.builtin.meta: clear_host_errors
+
