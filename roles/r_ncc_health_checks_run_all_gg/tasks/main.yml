@@ -30,7 +30,7 @@
     - name: Fetch the log file to the Ansible control node
       ansible.builtin.fetch:
         src: "{{ log_path }}"
-        dest: "./tmp/"
+        dest: "/tmp/"
         flat: true
 
     - name: Isolate the last TIMESTAMP block using awk

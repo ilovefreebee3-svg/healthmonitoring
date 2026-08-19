@@ -1,4 +1,13 @@
 ---
+- name: 0. Initialising csv_filename
+  import_tasks: subr.log_settings.yml
+
+#    - name: 0. Declare role variables
+#      ansible.builtin.set_fact:
+#        role: r_ncc_health_checks_run_all_gg
+#        idx: idx3
+#        description: ncc health_checks run_all
+
 - name: 1. Declare variables
   ansible.builtin.set_fact:
     log_path: "/home/nutanix/data/logs/ncc-output.log"
@@ -95,5 +104,15 @@
       - "Answer: {{ answer }}"
       - "Remark: {{ remark }}"
 
-- name: 99. Include persistency
-  ansible.builtin.include_tasks: incl.logging.yml
+- name: 97. Log to local
+  import_tasks: subr.log_local.yml
+  when: log_local_enabled | bool
+
+#- name: 98. Log to external
+#  import_tasks: subr.log_ext.yml
+#  when: log_ext_enabled | bool
+
+#- name: 99. Log to local
+#  import_tasks: subr.log_github.yml
+#  when: log_github_enabled | bool
+
