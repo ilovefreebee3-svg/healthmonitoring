@@ -5,6 +5,9 @@
 
   pre_tasks:
 
+#    - name: Gather facts dynamically for live hosts
+#      ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
+
     - name: 0. Initialising csv_filename
       ansible.builtin.import_tasks: subr.log_settings.yml
 

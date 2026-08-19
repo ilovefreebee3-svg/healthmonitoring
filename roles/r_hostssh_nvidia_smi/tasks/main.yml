@@ -1,7 +1,4 @@
 ---
-- name: 0. Initialising csv_filename
-  import_tasks: subr.log_settings.yml
-
 - name: Process AHV hosts configuration and tracking
   when: not (read_from_file | bool)
   block:

@@ -1,15 +1,9 @@
 ---
-- name: 0. Initialising csv_filename
-  import_tasks: subr.log_settings.yml
-
 - name: 1. Declare variables
   set_fact:
     cmd_list:
       - name: hostssh ovn-appctl connection-status
         argv: ["hostssh", "ovn-appctl", "connection-status"]
-
-#          - name: hostssh_ovn_appctl_connection_status
-#            argv: ["hostssh_ovn_appctl_connection_status"]
 
 - name: 2. Execute commands
   include_tasks: subr.40.testing11_hostssh_ovn_lab_logic.yml

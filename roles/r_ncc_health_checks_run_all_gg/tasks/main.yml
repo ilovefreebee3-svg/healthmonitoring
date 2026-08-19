@@ -1,7 +1,4 @@
 ---
-- name: 0. Initialising csv_filename
-  import_tasks: subr.log_settings.yml
-
 #    - name: 0. Declare role variables
 #      ansible.builtin.set_fact:
 #        role: r_ncc_health_checks_run_all_gg

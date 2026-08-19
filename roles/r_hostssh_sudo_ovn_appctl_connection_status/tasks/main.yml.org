@@ -1,20 +1,22 @@
 ---
+- name: 0. Initialising csv_filename
+  import_tasks: subr.log_settings.yml
+
 - name: 1. Declare variables
   set_fact:
-    read_from_file: false 
     cmd_list:
       - name: hostssh ovn-appctl connection-status
         argv: ["hostssh", "ovn-appctl", "connection-status"]
 
-#      - name: hostssh_ovn_appctl_connection_status
-#        argv: ["hostssh_ovn_appctl_connection_status"]
+#          - name: hostssh_ovn_appctl_connection_status
+#            argv: ["hostssh_ovn_appctl_connection_status"]
 
 - name: 2. Execute commands
   include_tasks: subr.40.testing11_hostssh_ovn_lab_logic.yml
   loop: "{{ cmd_list }}"
   loop_control:
     loop_var: cmd
-  when: not read_from_file | bool
+  when: not ( read_from_file | bool )
 
 - name: 3. Read from hardcoded file
   set_fact:
@@ -58,6 +60,7 @@
     ip: "{{ current | regex_search('([0-9.]+)') }}"
     item_status: "{{ next_line | trim if (is_ip and not next_is_ip) else 'unknown' }}"
 
+
 - name: 8. Final answer
   set_fact:
     answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
@@ -68,9 +71,15 @@
       remark: "{{ remark }}"
       answer: "{{ answer }}"
 
-#- name: 9. Append result to CSV (local)
-#  import_tasks: logd.yml
+- name: 97. Log to local
+  import_tasks: subr.log_local.yml
+  when: log_local_enabled | bool
 
-- name: 99. Include common role
-  ansible.builtin.include_role:
-     name: common
+#- name: 98. Log to external
+#  import_tasks: subr.log_ext.yml
+#  when: log_ext_enabled | bool
+
+#- name: 99. Log to local
+#  import_tasks: subr.log_github.yml
+#  when: log_github_enabled | bool
+
