@@ -1,1 +1,0 @@
-      when: ping_result.unreachable is defined and ping_result.unreachable
