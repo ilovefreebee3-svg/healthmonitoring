@@ -1,12 +1,9 @@
 - name: Run roles dynamically
-  hosts: lab3
+  hosts: lab
   gather_facts: no            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
   pre_tasks:
-
-#    - name: Gather facts dynamically for live hosts
-#      ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
 
     - name: 0. Initialising csv_filename
       ansible.builtin.import_tasks: subr.log_settings.yml
@@ -22,6 +19,15 @@
 
         - name: Gather facts dynamically for live hosts
           ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
+
+        - name: display csv_filename
+          ansible.builtin.debug:
+            msg: "{{ csv_filename }}"
+   
+#        - name: Change csv_filename
+#          ansible.builtin.set_fact:
+#            csv_filename: "output.{{ ansible_date_time.date | replace('-', '') }}.{{ ansible_date_time.time | replace(':', '') | regex_replace('..$', '') }}.csv"
+#          when: csv_filename == 'output.csv'
 
         - name: Include roles per host
           ansible.builtin.include_role:
