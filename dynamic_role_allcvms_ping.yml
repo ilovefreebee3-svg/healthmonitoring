@@ -15,7 +15,7 @@
 
         - name: Check network/SSH responsiveness
           ansible.builtin.wait_for_connection:
-            timeout: 5
+            timeout: 10
 
         - name: Gather facts dynamically for live hosts
           ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
