@@ -21,7 +21,7 @@
       rescue:
         - name: Log unreachable host status to a local file
           ansible.builtin.lineinfile:
-            path: "{{ playbook_dir }}/unreachable_hosts.log"
+            path: "/tmp/unreachable_hosts.log"
             line: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }} - Host {{ inventory_hostname }} is down or unreachable."
             create: yes
           delegate_to: localhost

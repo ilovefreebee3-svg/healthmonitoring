@@ -1,5 +1,5 @@
 - name: Run roles dynamically
-  hosts: lab
+  hosts: lab 
   gather_facts: no            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
