@@ -64,3 +64,9 @@
 
         - name: Clear host error to move onto the next host in serial queue
           ansible.builtin.meta: clear_host_errors
+
+  post_tasks:
+    - name: 98. Log to external
+      ansible.builtin.import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
