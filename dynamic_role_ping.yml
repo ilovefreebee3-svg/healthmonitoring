@@ -1,14 +1,24 @@
+---
+- import_playbook: subr.report_init.yml
+
 - name: Run roles dynamically
-  hosts: allcvms 
+  hosts: allcvms  
   gather_facts: no            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
-  pre_tasks:
-
-    - name: 0. Initialising csv_filename
-      ansible.builtin.import_tasks: subr.log_settings.yml
-
   tasks:
+    - name: 1. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 3. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
 
     - name: Process host connectivity safely
       block:
@@ -24,11 +34,6 @@
           ansible.builtin.debug:
             msg: "{{ csv_filename }}"
    
-#        - name: Change csv_filename
-#          ansible.builtin.set_fact:
-#            csv_filename: "output.{{ ansible_date_time.date | replace('-', '') }}.{{ ansible_date_time.time | replace(':', '') | regex_replace('..$', '') }}.csv"
-#          when: csv_filename == 'output.csv'
-
         - name: Include roles per host
           ansible.builtin.include_role:
             name: "{{ item }}"

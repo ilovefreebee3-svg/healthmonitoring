@@ -1,7 +1,10 @@
 ---
+- import_playbook: subr.report_init.yml
+
 - name: Run curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k
   hosts: calmcvm
-  gather_facts: false
+  gather_facts: true
+  serial: 1
 
   vars:
     log_local_enabled: false 
@@ -17,6 +20,18 @@
     vpc: tbd
 
   tasks:
+    - name: 1. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: Display csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
@@ -152,14 +167,14 @@
           - "answer = {{ answer }}"
 
     - name: 97. Log to local
-      import_tasks: log_local.yml
+      import_tasks: subr.log_local.yml
       when: log_local_enabled | bool
 
-#    - name: 98. Log to external
-#      import_tasks: log_ext.yml
-#      when: log_ext_enabled | bool
+    - name: 98. Log to external
+      import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
 
-#    - name: 99. Log to local
-#      import_tasks: log_github.yml
-#      when: log_github_enabled | bool
+    - name: 99. Log to local
+      import_tasks: subr.log_github.yml
+      when: log_github_enabled | bool
 
