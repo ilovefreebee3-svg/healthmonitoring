@@ -2,10 +2,11 @@
 - import_playbook: subr.report_init.yml
 
 - name: Check calm policy
-  hosts: calmcvm
+#  hosts: calmcvm
 #  hosts: pccvm
-#  hosts: allcvms
+  hosts: allcvms
   gather_facts: true
+  serial: 1
 
   vars:
     log_local_enabled: false 

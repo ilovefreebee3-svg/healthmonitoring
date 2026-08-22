@@ -4,6 +4,7 @@
 - name: curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k
   hosts: corecvm
   gather_facts: true
+  serial: 1
 
   vars:
     log_local_enabled: false 

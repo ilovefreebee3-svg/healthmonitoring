@@ -4,6 +4,7 @@
 - name: Fetch and process Nutanix NCC health check log
   hosts: corecvm
   gather_facts: true
+  serial: 1
 
   vars:
     log_local_enabled: false 

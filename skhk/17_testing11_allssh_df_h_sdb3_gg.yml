@@ -6,6 +6,7 @@
 #  hosts: pccvm
 #  hosts: allcvms
   gather_facts: true
+  serial: 1
 
   vars:
     log_local_enabled: false 

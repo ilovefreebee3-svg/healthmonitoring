@@ -7,6 +7,7 @@
 #  hosts: server_12
 #  hosts: pccvm
   gather_facts: true
+  serial: 1
   vars:
     log_local_enabled: false 
     log_ext_enabled: false 

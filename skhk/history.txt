@@ -1,0 +1,865 @@
+   20  2026-08-19 20:45:59 diff main.yml main.yml.org 
+   21  2026-08-19 20:46:06 cp main.yml main.yml.org 
+   22  2026-08-19 20:46:09 vi main.yml
+   23  2026-08-19 20:46:39 diff main.yml main.yml.org 
+   24  2026-08-19 20:47:10 ll /tmp
+   25  2026-08-19 20:47:22 rm  /tmp/out*
+   26  2026-08-19 20:47:55 . ih
+   27  2026-08-19 20:47:59 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+   28  2026-08-19 20:49:26 ll
+   29  2026-08-19 20:49:53 cd role/*ncc*
+   30  2026-08-19 20:49:54 ll
+   31  2026-08-19 20:49:57 cd roles/*ncc*
+   32  2026-08-19 20:49:58 ll
+   33  2026-08-19 20:50:00 ll defaults/
+   34  2026-08-19 20:50:04 vi defaults/main.yml 
+   35  2026-08-19 20:50:18 vi files/
+   36  2026-08-19 20:50:28 ll files/
+   37  2026-08-19 20:50:33 ll files
+   38  2026-08-19 20:50:41 ls files/
+   39  2026-08-19 20:50:46 rmdir files/
+   40  2026-08-19 20:50:47 ll
+   41  2026-08-19 20:50:50 ls
+   42  2026-08-19 20:50:54 unalias ls
+   43  2026-08-19 20:50:54 ls
+   44  2026-08-19 20:50:55 ll
+   45  2026-08-19 20:50:58 ll meta
+   46  2026-08-19 20:51:03 vi meta/main.yml 
+   47  2026-08-19 20:51:10 ll tasks/
+   48  2026-08-19 20:51:13 cd tasks/
+   49  2026-08-19 20:51:21 vi subr.log_settings.yml 
+   50  2026-08-19 20:51:35 rm subr.log_settings.yml 
+   51  2026-08-19 20:51:37 ll
+   52  2026-08-19 20:51:48 . r
+   53  2026-08-19 20:51:56 find . -name subr.log_settings.yml 
+   54  2026-08-19 20:52:04 . ih
+   55  2026-08-19 20:52:24 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+   56  2026-08-19 20:55:40 ll
+   57  2026-08-19 20:55:56 ll tmp
+   58  2026-08-19 20:56:00 ll /tmp/ -rt
+   59  2026-08-19 20:56:06 ll
+   60  2026-08-19 20:56:35 ll out*
+   61  2026-08-19 20:56:40 rebase
+   62  2026-08-19 20:56:46 ll
+   63  2026-08-19 20:57:09 rebase
+   64  2026-08-19 20:57:18 pushf
+   65  2026-08-19 20:57:30 ll out*
+   66  2026-08-19 20:57:52 cat ~/bin/pushf
+   67  2026-08-19 20:58:16 ll
+   68  2026-08-19 20:58:33 vi subr.log_local.yml 
+   69  2026-08-19 20:58:53 vi subr.log_settings.yml 
+   70  2026-08-19 20:59:15 tm1
+   71  2026-08-19 23:19:46 exit
+   72  2026-08-20 10:56:45 cd /home/git/proj/ansible/hm/commands
+   73  2026-08-20 10:56:45 tmux new-window -c ~/proj/ansible/hm/testing11
+   74  2026-08-20 10:57:06 exit
+   75  2026-08-20 10:56:45 cd ~/proj/ansible/hm/testing11
+   76  2026-08-20 10:57:12 exit
+   77  2026-08-20 10:56:45 cd /home/git/proj/ansible/hm/testing11/skhk
+   78  2026-08-20 10:57:14 ll
+   79  2026-08-20 10:57:19 grep unreachable *
+   80  2026-08-20 10:58:30 ll 40.testing11_hostssh_ovn_lab_logic.yml 
+   81  2026-08-20 11:00:22 vi 40.testing11_hostssh_ovn_lab_logic.yml 
+   82  2026-08-20 11:01:15 vi subr.log_settings.yml 
+   83  2026-08-20 11:02:47 vi 40.testing11_hostssh_ovn_lab_logic.yml 
+   84  2026-08-20 11:03:47 grep unreachable *
+   85  2026-08-20 11:11:01 ll
+   86  2026-08-20 11:11:55 aph 02_testing11_others_cs_grep_v_up_command_gg.yml  -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+   87  2026-08-20 10:31:35 ll
+   88  2026-08-20 10:31:47 . hm
+   89  2026-08-20 10:31:48 ll
+   90  2026-08-20 10:32:04 ll -rt
+   91  2026-08-20 10:32:27 vi dynamic_role.yml 
+   92  2026-08-20 10:32:48 grep path: *.yml
+   93  2026-08-20 10:34:50 diff dynamic_role_ping.yml dynamic_role.yml 
+   94  2026-08-20 10:35:44 vi dynamic_role.yml 
+   95  2026-08-20 10:36:09 cp dynamic_role.yml dynamic_role.yml.org
+   96  2026-08-20 10:36:24 vi dynamic_role_ping.yml
+   97  2026-08-20 10:37:15 cp dynamic_role_ping.yml dynamic_role.yml
+   98  2026-08-20 10:37:18 vi dynamic_role.yml
+   99  2026-08-20 10:38:17 diff dynamic_role.yml dynamic_role_allcvms_ping.yml 
+  100  2026-08-20 10:38:30 vi dynamic_role.yml
+  101  2026-08-20 10:38:46 vi dynamic_role_ping.yml
+  102  2026-08-20 10:40:11 pwd
+  103  2026-08-20 10:40:13 ll -rt
+  104  2026-08-20 10:41:24 diff dynamic_role.yml dynamic_role_allcvms_ping.yml 
+  105  2026-08-20 10:42:22 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  106  2026-08-20 10:46:43 vi dynamic_role_ping.yml
+  107  2026-08-20 10:49:21 aph  dynamic_role_allcvms_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  108  2026-08-20 10:50:25 ll
+  109  2026-08-20 10:53:17 aph  dynamic_role_allcvms_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  110  2026-08-20 10:55:29 diff dynamic_role.yml dynamic_role_ping.yml
+  111  2026-08-20 10:55:36 vi dynamic_role.yml
+  112  2026-08-20 10:56:15 . skhk
+  113  2026-08-20 10:56:16 ll
+  114  2026-08-20 10:56:19 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  115  2026-08-20 10:56:45 tm1
+  116  2026-08-20 10:57:41 cd roles/*ovn*/tasks
+  117  2026-08-20 10:57:46 cd ..
+  118  2026-08-20 10:57:47 cd roles/*ovn*/tasks
+  119  2026-08-20 10:57:48 ll
+  120  2026-08-20 10:58:02 grep unreachable *
+  121  2026-08-20 10:58:46 . skhk
+  122  2026-08-20 10:58:48 cd -
+  123  2026-08-20 10:59:25 c2r `cd -`/40.testing11_hostssh_ovn_lab_logic.yml
+  124  2026-08-20 10:59:29 vi tem999 
+  125  2026-08-20 11:02:25 diff tem999 main.yml
+  126  2026-08-20 11:02:33 vi main.yml
+  127  2026-08-20 11:03:02 vi tem999 
+  128  2026-08-20 11:03:08 diff tem999 main.yml
+  129  2026-08-20 11:03:13 diff tem999 main.yml | more
+  130  2026-08-20 11:04:10 . ih
+  131  2026-08-20 11:04:15 grep unreachable *
+  132  2026-08-20 11:04:20 grep unreachable.log *
+  133  2026-08-20 11:04:34 cd roles/*ovn*/tasks
+  134  2026-08-20 11:04:35 grep unreachable.log *
+  135  2026-08-20 11:04:41 grep unreachable  *
+  136  2026-08-20 11:04:44 ll
+  137  2026-08-20 11:05:02 . ih
+  138  2026-08-20 11:05:10 vi subr.log_ext.yml 
+  139  2026-08-20 11:05:20 grep unreachable  *
+  140  2026-08-20 11:05:34 vi ping1.yml 
+  141  2026-08-20 11:05:57 grep unreachable  *
+  142  2026-08-20 11:12:54 vi dynamic_role.yml
+  143  2026-08-20 11:13:55 . ih
+  144  2026-08-20 11:13:58 git status
+  145  2026-08-20 11:24:27 push
+  146  2026-08-20 11:24:31 pushf
+  147  2026-08-20 11:54:18 vi inventory.ini
+  148  2026-08-20 11:55:01 pushf
+  149  2026-08-20 12:21:57 . ih
+  150  2026-08-20 12:22:18 vi dynamic_role_allcvms_ping.yml 
+  151  2026-08-20 12:22:22 vi inventory.ini
+  152  2026-08-20 12:22:39 ping engrcvm
+  153  2026-08-20 12:23:03 ll /tmp/
+  154  2026-08-20 12:23:07 ll /tmp/unreachable_hosts.log 
+  155  2026-08-20 12:23:14 cat /tmp/unreachable_hosts.log 
+  156  2026-08-20 12:23:25 rm  /tmp/unreachable_hosts.log 
+  157  2026-08-20 12:27:22 cat /tmp/unreachable_hosts.log 
+  158  2026-08-20 12:27:28 ll /tmp/un*
+  159  2026-08-20 12:28:05 vi dynamic_role_allcvms_ping.yml 
+  160  2026-08-20 12:28:38 pushf
+  161  2026-08-20 12:36:51 grep pecvm *
+  162  2026-08-20 12:38:55 pecvm
+  163  2026-08-20 13:33:07 ll
+  164  2026-08-20 13:33:15 cat ~/bin/backup 
+  165  2026-08-20 13:33:23 cd downloads/
+  166  2026-08-20 13:33:24 ll
+  167  2026-08-20 13:33:36 rm ~/downloads/
+  168  2026-08-20 13:33:38 rm ~/downloads/*
+  169  2026-08-20 13:33:39 ll
+  170  2026-08-20 13:33:44 . hm
+  171  2026-08-20 13:33:45 ll
+  172  2026-08-20 13:33:52 cat ~/bin/backup 
+  173  2026-08-20 13:34:03 . backup
+  174  2026-08-20 13:34:09 ll
+  175  2026-08-20 13:34:18 exit
+  176  2026-08-20 18:11:33 . skhk
+  177  2026-08-20 18:11:34 ll
+  178  2026-08-20 18:11:45 cd ..
+  179  2026-08-20 18:11:47 . ih
+  180  2026-08-20 18:11:48 ll
+  181  2026-08-20 18:13:36 cd /ytmp
+  182  2026-08-20 18:13:40 cd /tmp
+  183  2026-08-20 18:13:40 ll
+  184  2026-08-20 18:14:18 . ih
+  185  2026-08-20 18:14:27 grep unreach *.yml
+  186  2026-08-20 18:14:37 grep unreachable.log *.yml
+  187  2026-08-20 18:14:48 grep unreachable_hosts.log *.yml
+  188  2026-08-20 18:15:20 vi dynamic_role.yml
+  189  2026-08-20 18:17:44 ll *ping*
+  190  2026-08-20 18:17:55 vi dynamic_role_ping.yml
+  191  2026-08-20 18:18:27 vi subr.log_settings.yml 
+  192  2026-08-20 18:18:38 pwd
+  193  2026-08-20 18:18:42 vi subr.log_settings.yml 
+  194  2026-08-20 18:19:33 vi dynamic_role_ping.yml
+  195  2026-08-20 18:21:23 vi subr.log_settings.yml 
+  196  2026-08-20 18:21:30 vi subr.log_ext.yml 
+  197  2026-08-20 18:22:10 exit
+  198  2026-08-20 19:33:11 ll
+  199  2026-08-20 19:33:20 . ih
+  200  2026-08-20 19:33:21 ll
+  201  2026-08-20 19:34:14 vi subr.log_ext.yml 
+  202  2026-08-20 19:34:30 ll
+  203  2026-08-20 19:34:39 vi subr.log_ext.yml 
+  204  2026-08-20 19:38:08 ll
+  205  2026-08-20 19:38:13 ll-rt
+  206  2026-08-20 19:38:15 ll -rt
+  207  2026-08-20 19:38:21 vi dynamic_role_ping.yml
+  208  2026-08-20 19:38:52 cp dynamic_role_ping.yml{,.org}
+  209  2026-08-20 19:38:54 vi dynamic_role_ping.yml
+  210  2026-08-20 19:40:41 ll
+  211  2026-08-20 19:41:33 ll -rt
+  212  2026-08-20 19:43:18 grep unreachable_host *.yml
+  213  2026-08-20 19:43:44 vi dynamic_role_lab1.yml 
+  214  2026-08-20 19:45:19 vi dynamic_role_ping.yml
+  215  2026-08-20 19:46:56 vi dynamic_role_lab1.yml 
+  216  2026-08-20 19:47:23 vi dynamic_role_ping.yml
+  217  2026-08-20 19:48:01 grep deleega *.yml
+  218  2026-08-20 19:48:04 vi dynamic_role
+  219  2026-08-20 19:48:10 vi dynamic_role_ping.yml
+  220  2026-08-20 19:50:04 vi dynamic_role_ping.ymlq
+  221  2026-08-20 19:50:17 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  222  2026-08-20 19:54:53 vi dynamic_role_ping.yml
+  223  2026-08-20 19:55:29 vi subr.log_ext.yml 
+  224  2026-08-20 19:55:57 vi dynamic_role_ping.yml
+  225  2026-08-20 19:58:17 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  226  2026-08-20 19:59:27 ll /tmp/unreachable_hosts.log 
+  227  2026-08-20 19:59:30 cat /tmp/unreachable_hosts.log 
+  228  2026-08-20 20:00:46 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  229  2026-08-20 20:05:17 vi dynamic_role_ping.yml
+  230  2026-08-20 20:08:03 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  231  2026-08-20 20:14:36 vi inventory.ini
+  232  2026-08-20 20:15:14 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  233  2026-08-20 20:20:29 vi vi dynamic_role_ping.yml
+  234  2026-08-20 20:20:36 vi dynamic_role_ping.yml
+  235  2026-08-20 20:20:52 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  236  2026-08-20 20:24:37 vi dynamic_role_ping.yml
+  237  2026-08-20 20:25:23 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  238  2026-08-20 20:27:10 ll /tmp/unreachable_hosts.log 
+  239  2026-08-20 20:27:13 cat /tmp/unreachable_hosts.log 
+  240  2026-08-20 20:27:17 rm  /tmp/unreachable_hosts.log 
+  241  2026-08-20 20:30:21 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  242  2026-08-20 20:31:56 cat  /tmp/unreachable_hosts.log 
+  243  2026-08-20 20:32:14 vi dynamic_role_ping.yml
+  244  2026-08-20 20:32:38 vi subr.log_settings.yml 
+  245  2026-08-20 20:32:57 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  246  2026-08-20 20:34:39 vi subr.log_settings.yml 
+  247  2026-08-20 20:34:46 vi dynamic_role_ping.yml
+  248  2026-08-20 20:37:21 ll /tmp/unreachable_hosts.log 
+  249  2026-08-20 20:37:23 cat /tmp/unreachable_hosts.log 
+  250  2026-08-20 20:37:28 rm /tmp/unreachable_hosts.log 
+  251  2026-08-20 20:37:59 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  252  2026-08-20 20:39:09 vi dynamic_role_ping.yml
+  253  2026-08-20 20:39:34 rm /tmp/unreachable_hosts.log 
+  254  2026-08-20 20:39:42 ll
+  255  2026-08-20 20:39:55 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  256  2026-08-20 20:41:08 cat /tmp/unreachable_hosts.log 
+  257  2026-08-20 20:41:12 rm  /tmp/unreachable_hosts.log 
+  258  2026-08-20 20:41:29 vi inventory.ini
+  259  2026-08-20 20:42:19 rm  /tmp/unreachable_hosts.log 
+  260  2026-08-20 20:42:53 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  261  2026-08-20 20:44:07 cat /tmp/unreachable_hosts.log 
+  262  2026-08-20 20:44:11 rm  /tmp/unreachable_hosts.log 
+  263  2026-08-20 20:44:18 vi inventory.ini
+  264  2026-08-20 20:44:35 rm  /tmp/unreachable_hosts.log 
+  265  2026-08-20 20:45:13 vi inventory.ini
+  266  2026-08-20 20:45:20 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  267  2026-08-20 20:46:30 cat /tmp/unreachable_hosts.log 
+  268  2026-08-20 20:46:34 rm /tmp/unreachable_hosts.log 
+  269  2026-08-20 20:46:51 vi inventory.ini
+  270  2026-08-20 20:47:16 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  271  2026-08-20 20:49:05 vi dynamic_role_ping.yml
+  272  2026-08-20 20:49:18 rm /tmp/unreachable_hosts.log 
+  273  2026-08-20 20:49:47 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  274  2026-08-20 20:51:15 ll
+  275  2026-08-20 20:52:00 vi dynamic_role_ping.yml.org 
+  276  2026-08-20 20:52:24 cp dynamic_role_ping.yml{.org,}
+  277  2026-08-20 20:52:28 rm /tmp/unreachable_hosts.log 
+  278  2026-08-20 20:52:51 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  279  2026-08-20 20:53:59 vi dynamic_role_ping.yml.org 
+  280  2026-08-20 20:54:09 rm /tmp/unreachable_hosts.log 
+  281  2026-08-20 20:54:29 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  282  2026-08-20 20:54:48 vi dynamic_role_ping.yml.org 
+  283  2026-08-20 20:54:57 rm /tmp/unreachable_hosts.log 
+  284  2026-08-20 20:55:20 ll
+  285  2026-08-20 20:55:25 vi dynamic_role_ping.yml
+  286  2026-08-20 20:55:45 historyh
+  287  2026-08-20 20:55:46 history
+  288  2026-08-20 20:55:53 vi dynamic_role_ping.yml
+  289  2026-08-20 20:55:58 rm /tmp/unreachable_hosts.log 
+  290  2026-08-20 20:56:03 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  291  2026-08-20 20:58:19 vi dynamic_role_ping.yml
+  292  2026-08-20 20:58:31 rm /tmp/unreachable_hosts.log 
+  293  2026-08-20 20:59:02 vi inventory.ini
+  294  2026-08-20 20:59:21 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  295  2026-08-20 21:00:46 rm /tmp/unreachable_hosts.log 
+  296  2026-08-20 21:00:56 vi inventory.ini
+  297  2026-08-20 21:01:14 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  298  2026-08-20 21:03:08 rm /tmp/unreachable_hosts.log 
+  299  2026-08-20 21:03:50 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  300  2026-08-20 21:05:00 vi inventory.ini
+  301  2026-08-20 21:05:16 rm /tmp/unreachable_hosts.log 
+  302  2026-08-20 21:05:24 vi inventory.ini
+  303  2026-08-20 21:05:41 aph  dynamic_role_ping.yml -e log_local_enabled=true -e log_ext_enabled=true -e awx_host_ip=user1@130.8.20.76
+  304  2026-08-20 21:08:30 vi dynamic_role_ping.yml
+  305  2026-08-20 21:10:23 exit
+  306  2026-08-21 11:53:29 cd /tmp
+  307  2026-08-21 11:53:31 ll
+  308  2026-08-21 11:53:35 ll ou*
+  309  2026-08-21 11:53:55 cp output.20260821.1138.csv output.20260855.1138.csv
+  310  2026-08-21 11:54:02 cat output.20260855.1138.csv
+  311  2026-08-21 11:54:06 cd -
+  312  2026-08-21 11:55:06 aph persist4.yml -e log_local_enabled=true 
+  313  2026-08-21 11:55:39 cd -
+  314  2026-08-21 11:55:41 ll
+  315  2026-08-21 11:55:45 ll -rt
+  316  2026-08-21 11:56:15 cp output.20260821.1138.csv output.20260821.1157.csv
+  317  2026-08-21 11:56:18 ll -rt
+  318  2026-08-21 11:56:21 cd -
+  319  2026-08-21 11:56:33 cat 
+  320  2026-08-21 11:56:35 -rw-rw-r--  1 git  git    225 Agu 21 11:56 
+  321  2026-08-21 11:56:39 cat output.20260821.1157.csv
+  322  2026-08-21 11:56:43 cd -
+  323  2026-08-21 11:57:02 aph persist4.yml -e log_local_enabled=true 
+  324  2026-08-21 11:57:09 cd -
+  325  2026-08-21 11:57:12 cat output.20260821.1157.csv
+  326  2026-08-21 11:57:21 cd -
+  327  2026-08-21 11:57:24 vi persist4.yml 
+  328  2026-08-21 11:57:49 cd -
+  329  2026-08-21 11:57:59 cp output.20260821.1138.csv output.20260821.1158.csv
+  330  2026-08-21 11:58:12 cat /tmp/output.20260821.1158.csv
+  331  2026-08-21 11:58:16 cd -
+  332  2026-08-21 11:58:17 cat /tmp/output.20260821.1158.csv
+  333  2026-08-21 11:58:29 aph persist4.yml -e log_local_enabled=true 
+  334  2026-08-21 11:58:34 cat /tmp/output.20260821.1158.csv
+  335  2026-08-21 12:21:49 exit
+  336  2026-08-21 10:24:55 ll
+  337  2026-08-21 10:24:58 . r
+  338  2026-08-21 10:24:59 ll
+  339  2026-08-21 10:25:02 . ih
+  340  2026-08-21 10:25:03 ll
+  341  2026-08-21 10:30:29 ll tr*
+  342  2026-08-21 10:30:46 vi persist1.yml
+  343  2026-08-21 10:31:52 vi inventory.ini
+  344  2026-08-21 10:32:15 ping calmcvm
+  345  2026-08-21 10:32:20 ping corecvm 
+  346  2026-08-21 10:32:28 vi inventory.ini
+  347  2026-08-21 10:32:39 . hb
+  348  2026-08-21 10:32:42 . hv
+  349  2026-08-21 10:32:45 cat corecvm.yml 
+  350  2026-08-21 10:32:49 cat calmcvm.yml 
+  351  2026-08-21 10:33:16 cat /etc/hosts | grep server_1
+  352  2026-08-21 10:33:23 cat server_1
+  353  2026-08-21 10:33:25 cat server_1.yml 
+  354  2026-08-21 10:34:03 ll server_1
+  355  2026-08-21 10:34:05 ll server_1.yml 
+  356  2026-08-21 10:34:07 ll server_2.yml 
+  357  2026-08-21 10:34:14 ll server_3.yml 
+  358  2026-08-21 10:35:03 ll
+  359  2026-08-21 10:35:14 cat server_2.yml 
+  360  2026-08-21 10:35:22 cat server_3.yml 
+  361  2026-08-21 10:35:32 cd ..
+  362  2026-08-21 10:35:34 vi inventory.ini
+  363  2026-08-21 10:35:54 vi persist1.yml 
+  364  2026-08-21 10:36:37 hostname -i
+  365  2026-08-21 10:36:39 hostname -I
+  366  2026-08-21 10:36:42 vi persist1.yml 
+  367  2026-08-21 10:37:26 aph persist1.yml 
+  368  2026-08-21 10:37:32 ll -rt
+  369  2026-08-21 10:37:35 cat output.20260821.1037.csv 
+  370  2026-08-21 10:37:55 vi persist1.yml 
+  371  2026-08-21 10:38:30 aph persist1.yml 
+  372  2026-08-21 10:38:35 cat output.20260821.1037.csv 
+  373  2026-08-21 10:38:40 vi persist1.yml 
+  374  2026-08-21 10:39:40 aph persist1.yml 
+  375  2026-08-21 10:40:06 vi persist1.yml 
+  376  2026-08-21 10:40:20 aph persist1.yml 
+  377  2026-08-21 10:40:29 vi persist1.yml 
+  378  2026-08-21 10:40:51 aph persist1.yml 
+  379  2026-08-21 10:42:13 ll
+  380  2026-08-21 10:42:16 ll -rt
+  381  2026-08-21 10:42:28 cat  output.20260821.1038.csv
+  382  2026-08-21 10:42:41 vi persist1.yml 
+  383  2026-08-21 10:42:54 ll out*
+  384  2026-08-21 10:42:58 hk
+  385  2026-08-21 10:42:59 ll
+  386  2026-08-21 10:43:05 aph persist1.yml 
+  387  2026-08-21 10:43:09 ll
+  388  2026-08-21 10:43:14 cat output.20260821.1043.csv 
+  389  2026-08-21 10:43:36 aph persist1.yml | more
+  390  2026-08-21 10:43:51 vi persist1.yml 
+  391  2026-08-21 10:46:19 cat persist1.yml 
+  392  2026-08-21 10:46:30 vi persist1.yml 
+  393  2026-08-21 10:54:03 vi persist2.yml 
+  394  2026-08-21 10:55:11 aph persist2.yml 
+  395  2026-08-21 10:55:39 vi persist2.yml 
+  396  2026-08-21 10:56:49 vi persist1.yml 
+  397  2026-08-21 10:57:06 vi persist2.yml 
+  398  2026-08-21 10:57:35 vi persist1.yml 
+  399  2026-08-21 10:58:03 aph persist2.yml 
+  400  2026-08-21 10:58:07 ll -rt
+  401  2026-08-21 10:58:16 caat output.20260821.1058.csv 
+  402  2026-08-21 10:58:23 cat output.20260821.1058.csv 
+  403  2026-08-21 10:58:38 ll
+  404  2026-08-21 10:59:06 hk
+  405  2026-08-21 10:59:11 aph persist2.yml 
+  406  2026-08-21 10:59:15 ll -rt
+  407  2026-08-21 10:59:19 cat output.20260821.1059.csv 
+  408  2026-08-21 11:06:15 ll -rt
+  409  2026-08-21 11:06:22 vi persist2.yml 
+  410  2026-08-21 11:09:50 cp persist2.yml skhk/.
+  411  2026-08-21 11:09:52 cd skhk
+  412  2026-08-21 11:10:01 mv persist2.yml persist3.yml 
+  413  2026-08-21 11:10:18 vi persist3.yml 
+  414  2026-08-21 11:10:28 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  415  2026-08-21 11:10:59 vi subr.log_settings.yml 
+  416  2026-08-21 11:11:22 vi persist3.yml 
+  417  2026-08-21 11:12:06 vi subr.log_settings.yml 
+  418  2026-08-21 11:12:25 vi persist3.yml 
+  419  2026-08-21 11:13:43 ll 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  420  2026-08-21 11:13:57 vi persist3.yml 
+  421  2026-08-21 11:16:08 ll
+  422  2026-08-21 11:16:26 aph persist3.yml 
+  423  2026-08-21 11:16:42 vi persist3.yml 
+  424  2026-08-21 11:17:01 cd -
+  425  2026-08-21 11:17:13 cp persist2.yml skhk/.
+  426  2026-08-21 11:17:15 cd -
+  427  2026-08-21 11:17:17 vi persist2.yml 
+  428  2026-08-21 11:18:02 vi persist3.yml 
+  429  2026-08-21 11:18:47 vi persist2.yml 
+  430  2026-08-21 11:19:37 aph persist2.yml 
+  431  2026-08-21 11:19:43 vi persist2.yml 
+  432  2026-08-21 11:20:25 aph persist2.yml 
+  433  2026-08-21 11:20:30 aph persist2.yml  | more
+  434  2026-08-21 11:20:47 vi persist2.yml 
+  435  2026-08-21 11:21:09 vi persist3.yml 
+  436  2026-08-21 11:23:34 aph persist3.yml | more
+  437  2026-08-21 11:23:46 vi persist3.yml 
+  438  2026-08-21 11:23:52 aph persist3.yml
+  439  2026-08-21 11:23:57 ll -rt
+  440  2026-08-21 11:24:34 cat output.20260821.1123.csv 
+  441  2026-08-21 11:24:38 vi persist3.yml 
+  442  2026-08-21 11:24:50 vi persist2.yml 
+  443  2026-08-21 11:25:07 vi persist3.yml 
+  444  2026-08-21 11:26:23 vi subr.log_ext.yml 
+  445  2026-08-21 11:27:25 cat /tmp
+  446  2026-08-21 11:27:37 ll output.20260821.11*
+  447  2026-08-21 11:28:04 vi persist2.yml 
+  448  2026-08-21 11:29:54 aph persist2.yml | more
+  449  2026-08-21 11:30:17 vi persist3.yml 
+  450  2026-08-21 11:30:20 hk
+  451  2026-08-21 11:34:34 ll
+  452  2026-08-21 11:34:50 ll output.20260821.11*
+  453  2026-08-21 11:34:58 aph persist3.yml 
+  454  2026-08-21 11:35:03 vi output.20260821.1134.csv 
+  455  2026-08-21 11:35:10 aph persist3.yml 
+  456  2026-08-21 11:35:15 cat output.20260821.113
+  457  2026-08-21 11:35:38 vi output.20260821.1136.csv 
+  458  2026-08-21 11:36:03 aph persist3.yml 
+  459  2026-08-21 11:36:07 vi output.20260821.1136.csv 
+  460  2026-08-21 11:36:13 hk
+  461  2026-08-21 11:36:42 aph persist3.yml -e log_local_enabled=true
+  462  2026-08-21 11:36:46 ll
+  463  2026-08-21 11:36:48 cat output.20260821.1136.csv 
+  464  2026-08-21 11:36:57 ll /tmp/output.20260821.1136.csv 
+  465  2026-08-21 11:37:02 cat /tmp/output.20260821.1136.csv 
+  466  2026-08-21 11:37:27 cd /tmp
+  467  2026-08-21 11:37:30 vi output.20260821.1136.csv 
+  468  2026-08-21 11:38:05 aph persist3.yml -e log_local_enabled=true
+  469  2026-08-21 11:38:11 . skhk
+  470  2026-08-21 11:38:12 aph persist3.yml -e log_local_enabled=true
+  471  2026-08-21 11:38:17 cd /tmp
+  472  2026-08-21 11:38:21 cat output.20260821.1138.csv 
+  473  2026-08-21 11:38:26 ll
+  474  2026-08-21 11:38:34 cd -
+  475  2026-08-21 11:38:37 aph persist3.yml -e log_local_enabled=true
+  476  2026-08-21 11:38:50 cat /tmp/output.20260821.1138.csv 
+  477  2026-08-21 11:39:03 aph persist3.yml -e log_local_enabled=true
+  478  2026-08-21 11:39:11 cat /tmp/output.20260821.1139.csv 
+  479  2026-08-21 11:39:19 aph persist3.yml -e log_local_enabled=true
+  480  2026-08-21 11:39:28 cat /tmp/output.20260821.1139.csv 
+  481  2026-08-21 11:39:33 aph persist3.yml -e log_local_enabled=true
+  482  2026-08-21 11:39:37 cat /tmp/output.20260821.1139.csv 
+  483  2026-08-21 11:39:53 vi persist3.yml 
+  484  2026-08-21 11:41:10 vi output.20260821.1138.csv 
+  485  2026-08-21 11:41:34 cd /tmp
+  486  2026-08-21 11:41:38 vi output.20260821.1138.csv 
+  487  2026-08-21 11:42:00 cd -
+  488  2026-08-21 11:42:07 cat /tmp/output.20260821.1142.csv 
+  489  2026-08-21 11:42:18 aph persist3.yml -e log_local_enabled=true
+  490  2026-08-21 11:42:24 cat /tmp/output.20260821.1142.csv 
+  491  2026-08-21 11:50:02 vi persist3.yml 
+  492  2026-08-21 11:50:55 ll
+  493  2026-08-21 11:51:12 vi subr.report_init.yml 
+  494  2026-08-21 11:51:18 vi persist3.yml 
+  495  2026-08-21 11:53:10 ll
+  496  2026-08-21 11:53:15 ll /tmp/o*
+  497  2026-08-21 11:53:27 tmux
+  498  2026-08-21 21:10:38 cd /tmp
+  499  2026-08-21 21:10:38 ll
+  500  2026-08-21 21:12:25 ll -rt
+  501  2026-08-21 21:12:29 vi output.20260821.2111.csv 
+  502  2026-08-21 21:12:55 ll
+  503  2026-08-21 21:12:59 ll -rt
+  504  2026-08-21 21:14:12 cat output.20260821.2112.csv 
+  505  2026-08-21 21:14:39 exit
+  506  2026-08-21 21:26:16 CD -
+  507  2026-08-21 21:26:19 cd -
+  508  2026-08-21 21:26:28 . skhk
+  509  2026-08-21 21:26:28 ll
+  510  2026-08-21 21:26:32 ll persist*
+  511  2026-08-21 21:26:37 mv persist3.yml zzArchive/
+  512  2026-08-21 21:26:38 ll
+  513  2026-08-21 21:26:44 hk
+  514  2026-08-21 21:26:45 ll
+  515  2026-08-21 21:26:50 vi persist4.yml 
+  516  2026-08-21 21:27:27 vi subr.report_init.yml 
+  517  2026-08-21 21:27:43 rm tem
+  518  2026-08-21 21:28:13 aph persist4.yml -e log_local_enabled=true 
+  519  2026-08-21 21:28:47 vi persist4.yml 
+  520  2026-08-21 21:29:13 grep  log_local_enabled persist4.yml 
+  521  2026-08-21 21:29:20 grep  log_ext_enabled persist4.yml 
+  522  2026-08-21 21:29:34 aph persist4.yml -e log_local_enabled=true > tem1
+  523  2026-08-21 21:29:44 vi tem1 
+  524  2026-08-21 21:30:05 vi persist4.yml 
+  525  2026-08-21 21:30:24 vi tem1
+  526  2026-08-21 21:30:44 tmux
+  527  2026-08-21 21:30:47 exit
+  528  2026-08-21 21:14:54 cd /tmp
+  529  2026-08-21 21:14:54 ll
+  530  2026-08-21 21:16:16 ll -rt
+  531  2026-08-21 21:16:19 hk
+  532  2026-08-21 21:16:21 ll
+  533  2026-08-21 21:17:39 ll -rt
+  534  2026-08-21 21:17:43 cat output.20260821.2117.csv 
+  535  2026-08-21 21:28:08 ll
+  536  2026-08-21 21:28:10 hk
+  537  2026-08-21 21:28:11 ll
+  538  2026-08-21 21:33:20 ll-rt
+  539  2026-08-21 21:33:23 ll -rt
+  540  2026-08-21 21:33:30 cat output.20260821.2132.csv
+  541  2026-08-21 21:52:32 ll
+  542  2026-08-21 21:52:35 ll-rt
+  543  2026-08-21 21:52:36 hk
+  544  2026-08-21 21:52:37 ll
+  545  2026-08-21 21:53:12 ll -rt
+  546  2026-08-21 21:53:16 cat  output.20260821.2152.csv 
+  547  2026-08-21 22:02:57 ll -rt
+  548  2026-08-21 22:03:05 cat output.20260821.2202.csv
+  549  2026-08-21 22:03:07 hk
+  550  2026-08-21 22:04:56 cat output.20260821.2204.csv 
+  551  2026-08-21 22:05:01 hk
+  552  2026-08-21 22:06:18 ll -rt
+  553  2026-08-21 22:06:21 cat output.20260821.2205.csv 
+  554  2026-08-21 22:06:24 hk
+  555  2026-08-21 22:07:20 ll
+  556  2026-08-21 22:07:22 ll -rt
+  557  2026-08-21 22:08:13 cat output.20260821.2207.csv 
+  558  2026-08-21 22:08:47 ll -rt
+  559  2026-08-21 22:08:53 cat output.20260821.2208
+  560  2026-08-21 22:08:55 cat output.20260821.2208.csv 
+  561  2026-08-21 22:10:09 cat output.20260821.2209.csv 
+  562  2026-08-21 22:10:15 hk
+  563  2026-08-21 22:11:20 ll
+  564  2026-08-21 22:11:22 l -rt
+  565  2026-08-21 22:11:24 cat output.20260821.2210.csv 
+  566  2026-08-21 22:17:08 ll -rt
+  567  2026-08-21 22:17:13 cat  output.20260821.2216.csv
+  568  2026-08-21 22:17:17 hk
+  569  2026-08-21 22:17:49 cat output.20260821.2217.csv 
+  570  2026-08-21 22:17:51 hk
+  571  2026-08-21 22:18:56 cat output.20260821.2218.csv 
+  572  2026-08-21 22:18:58 hk
+  573  2026-08-21 22:21:00 cat output.20260821.2220.csv 
+  574  2026-08-21 22:21:46 cat output.20260821.2221.csv 
+  575  2026-08-21 22:22:03 hk
+  576  2026-08-21 22:23:37 ll -rt
+  577  2026-08-21 22:23:48 vi output.20260821.2223.csv 
+  578  2026-08-21 22:24:27 cat output.20260821.2224.csv 
+  579  2026-08-21 22:24:30 hk
+  580  2026-08-21 22:24:51 cat output.20260821.2224.csv 
+  581  2026-08-21 22:24:53 hk
+  582  2026-08-21 22:26:05 cat output.20260821.2225.csv 
+  583  2026-08-21 22:26:07 hk
+  584  2026-08-21 22:26:57 cat output.20260821.2226.csv 
+  585  2026-08-21 22:26:58 hk
+  586  2026-08-21 22:27:53 cat output.20260821.2227.csv 
+  587  2026-08-21 22:28:24 cat output.20260821.2228.csv 
+  588  2026-08-21 22:30:31 cat output.20260821.2230.csv 
+  589  2026-08-21 22:31:58 hk
+  590  2026-08-21 22:32:41 cat output.20260821.2232.csv 
+  591  2026-08-21 22:37:37 ll
+  592  2026-08-21 22:37:40 hk
+  593  2026-08-21 22:39:41 cat output.20260821.2238.csv 
+  594  2026-08-21 22:39:44 hk
+  595  2026-08-21 22:41:55 cat output.20260821.2241.csv 
+  596  2026-08-21 22:45:17 ll
+  597  2026-08-21 22:45:19 ll -rt
+  598  2026-08-21 22:45:24 cat output.20260821.2245.csv 
+  599  2026-08-21 22:53:11 ll
+  600  2026-08-21 22:53:16 cat output.20260821.2252.csv 
+  601  2026-08-21 22:54:23 hk
+  602  2026-08-21 22:54:35 cat output.20260821.2254.csv 
+  603  2026-08-21 22:57:10 ll -rt
+  604  2026-08-21 22:57:13 cat output.20260821.2256.csv 
+  605  2026-08-21 22:57:17 hk
+  606  2026-08-21 22:57:40 cat output.20260821.2256.csv 
+  607  2026-08-21 22:57:45 cat output.20260821.2257.csv 
+  608  2026-08-21 22:59:17 ll -rt
+  609  2026-08-21 22:59:21 cat output.20260821.2259.csv 
+  610  2026-08-21 23:01:04 hk
+  611  2026-08-21 23:01:06 ll
+  612  2026-08-21 23:09:20 cat output.20260821.2309.csv 
+  613  2026-08-21 23:10:30 hk
+  614  2026-08-21 23:10:38 cat output.20260821.2310.csv 
+  615  2026-08-21 23:13:34 hk
+  616  2026-08-21 23:14:05 cat output.20260821.2313.csv 
+  617  2026-08-21 23:18:29 hk
+  618  2026-08-21 23:18:44 cat output.20260821.2318.csv 
+  619  2026-08-21 23:18:52 cat output.20260821.2318.csv | wc
+  620  2026-08-21 23:19:07 exit
+  621  2026-08-21 21:30:56 . skhk
+  622  2026-08-21 21:30:58 vi tem1
+  623  2026-08-21 21:40:29 grep awx_ip *.yml
+  624  2026-08-21 21:40:37 grep awx_ *.yml
+  625  2026-08-21 21:50:04 vi persist4.yml 
+  626  2026-08-21 21:50:14 cat tem1
+  627  2026-08-21 21:50:26 vi tem1
+  628  2026-08-21 21:52:48 aph 02_testing11_others_cs_grep_v_up_command_gg.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  629  2026-08-21 21:53:50 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  630  2026-08-21 21:56:56 aph 02_testing11_others_cs_grep_v_up_command_gg.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  631  2026-08-21 21:57:18 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  632  2026-08-21 22:02:34 aph 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  633  2026-08-21 22:04:34 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  634  2026-08-21 22:04:42 aph 11_testing11_allssh_ll_calm_backup_gg.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  635  2026-08-21 22:05:56 aph 12_testing11_allssh_ls_larth_iam_backup_gg.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  636  2026-08-21 22:07:37 aph 13_testing11_allssh_sudo_kubectl_get_pods_a_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  637  2026-08-21 22:08:42 aph 14_testing11_allssh_df_kh_grep_elastic_gg.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  638  2026-08-21 22:09:44 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  639  2026-08-21 22:09:50 aph 15_testing11_allssh_curl_get_catalog_k_P1ASEC018.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  640  2026-08-21 22:10:42 aph 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  641  2026-08-21 22:12:34 . r
+  642  2026-08-21 22:12:45 cd *025/tasks
+  643  2026-08-21 22:12:47 vi main.yml
+  644  2026-08-21 22:14:40 aph 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  645  2026-08-21 22:15:58 . skhk
+  646  2026-08-21 22:16:00 aph 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  647  2026-08-21 22:16:10 cd -
+  648  2026-08-21 22:16:13 vi main.yml
+  649  2026-08-21 22:17:31 aph 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  650  2026-08-21 22:17:35 cd -
+  651  2026-08-21 22:17:36 aph 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  652  2026-08-21 22:18:33 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  653  2026-08-21 22:18:38 aph 17_testing11_allssh_df_h_sdb3_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  654  2026-08-21 22:20:45 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  655  2026-08-21 22:20:49 aph 31_testing11_mspctl_debug_run_command_with_logic_site_data.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  656  2026-08-21 22:21:33 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  657  2026-08-21 22:21:37 aph 32_testing11_mspctl_debug_run_test_exclude_subset_site_data.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  658  2026-08-21 22:23:15 aph 33_testing11_mspctl_cluster_health_command_msp.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  659  2026-08-21 22:23:22 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  660  2026-08-21 22:23:26 aph 34_testing11_mspctl_cluster_health_command_s3.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  661  2026-08-21 22:23:33 aph 35_testing11_mspctl_cluster_health_command_pc.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  662  2026-08-21 22:24:11 aph 34_testing11_mspctl_cluster_health_command_s3.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  663  2026-08-21 22:24:41 aph 33_testing11_mspctl_cluster_health_command_msp.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  664  2026-08-21 22:25:51 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  665  2026-08-21 22:25:55 aph 40.testing11_hostssh_ovn_lab_logic.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  666  2026-08-21 22:26:43 aph  -e log_ext_enabled=true -e log_local_enabled=true 
+  667  2026-08-21 22:26:47 aph 51_testing11_ncc_health_checks_run_all_gg_command.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  668  2026-08-21 22:27:41 aph 62_testing11_others_ssh_calm_policy_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  669  2026-08-21 22:28:13 aph 63_testing11_others_ssh_calm_policy_40_gg.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  670  2026-08-21 22:30:06 aph 02_testing11_others_cs_grep_v_up_command_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true 
+  671  2026-08-21 22:32:20 aph 02_testing11_others_cs_grep_v_up_command_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true > tem2
+  672  2026-08-21 22:33:29 ll
+  673  2026-08-21 22:33:39 mv persist4.yml zzArchive/
+  674  2026-08-21 22:33:44 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  675  2026-08-21 22:33:55 cd ..
+  676  2026-08-21 22:33:58 vi inventory.ini
+  677  2026-08-21 22:38:33 aph 02_testing11_others_cs_grep_v_up_command_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true > tem2
+  678  2026-08-21 22:38:39 cd -
+  679  2026-08-21 22:38:47 ll tem*
+  680  2026-08-21 22:38:50 aph 02_testing11_others_cs_grep_v_up_command_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true > tem2
+  681  2026-08-21 22:38:59 vi tem2
+  682  2026-08-21 22:41:13 aph 02_testing11_others_cs_grep_v_up_command_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true > tem2
+  683  2026-08-21 22:42:21 vi tem2
+  684  2026-08-21 22:45:11 aph 02_testing11_others_cs_grep_v_up_command_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  685  2026-08-21 22:46:13 ll
+  686  2026-08-21 22:46:23 vi 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml 
+  687  2026-08-21 22:47:36 aph 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  688  2026-08-21 22:49:39 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  689  2026-08-21 22:50:29 cd zzArchive/
+  690  2026-08-21 22:50:30 ll
+  691  2026-08-21 22:50:35 vi persist4.yml 
+  692  2026-08-21 22:51:15 aph persist4  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  693  2026-08-21 22:51:27 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  694  2026-08-21 22:51:32 cd ..
+  695  2026-08-21 22:51:43 mv zzArchive/persist4.yml .
+  696  2026-08-21 22:51:46 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  697  2026-08-21 22:52:15 vi persist4.yml 
+  698  2026-08-21 22:52:38 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  699  2026-08-21 22:53:59 vi persist4.yml 
+  700  2026-08-21 22:54:25 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  701  2026-08-21 22:55:56 vi persist4.yml 
+  702  2026-08-21 22:56:08 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  703  2026-08-21 22:58:15 ping awx
+  704  2026-08-21 22:59:04 vi persist4.yml 
+  705  2026-08-21 22:59:12 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  706  2026-08-21 22:59:57 vi persist4.yml 
+  707  2026-08-21 23:01:11 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true
+  708  2026-08-21 23:01:30 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true | more
+  709  2026-08-21 23:02:01 vi ../inventory.ini
+  710  2026-08-21 23:02:08 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true | more
+  711  2026-08-21 23:04:20 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true > temx
+  712  2026-08-21 23:08:13 vi ../inventory.ini
+  713  2026-08-21 23:09:05 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true > temx
+  714  2026-08-21 23:09:44 vi persist4.yml 
+  715  2026-08-21 23:09:56 vi ../inventory.ini
+  716  2026-08-21 23:10:31 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true 
+  717  2026-08-21 23:10:51 vi ../inventory.ini
+  718  2026-08-21 23:13:47 vi persist4.yml 
+  719  2026-08-21 23:13:58 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true 
+  720  2026-08-21 23:16:22 vi persist4.yml 
+  721  2026-08-21 23:16:35 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true 
+  722  2026-08-21 23:17:39 vi persist4.yml 
+  723  2026-08-21 23:17:51 vi ../inventory.ini
+  724  2026-08-21 23:18:20 vi persist4.yml 
+  725  2026-08-21 23:18:34 aph persist4.yml  -e log_ext_enabled=true -e log_local_enabled=true -e read_from_file=true 
+  726  2026-08-21 23:19:14 exit
+  727  2026-08-21 21:09:39 ll
+  728  2026-08-21 21:09:44 . skhk
+  729  2026-08-21 21:09:46 ll -rt
+  730  2026-08-21 21:09:50 vi persist4.yml 
+  731  2026-08-21 21:10:27 ll -rt
+  732  2026-08-21 21:11:26 diff persist3.yml  persist4.yml 
+  733  2026-08-21 21:11:48 aph persist4.yml 
+  734  2026-08-21 21:12:42 aph persist4.yml -e log_local_enabled=true
+  735  2026-08-21 21:13:27 vi persist4.yml 
+  736  2026-08-21 21:15:56 aph persist4.yml -e log_local_enabled=true
+  737  2026-08-21 21:16:25 aph persist4.yml -e log_local_enabled=true -e log_ext_enabled=true
+  738  2026-08-21 21:17:15 aph persist4.yml -e log_local_enabled=true -e log_ext_enabled=true | more
+  739  2026-08-21 21:18:14 vi persist4.yml 
+  740  2026-08-21 21:18:51 aph persist4.yml -e log_local_enabled=true -e log_ext_enabled=true > tem
+  741  2026-08-21 21:19:00 vi tem
+  742  2026-08-21 21:19:45 grep log_ext_enabled persist4.yml 
+  743  2026-08-21 21:20:08 vi persist4.yml 
+  744  2026-08-21 21:20:29 vi tem
+  745  2026-08-21 21:21:08 vi persist4.yml 
+  746  2026-08-21 21:21:26 vi tem
+  747  2026-08-21 21:21:59 grep Append *.yml
+  748  2026-08-21 21:22:14 vi persist2.yml 
+  749  2026-08-21 21:22:30 vi persist4.yml 
+  750  2026-08-21 21:23:33 vi tem 
+  751  2026-08-21 21:24:14 grep 'Append result' *.cvs
+  752  2026-08-21 21:24:22 grep 'Append result' *.yml
+  753  2026-08-21 21:24:47 mkdir zzArchive
+  754  2026-08-21 21:24:57 mv persist2.yml zzArchive/
+  755  2026-08-21 21:24:59 ll per*
+  756  2026-08-21 21:25:25 aph persist3.yml -e log_local_enabled=true -e log_ext_enabled=true 
+  757  2026-08-21 21:31:03 vi persist4.ym
+  758  2026-08-21 21:32:51 aph persist4.yml -e log_local_enabled=true -e log_ext_enabled=true 
+  759  2026-08-21 21:33:14 vi persist4.yml 
+  760  2026-08-21 21:36:32 vi subr.log_local.yml 
+  761  2026-08-21 21:36:47 vi subr.log_ext.yml 
+  762  2026-08-21 21:37:47 vi subr.log_local.yml 
+  763  2026-08-21 21:38:02 vi persist4.yml 
+  764  2026-08-21 21:38:56 aph persist4.yml -e log_ext_enabled=true -e log_local_enabled=true
+  765  2026-08-21 21:40:58 aph persist4.yml -e log_ext_enabled=true -e log_local_enabled=true -e awx_host_ip=use1@130.8.20.76
+  766  2026-08-21 21:41:27 aph persist4.yml -e log_ext_enabled=true -e log_local_enabled=true -e awx_host_ip=user1@130.8.20.76
+  767  2026-08-21 21:41:54 vi subr.log_ext.yml 
+  768  2026-08-21 21:42:22 vi persist4.yml 
+  769  2026-08-21 21:43:16 aph persist4.yml -e log_ext_enabled=true -e log_local_enabled=true -
+  770  2026-08-21 21:43:19 aph persist4.yml -e log_ext_enabled=true -e log_local_enabled=true 
+  771  2026-08-21 21:44:07 grep variabe *.yml
+  772  2026-08-21 21:44:11 vi subr.gitexport.yml 
+  773  2026-08-21 21:44:43 vi subr.log_github.yml 
+  774  2026-08-21 21:45:03 vi persist4.yml 
+  775  2026-08-21 21:48:53 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  776  2026-08-21 21:49:23 vi 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml 
+  777  2026-08-21 21:49:33 vi 31_testing11_mspctl_debug_run_command_with_logic_site_data.yml 
+  778  2026-08-21 21:49:40 vi tem1
+  779  2026-08-21 21:49:49 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  780  2026-08-21 21:54:04 vi persist4.yml 
+  781  2026-08-21 21:55:11 diff persist4.yml 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  782  2026-08-21 21:55:42 vi persist4.yml 
+  783  2026-08-21 21:57:29 vi 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml 
+  784  2026-08-21 21:58:56 ll
+  785  2026-08-21 21:59:01 ll *.org
+  786  2026-08-21 21:59:16 cat ~/bin/copyorg 
+  787  2026-08-21 21:59:35 vi ~/bin/copyorg 
+  788  2026-08-21 22:00:16 zip backup.zip *
+  789  2026-08-21 22:00:23 rm backup.zip 
+  790  2026-08-21 22:00:24 zip backup.zip *
+  791  2026-08-21 22:00:29 copyorg
+  792  2026-08-21 22:00:33 ll
+  793  2026-08-21 22:00:39 vi ~/bin/copyorg 
+  794  2026-08-21 22:00:43 ll
+  795  2026-08-21 22:00:50 dif 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml.org 
+  796  2026-08-21 22:00:55 diff 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml.org 
+  797  2026-08-21 22:00:57 ll
+  798  2026-08-21 22:01:02 vi 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml
+  799  2026-08-21 22:03:31 ll 1*
+  800  2026-08-21 22:03:39 diff 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml 10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.yml.org 
+  801  2026-08-21 22:03:47 ll 1*
+  802  2026-08-21 22:03:52 vi 11_testing11_allssh_ll_calm_backup_gg.yml
+  803  2026-08-21 22:04:15 diff 11_testing11_allssh_ll_calm_backup_gg.yml 11_testing11_allssh_ll_calm_backup_gg.yml.org 
+  804  2026-08-21 22:05:18 q
+  805  2026-08-21 22:05:23 vi 12_testing11_allssh_ls_larth_iam_backup_gg.yml
+  806  2026-08-21 22:05:41 diff 12_testing11_allssh_ls_larth_iam_backup_gg.yml 12_testing11_allssh_ls_larth_iam_backup_gg.yml.org 
+  807  2026-08-21 22:06:40 ll
+  808  2026-08-21 22:06:50 vi 13_testing11_allssh_sudo_kubectl_get_pods_a_gg.yml
+  809  2026-08-21 22:07:04 diff 13_testing11_allssh_sudo_kubectl_get_pods_a_gg.yml 13_testing11_allssh_sudo_kubectl_get_pods_a_gg.yml.org 
+  810  2026-08-21 22:08:24 vi 14_testing11_allssh_df_kh_grep_elastic_gg.yml
+  811  2026-08-21 22:09:13 vi 15_testing11_allssh_curl_get_catalog_k_P1ASEC018.yml
+  812  2026-08-21 22:09:32 diff 15_testing11_allssh_curl_get_catalog_k_P1ASEC018.yml 15_testing11_allssh_curl_get_catalog_k_P1ASEC018.yml.org 
+  813  2026-08-21 22:10:27 vi 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml
+  814  2026-08-21 22:11:57 vi 15_testing11_allssh_curl_get_catalog_k_P1ASEC018.yml
+  815  2026-08-21 22:13:12 vi 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml
+  816  2026-08-21 22:15:29 cp 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml.org 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml
+  817  2026-08-21 22:15:32 vi 16_testing11_allssh_curl_get_catalog_k_P1SMG025.yml
+  818  2026-08-21 22:18:05 ll 1*
+  819  2026-08-21 22:18:09 VI 17_testing11_allssh_df_h_sdb3_gg.yml
+  820  2026-08-21 22:18:14 vi 17_testing11_allssh_df_h_sdb3_gg.yml
+  821  2026-08-21 22:19:09 ll 1*
+  822  2026-08-21 22:19:18 ll | more
+  823  2026-08-21 22:19:31 ll *ovn*
+  824  2026-08-21 22:19:54 vi 31_testing11_mspctl_debug_run_command_with_logic_site_data.yml
+  825  2026-08-21 22:21:12 vi 32_testing11_mspctl_debug_run_test_exclude_subset_site_data.yml
+  826  2026-08-21 22:22:11 vi 33_testing11_mspctl_cluster_health_command_msp.yml
+  827  2026-08-21 22:22:28 vi 34_testing11_mspctl_cluster_health_command_s3.yml
+  828  2026-08-21 22:22:41 ll 3*
+  829  2026-08-21 22:22:49 vi 35_testing11_mspctl_cluster_health_command_pc.yml
+  830  2026-08-21 22:25:03 ll 3*
+  831  2026-08-21 22:25:08 vi 40.testing11_hostssh_ovn_lab_logic.yml
+  832  2026-08-21 22:25:39 diff 40.testing11_hostssh_ovn_lab_logic.yml 40.testing11_hostssh_ovn_lab_logic.yml.org 
+  833  2026-08-21 22:26:20 vi 51_testing11_ncc_health_checks_run_all_gg_command.yml
+  834  2026-08-21 22:27:13 ll 5*
+  835  2026-08-21 22:27:15 ll 6*
+  836  2026-08-21 22:27:20 vi 62_testing11_others_ssh_calm_policy_gg.yml
+  837  2026-08-21 22:28:02 vi 63_testing11_others_ssh_calm_policy_40_gg.yml
+  838  2026-08-21 22:28:40 diff 63_testing11_others_ssh_calm_policy_40_gg.yml 63_testing11_others_ssh_calm_policy_40_gg.yml
+  839  2026-08-21 22:28:47 vi 63_testing11_others_ssh_calm_policy_40_gg.yml
+  840  2026-08-21 22:29:01 diff 63_testing11_others_ssh_calm_policy_40_gg.yml 63_testing11_others_ssh_calm_policy_40_gg.yml.org 
+  841  2026-08-21 22:29:03 ll
+  842  2026-08-21 22:29:14 rm *.org
+  843  2026-08-21 22:29:15 ll
+  844  2026-08-21 22:29:20 rm backup.zip 
+  845  2026-08-21 22:29:21 ll
+  846  2026-08-21 22:29:43 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  847  2026-08-21 22:30:55 vi ../inventory.ini
+  848  2026-08-21 22:31:08 ll *.ini
+  849  2026-08-21 22:31:36 ping pccvm
+  850  2026-08-21 22:32:50 ll -rt
+  851  2026-08-21 22:32:53 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  852  2026-08-21 22:34:46 engrcvm
+  853  2026-08-21 22:34:52 calmcvm
+  854  2026-08-21 22:34:56 corecvm
+  855  2026-08-21 22:35:01 pccvm
+  856  2026-08-21 22:35:06 pecvm
+  857  2026-08-21 22:35:13 ping peccm
+  858  2026-08-21 22:35:16 ping pecvm
+  859  2026-08-21 22:35:21 ping pccvm
+  860  2026-08-21 22:35:26 ping calmcvm
+  861  2026-08-21 22:35:30 ping corecvm
+  862  2026-08-21 22:35:36 ping engrcvm
+  863  2026-08-21 22:36:04 cat ~/bin/aph
+  864  2026-08-21 22:36:14 cat /home/git/proj/hm/healthmonitoring/inventory.ini
+  865  2026-08-21 22:36:20 vi /home/git/proj/hm/healthmonitoring/inventory.ini
+  866  2026-08-21 22:37:13 vi 02_testing11_others_cs_grep_v_up_command_gg.yml 
+  867  2026-08-21 22:40:07 vi ../inventory.ini
+  868  2026-08-21 23:00:28 :q
+  869  2026-08-21 23:00:30 vi ../inventory.ini
+  870  2026-08-21 23:02:36 vi /home/git/proj/hm/healthmonitoring/inventory.ini 
+  871  2026-08-21 23:03:03 ll
+  872  2026-08-21 23:03:12 vi inventory.ini
+  873  2026-08-21 23:03:24 vi ../inventory.ini
+  874  2026-08-21 23:19:15 exit
+  875  2026-08-21 21:09:38 cd /home/git/proj/ansible/hm/commands
+  876  2026-08-21 21:09:38 tmux new-window -c ~/proj/ansible/hm/testing11
+  877  2026-08-21 22:48:22 l
+  878  2026-08-21 23:19:16 exit
+  879  2026-08-21 21:09:38 cd ~/proj/ansible/hm/testing11
+  880  2026-08-21 23:19:17 exit
+  881  2026-08-21 21:09:38 cd /home/git/proj/ansible/hm/testing11/skhk
+  882  2026-08-21 23:19:18 exit
+  883  2026-08-21 21:09:38 tm1
+  884  2026-08-21 23:19:20 exit

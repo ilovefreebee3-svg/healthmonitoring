@@ -1,7 +1,10 @@
 ---
+- import_playbook: subr.report_init.yml
+
 - name: Pseudo hostssh - Check dbus across AHV Hosts
   hosts: corecvm
   gather_facts: true
+  serial: 1
 
   vars:
     log_local_enabled: false 
@@ -17,8 +20,17 @@
     vpc: tbd
 
   tasks:
-    - name: 0. Initialising csv_filename
-      import_tasks: subr.log_settings.yml
+    - name: 1. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: Display csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
     - name: -1. Declare flags
       set_fact:
