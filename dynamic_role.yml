@@ -24,11 +24,6 @@
           ansible.builtin.debug:
             msg: "{{ csv_filename }}"
    
-#        - name: Change csv_filename
-#          ansible.builtin.set_fact:
-#            csv_filename: "output.{{ ansible_date_time.date | replace('-', '') }}.{{ ansible_date_time.time | replace(':', '') | regex_replace('..$', '') }}.csv"
-#          when: csv_filename == 'output.csv'
-
         - name: Include roles per host
           ansible.builtin.include_role:
             name: "{{ item }}"

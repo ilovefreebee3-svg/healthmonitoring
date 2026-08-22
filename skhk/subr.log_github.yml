@@ -14,7 +14,7 @@
   ansible.builtin.debug:
     msg: "{{ csv_filename }}"
 
-- name: display variabe
+- name: display variable
   ansible.builtin.debug:
     var: gh_token
 

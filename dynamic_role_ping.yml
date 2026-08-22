@@ -1,5 +1,5 @@
 - name: Run roles dynamically
-  hosts: lab 
+  hosts: allcvms 
   gather_facts: no            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
@@ -15,7 +15,7 @@
 
         - name: Check network/SSH responsiveness
           ansible.builtin.wait_for_connection:
-            timeout: 5
+            timeout: 15
 
         - name: Gather facts dynamically for live hosts
           ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes

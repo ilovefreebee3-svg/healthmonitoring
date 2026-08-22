@@ -1,4 +1,6 @@
 ---
+- import_playbook: subr.report_init.yml
+
 - name: how to run mspctl
   hosts: calmcvm
 #  hosts: pccvm
@@ -18,8 +20,17 @@
     vpc: tbd
 
   tasks:
-    - name: 0. Initialising csv_filename
-      import_tasks: subr.log_settings.yml
+    - name: 1. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: Display csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
     - name: 1. Run mspctl debug with command module
       ansible.builtin.command:
@@ -48,10 +59,6 @@
       ansible.builtin.debug:
         var: input_filter.stdout_lines
 
-#    - name: 5. Display input_filter.stdout
-#      ansible.builtin.debug:
-#        var: input_filter.stdout
-
     - name: 6. Display the stderr
       ansible.builtin.debug:
         var: input_filter.stderr
@@ -68,16 +75,6 @@
     - name: 8. Display cleaned output
       ansible.builtin.debug:
         var: Xinput_filter_msg
-
-#    - name: 9. Display input_filter.stdout_lines
-#      ansible.builtin.debug:
-#        msg:
-#          - "V: {{ input_filter.stdout_lines }}"
-
-#    - name: 10. Display Xinput_Result msg
-#      ansible.builtin.debug:
-#        msg:
-#          - "X: {{ Xinput_filter_msg }}"
 
     - name: 11. Initialize variables
       set_fact:

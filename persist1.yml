@@ -1,0 +1,39 @@
+- name: Generate report
+  hosts: lab3
+  gather_facts: false
+  serial: 1
+
+  pre_tasks:
+
+    - name: Generate CSV filename once
+      ansible.builtin.set_fact:
+        csv_filename: "output.{{ now().strftime('%Y%m%d.%H%M') }}.csv"
+      delegate_to: localhost
+      delegate_facts: true
+      run_once: true
+
+    - name: Reset CSV report
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ hostvars['localhost']['csv_filename'] }}"
+        mode: '0644'
+      delegate_to: localhost
+      run_once: true
+
+  tasks:
+
+    - name: Run report command
+      ansible.builtin.command:
+        cmd: "hostname -I"
+      register: report_result
+
+    - name: Display report_result
+      ansible.builtin.debug:
+        msg: "{{ report_result }}"
+
+    - name: Append result to CSV
+      ansible.builtin.lineinfile:
+        path: "{{ hostvars['localhost']['csv_filename'] }}"
+        line: "{{ inventory_hostname }},{{ report_result.stdout }}"
+        create: true
+      delegate_to: localhost

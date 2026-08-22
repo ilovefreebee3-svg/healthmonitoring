@@ -1,6 +1,9 @@
 ---
+- import_playbook: subr.report_init.yml
+
 - name: Running docker ps -a
-  hosts: calmcvm
+  hosts: allcvms
+#  hosts: calmcvm
 #  hosts: server_12
 #  hosts: pccvm
   gather_facts: true
@@ -18,8 +21,17 @@
     vpc: tbd
 
   tasks:
-    - name: 0. Initialising csv_filename
-      import_tasks: subr.log_settings.yml
+    - name: 1. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: Display csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online

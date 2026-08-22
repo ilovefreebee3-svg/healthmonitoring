@@ -1,4 +1,6 @@
 ---
+- import_playbook: subr.report_init.yml
+
 - name: Fetch and process Nutanix NCC health check log
   hosts: corecvm
   gather_facts: true
@@ -17,14 +19,17 @@
     vpc: tbd
 
   tasks:
-    - name: 0. Initialising csv_filename
-      import_tasks: subr.log_settings.yml
+    - name: 1. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
-#    - name: 0. Declare role variables
-#      ansible.builtin.set_fact:
-#        role: r_ncc_health_checks_run_all_gg
-#        idx: idx3
-#        description: ncc health_checks run_all
+    - name: Display csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
     - name: 1. Declare variables
       ansible.builtin.set_fact:

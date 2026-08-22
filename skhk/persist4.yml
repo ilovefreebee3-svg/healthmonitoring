@@ -4,6 +4,7 @@
 - name: Check CVM cluster status
   hosts: allcvms
   gather_facts: true
+  serial: 1
   vars:
     log_local_enabled: false 
     log_ext_enabled: false 
@@ -97,3 +98,4 @@
     - name: 99. Log to github
       import_tasks: subr.log_github.yml
       when: log_github_enabled | bool
+

@@ -1,4 +1,6 @@
 ---
+- import_playbook: subr.report_init.yml
+
 - name: 1. Run diagnostic commands on all CVMs
   hosts: corecvm
 #  hosts: engrcvm
@@ -21,17 +23,23 @@
     vpc: tbd
 
   tasks:
-    - name: 0. Initialising csv_filename
-      import_tasks: subr.log_settings.yml
+    - name: 1. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: Display csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
     - name: 1. Declare variables
       set_fact:
         cmd_list:
           - name: hostssh ovn-appctl connection-status
             argv: ["hostssh", "ovn-appctl", "connection-status"]
-
-#          - name: hostssh_ovn_appctl_connection_status
-#            argv: ["hostssh_ovn_appctl_connection_status"]
 
     - name: 2. Execute commands
       include_tasks: subr.40.testing11_hostssh_ovn_lab_logic.yml
@@ -81,7 +89,6 @@
         next_is_ip: "{{ next_line is search('=+') }}"
         ip: "{{ current | regex_search('([0-9.]+)') }}"
         item_status: "{{ next_line | trim if (is_ip and not next_is_ip) else 'unknown' }}"
-
 
     - name: 8. Final answer
       set_fact:

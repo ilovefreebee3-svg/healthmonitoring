@@ -1,0 +1,21 @@
+---
+- name: Initialize report
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+
+    - name: Generate CSV filename once
+      ansible.builtin.set_fact:
+        csv_filename: "output.{{ now().strftime('%Y%m%d.%H%M') }}.csv"
+
+    - name: Reset CSV report
+      ansible.builtin.copy:
+        content: ""
+        dest: "/tmp/{{ csv_filename }}"
+        mode: '0644'
+
+    - name: Display CSV filename
+      ansible.builtin.debug:
+        msg: "CSV filename = {{ csv_filename }}"
+

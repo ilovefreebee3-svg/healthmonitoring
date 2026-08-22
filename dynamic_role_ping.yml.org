@@ -1,11 +1,18 @@
 - name: Run roles dynamically
-  hosts: lab3
+  hosts: allcvms 
   gather_facts: no            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
+  pre_tasks:
+
+    - name: 0. Initialising csv_filename
+      ansible.builtin.import_tasks: subr.log_settings.yml
+
   tasks:
+
     - name: Process host connectivity safely
       block:
+
         - name: Check network/SSH responsiveness
           ansible.builtin.wait_for_connection:
             timeout: 5
@@ -13,20 +20,30 @@
         - name: Gather facts dynamically for live hosts
           ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
 
+        - name: display csv_filename
+          ansible.builtin.debug:
+            msg: "{{ csv_filename }}"
+   
+#        - name: Change csv_filename
+#          ansible.builtin.set_fact:
+#            csv_filename: "output.{{ ansible_date_time.date | replace('-', '') }}.{{ ansible_date_time.time | replace(':', '') | regex_replace('..$', '') }}.csv"
+#          when: csv_filename == 'output.csv'
+
         - name: Include roles per host
           ansible.builtin.include_role:
             name: "{{ item }}"
           loop: "{{ host_roles }}"
 
         - name: 98. Log to external
-          import_tasks: subr.log_ext.yml
+          ansible.builtin.import_tasks: subr.log_ext.yml
           when: log_ext_enabled | bool
 
         - name: 99. Log to local
-          import_tasks: subr.log_github.yml
+          ansible.builtin.import_tasks: subr.log_github.yml
           when: log_github_enabled | bool
 
       rescue:
+
         - name: Log unreachable host status to a local file
           ansible.builtin.lineinfile:
             path: "/tmp/unreachable_hosts.log"
@@ -36,4 +53,3 @@
 
         - name: Clear host error to move onto the next host in serial queue
           ansible.builtin.meta: clear_host_errors
-

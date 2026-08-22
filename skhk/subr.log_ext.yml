@@ -1,7 +1,7 @@
 ---
 - name: 0. Declare variables
   set_fact:
-    awx_host_ip: "user1@130.8.20.99"
+    awx_host_ip: "user1@130.8.20.76"
     awx_host_dir: /home/user1/awx_exports/
 
 - name: Export files to AWX host
