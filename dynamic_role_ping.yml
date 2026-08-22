@@ -19,13 +19,19 @@
       ansible.builtin.debug:
         msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
-
     - name: Process host connectivity safely
       block:
 
         - name: Check network/SSH responsiveness
           ansible.builtin.wait_for_connection:
             timeout: 15
+
+#        - name: Log reachable host status to a local file
+#          ansible.builtin.lineinfile:
+#            path: "/tmp/unreachable_hosts.log"
+#            line: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }} - Host {{ inventory_hostname }} is up or reachable."
+#            create: yes
+#          delegate_to: localhost
 
         - name: Gather facts dynamically for live hosts
           ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
