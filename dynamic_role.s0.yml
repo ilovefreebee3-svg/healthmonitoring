@@ -2,7 +2,7 @@
 - import_playbook: subr.local_init.yml
 
 - name: Run roles dynamically
-  hosts: allcvms  
+  hosts: "{{ server | default('calmcvm') }}"
   gather_facts: no            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
