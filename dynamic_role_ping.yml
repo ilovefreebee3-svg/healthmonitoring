@@ -1,5 +1,5 @@
 ---
-- import_playbook: subr.report_init.yml
+- import_playbook: subr.local_init.yml
 
 - name: Run roles dynamically
   hosts: allcvms  
@@ -7,6 +7,11 @@
   serial: 1
 
   tasks:
+    - name: 0. Declare variables
+      set_fact:
+        awx_host_ip: "user1@130.8.20.76"
+        awx_host_dir: /home/user1/awx_exports/
+
     - name: 1. Display csv_filename
       ansible.builtin.debug:
         msg: "{{ hostvars['localhost']['csv_filename'] }}"
@@ -26,13 +31,6 @@
           ansible.builtin.wait_for_connection:
             timeout: 15
 
-#        - name: Log reachable host status to a local file
-#          ansible.builtin.lineinfile:
-#            path: "/tmp/unreachable_hosts.log"
-#            line: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }} - Host {{ inventory_hostname }} is up or reachable."
-#            create: yes
-#          delegate_to: localhost
-
         - name: Gather facts dynamically for live hosts
           ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
 
@@ -49,9 +47,9 @@
           ansible.builtin.import_tasks: subr.log_ext.yml
           when: log_ext_enabled | bool
 
-        - name: 99. Log to local
-          ansible.builtin.import_tasks: subr.log_github.yml
-          when: log_github_enabled | bool
+#        - name: 99. Log to local
+#          ansible.builtin.import_tasks: subr.log_github.yml
+#          when: log_github_enabled | bool
 
       rescue:
 
