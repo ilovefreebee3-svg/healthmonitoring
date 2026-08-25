@@ -20,11 +20,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 

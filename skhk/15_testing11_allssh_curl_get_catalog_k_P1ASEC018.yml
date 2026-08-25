@@ -20,11 +20,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -35,7 +31,7 @@
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
-    - name: 1. Verify connectivity to the Control CVM
+    - name: 3. Verify connectivity to the Control CVM
       ansible.builtin.wait_for_connection:
         timeout: 5
       register: control_cvm_status
@@ -43,14 +39,14 @@
     # ------------------------------------------------------------
     # SCENARIO 2: Run curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k
     # ------------------------------------------------------------
-    - name: 2. Run "curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+    - name: 4. Run "curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k"
       # ansible.builtin.include_tasks: subr.run_allssh.yml
       ansible.builtin.include_tasks: subr.run_allssh_x.yml
       vars:
         target_cmd: "curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k"
       when: not ( read_from_file | bool )
 
-    - name: 3. Read from hardcoded file
+    - name: 5. Read from hardcoded file
       set_fact:
         input_filter:
           stdout: "{{ lookup('file', 'data.15_testing11_allssh_curl_get_catalog_k_P1ASEC018.txt') }}"
@@ -60,11 +56,11 @@
           changed: false
       when: read_from_file | bool
 
-    - name: 4. Display input_filter.stdout_lines
+    - name: 6. Display input_filter.stdout_lines
       ansible.builtin.debug:
         msg: "{{ input_filter.stdout_lines }}" 
 
-    - name: 5. Initialize variables
+    - name: 7. Initialize variables
       set_fact:
         remark_list: []
         status_tracker: []
@@ -74,7 +70,7 @@
         remark: []
         answer: ""
 
-    - name: 6. Process input line by line
+    - name: 8. Process input line by line
       set_fact:
         # Finalize previous block BEFORE changing IP
         remark: >-
@@ -131,7 +127,7 @@
       when:
         - curl_line is match('^=+') or curl_line is search('repositories')
     
-    - name: Finalize last block
+    - name: 9. Finalize last block
       set_fact:
         remark: >-
           {{
@@ -151,7 +147,7 @@
             else repository_error_found
           }}
 
-    - name: Set final answer
+    - name: 10. Set final answer
       set_fact:
         answer: >-
           {{
@@ -160,7 +156,7 @@
             else 'ALL CVMs to repository ok'
           }}
 
-    - name: Show result
+    - name: 11. Show result
       debug:
         msg:
           - "remark = {{ remark }}"

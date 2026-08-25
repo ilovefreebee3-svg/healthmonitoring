@@ -23,11 +23,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -35,20 +31,20 @@
       ansible.builtin.debug:
         msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
-    - name: 1. Declare variables
+    - name: 3. Declare variables
       set_fact:
         cmd_list:
           - name: hostssh ovn-appctl connection-status
             argv: ["hostssh", "ovn-appctl", "connection-status"]
 
-    - name: 2. Execute commands
+    - name: 4. Execute commands
       include_tasks: subr.40.testing11_hostssh_ovn_lab_logic.yml
       loop: "{{ cmd_list }}"
       loop_control:
         loop_var: cmd
       when: not ( read_from_file | bool )
 
-    - name: 3. Read from hardcoded file
+    - name: 5. Read from hardcoded file
       set_fact:
         input_filter:
           stdout: "{{ lookup('file', 'data.40.testing11_hostssh_ovn_lab_logic.txt') }}"
@@ -58,20 +54,20 @@
           changed: false
       when: read_from_file | bool
 
-    - name: 4. Display hostssh sudo ovn_appctl connection-status output
+    - name: 6. Display hostssh sudo ovn_appctl connection-status output
       ansible.builtin.debug:
         msg: "{{ input_filter }}" 
 
-    - name: 5. Split lines
+    - name: 7. Split lines
       set_fact:
         lines: "{{ (input_filter.stdout).split('\n') | map('trim') | reject('equalto','') | list }}"
 
-    - name: 6. Initialize results
+    - name: 8. Initialize results
       set_fact:
         num_disconnected: 0
         remark: ""
 
-    - name: 7. Process IP entries safely
+    - name: 9. Process IP entries safely
       set_fact:
         num_disconnected: "{{ (num_disconnected | default(0) | int) + (1 if item_status != 'connected' and is_ip else 0) }}"
         remark: >-
@@ -90,11 +86,12 @@
         ip: "{{ current | regex_search('([0-9.]+)') }}"
         item_status: "{{ next_line | trim if (is_ip and not next_is_ip) else 'unknown' }}"
 
-    - name: 8. Final answer
+    - name: 10. Show answer
       set_fact:
         answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
 
-    - debug:
+    - name: 11. Show answer and result
+      debug:
         msg:
           num_disconnected: "{{ num_disconnected }}"
           remark: "{{ remark }}"

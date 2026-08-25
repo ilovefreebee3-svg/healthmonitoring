@@ -22,11 +22,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -37,11 +33,11 @@
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
-    - name: 0. set disk threshold
+    - name: 3. set disk threshold
       set_fact:
         disk_threshold_pct: 80
 
-    - name: 0. Verify connectivity to the Control CVM
+    - name: 4. Verify connectivity to the Control CVM
       ansible.builtin.wait_for_connection:
         timeout: 5
       register: control_cvm_status
@@ -49,13 +45,13 @@
     # ------------------------------------------------------------
     # SCENARIO 2: Run 'df -h /dev/sdb3' and process the output
     # ------------------------------------------------------------
-    - name: 1. Run df -h 
+    - name: 5. Run df -h 
       ansible.builtin.include_tasks: subr.run_allssh.yml
       vars:
         target_cmd: "df -h /dev/sdb3"
       when: not ( read_from_file | bool )
 
-    - name: 3. Read from hardcoded file
+    - name: 6. Read from hardcoded file
       set_fact:
         input_filter:
           stdout: "{{ lookup('file', 'data.17_testing11_allssh_df_h_sdb3_gg.txt') }}"
@@ -65,11 +61,11 @@
           changed: false
       when: read_from_file | bool
 
-    - name: 4. Display input_filter 1
+    - name: 7. Display input_filter 1
       ansible.builtin.debug:
         msg: "{{ input_filter.stdout_lines }}" 
 
-    - name: 5. Parse and Analyze Disk Usage
+    - name: 8. Parse and Analyze Disk Usage
       ansible.builtin.set_fact:
         disk_reports: >-
           {% set reports = [] %}
@@ -88,19 +84,19 @@
           {% endfor %}
           {{ reports | to_json }}
 
-    - name: 6. Convert JSON String to Real Ansible List
+    - name: 9. Convert JSON String to Real Ansible List
       ansible.builtin.set_fact:
         disk_reports_list: "{{ disk_reports | from_json }}"
 
-    - name: 7. Evaluate Thresholds and Filter Exceeded Nodes
+    - name: 10. Evaluate Thresholds and Filter Exceeded Nodes
       ansible.builtin.set_fact:
         exceeded_nodes: "{{ disk_reports_list | selectattr('use_pct', 'greaterthan', disk_threshold_pct | int) | list }}"
 
-    - name: 8. Evaluate Thresholds and Filter Exceeded Nodes
+    - name: 11. Evaluate Thresholds and Filter Exceeded Nodes
       ansible.builtin.set_fact:
         exceeded_nodes: "{{ disk_reports_list | selectattr('use_pct', 'greaterthan', disk_threshold_pct | int) | list }}"
 
-    - name: 9. Finalize Answer and Remark Variables
+    - name: 12. Finalize Answer and Remark Variables
       ansible.builtin.set_fact:
         answer: "{{ 'Disk space /dev/sdb3 exceeded' if exceeded_nodes | length > 0 else 'Disk space OK' }}"
         remark: >-
@@ -117,7 +113,7 @@
           None
           {% endif %}
 
-    - name: 10. Debug Output
+    - name: 13. Debug Output
       ansible.builtin.debug:
         msg:
           - "Answer: {{ answer }}"

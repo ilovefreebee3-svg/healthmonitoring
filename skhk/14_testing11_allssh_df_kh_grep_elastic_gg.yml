@@ -21,11 +21,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -36,7 +32,7 @@
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
-    - name: Verify connectivity to the Control CVM
+    - name: 3. Verify connectivity to the Control CVM
       ansible.builtin.wait_for_connection:
         timeout: 5
       register: control_cvm_status
@@ -44,13 +40,13 @@
     # ------------------------------------------------------------
     # SCENARIO 2: Run 'df -kh' and process the output
     # ------------------------------------------------------------
-    - name: 1. Run df -kh and status check across all CVMs
+    - name: 4. Run df -kh and status check across all CVMs
       ansible.builtin.include_tasks: subr.run_allssh.yml
       vars:
         target_cmd: "df -kh"
       when: not ( read_from_file | bool )
 
-    - name: 3. Read from hardcoded file
+    - name: 5. Read from hardcoded file
       set_fact:
         input_filter:
           stdout: "{{ lookup('file', 'data.14_testing11_allssh_df_kh_grep_elastic_gg.txt') }}"
@@ -60,20 +56,20 @@
           changed: false
       when: read_from_file | bool
 
-    - name: 4. Initialise variables
+    - name: 6. Initialise variables
       set_fact:
         remark_list: []
         status_tracker: []
 
-    - name: 5. Display input_filter.stdout_lines
+    - name: 7. Display input_filter.stdout_lines
       ansible.builtin.debug:
         msg: "{{ input_filter.stdout_lines }}" 
 
-    - name: 6. Isolate blocks by delimiter
+    - name: 8. Isolate blocks by delimiter
       ansible.builtin.set_fact:
         raw_blocks: "{{ input_filter.stdout.split('==========') }}"
 
-    - name: 7. Process each host block dynamically
+    - name: 9. Process each host block dynamically
       ansible.builtin.set_fact:
         current_ip: "{{ raw_blocks[block_idx] | replace('=', '') | trim }}"
         current_content: "{{ raw_blocks[block_idx + 1] | default('') }}"
@@ -82,7 +78,7 @@
         loop_var: block_idx
       register: block_results
 
-    - name: 8. Aggregate results into final structures
+    - name: 10. Aggregate results into final structures
       ansible.builtin.set_fact:
         remark_list: >-
           {{ remark_list + [ 
@@ -97,12 +93,12 @@
       loop_control:
         loop_var: registered_result
 
-    - name: 9. Finalise scalar answer and remark variables
+    - name: 11. Finalise scalar answer and remark variables
       ansible.builtin.set_fact:
         remark: "{{ remark_list | join('\n') }}"
         answer: "{{ 'Elasticsearch function not found' if 'not found' in status_tracker else 'Elasticsearch function found' }}"
 
-    - name: 10. Display Results
+    - name: 12. Display Results
       ansible.builtin.debug:
         msg:
           - "REMARK:"

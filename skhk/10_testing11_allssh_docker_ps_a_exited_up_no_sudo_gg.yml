@@ -22,11 +22,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -37,7 +33,7 @@
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
-    - name: Verify connectivity to the Control CVM
+    - name: 3. Verify connectivity to the Control CVM
       ansible.builtin.wait_for_connection:
         timeout: 5
       register: control_cvm_status
@@ -45,19 +41,13 @@
     # ------------------------------------------------------------
     # SCENARIO 2: Run 'docker ps -a' and process the output
     # ------------------------------------------------------------
-    - name: 1. Run docker ps -a
+    - name: 4. Run docker ps -a
       ansible.builtin.include_tasks: subr.run_allssh.yml
       vars:
         target_cmd: "docker ps -a"
       when: not (read_from_file | bool)
 
-#    - name: 2. Execute a remote script
-#      ansible.builtin.command: name_of_remote_script
-#      register: input_filter
-#      changed_when: false
-#      ignore_errors: true
-
-    - name: 3. Read from hardcoded file
+    - name: 5. Read from hardcoded file
       set_fact:
         input_filter:
           stdout: "{{ lookup('file', 'data.10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.txt') }}"
@@ -67,11 +57,11 @@
           changed: false
       when: read_from_file | bool
 
-    - name: 4. Display input_filter 1
+    - name: 6. Display input_filter 1
       ansible.builtin.debug:
         msg: "{{ input_filter.stdout_lines }}" 
 
-    - name: 5. Process cluster container health
+    - name: 7. Process cluster container health
       ansible.builtin.set_fact:
         # Group variables dynamically into a single dictionary mapping
         health_assessment: >-
@@ -108,12 +98,12 @@
           {%- set final_remark = hosts_data if total_downed[0] > 0 else '' -%}
           {{ {'answer': final_answer, 'remark': final_remark} }}
 
-    - name: 6. Assign final variables
+    - name: 8. Assign final variables
       ansible.builtin.set_fact:
         answer: "{{ health_assessment.answer }}"
         remark: "{{ health_assessment.remark }}"
 
-    - name: 7. Display Summary
+    - name: 9. Display Summary
       ansible.builtin.debug:
         msg:
           - "Overall Status (answer): {{ answer }}"
@@ -129,7 +119,7 @@
       import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
-    - name: 98. Log to local
+    - name: 99. Log to local
       import_tasks: subr.log_github.yml
       when: log_github_enabled | bool
 

@@ -21,11 +21,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -36,7 +32,7 @@
     # ------------------------------------------------------------
     # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
     # ------------------------------------------------------------
-    - name: 1. Verify connectivity to the Control CVM
+    - name: 3. Verify connectivity to the Control CVM
       ansible.builtin.wait_for_connection:
         timeout: 5
       register: control_cvm_status
@@ -44,17 +40,17 @@
     # ------------------------------------------------------------
     # SCENARIO 2: Run 'ls -l /home/nutanix/tmp/calm-bkup' and process the output
     # ------------------------------------------------------------
-    - name: 2. Run "ls -l /home/nutanix/tmp/calm-bkup"
+    - name: 4. Run "ls -l /home/nutanix/tmp/calm-bkup"
       ansible.builtin.include_tasks: subr.run_allssh.yml
       vars:
         target_cmd: "ls -l /home/nutanix/tmp/calm-bkup"
       when: not ( read_from_file | bool )
 
-    - name: 3. Initialise variable
+    - name: 5. Initialise variable
       set_fact:
         no_of_files: 4
 
-    - name: Mimic 'cat' register output using lookup
+    - name: 6. Mimic 'cat' register output using lookup
       set_fact:
         input_filter:
           stdout: "{{ lookup('file', 'data.11_testing11_allssh_ll_calm_backup_gg.txt') }}"
@@ -64,11 +60,11 @@
           changed: false
       when: read_from_file | bool
 
-    - name: 4. Display input_filter.stdout_lines
+    - name: 7. Display input_filter.stdout_lines
       ansible.builtin.debug:
         msg: "{{ input_filter.stdout_lines }}" 
 
-    - name: 5. Parse output and evaluate backup status
+    - name: 8. Parse output and evaluate backup status
       ansible.builtin.set_fact:
         remark: >-
           {%- set context = {'current_ip': '', 'has_error': false, 'file_count': 0, 'logs': [], 'has_incomplete': false} -%}
@@ -137,7 +133,7 @@
           
           {{ 'Incomplete backup' if context.has_incomplete else 'Complete backup' }}
 
-    - name: 6. Debug results
+    - name: 9. Debug results
       ansible.builtin.debug:
         msg:
           - "Remark: {{ remark }}"

@@ -21,11 +21,7 @@
     vpc: tbd
 
   tasks:
-    - name: 1. Display csv_filename
-      ansible.builtin.debug:
-        msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-    - name: Display csv_filename
+    - name: 1. Set csv_filename
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -33,7 +29,7 @@
       ansible.builtin.debug:
         msg: "{{ hostvars['localhost']['csv_filename'] }}"
 
-    - name: 1. Run mspctl debug with command module
+    - name: 3. Run mspctl debug with command module
       ansible.builtin.command:
         argv:
           - /bin/bash
@@ -46,7 +42,7 @@
       failed_when: false
       when: not ( read_from_file | bool )
 
-    - name: 3. Read from hardcoded file
+    - name: 4. Read from hardcoded file
       set_fact:
         input_filter:
           stdout: "{{ lookup('file', 'data.31_testing11_mspctl_debug_run_command_with_logic_site_data.txt') }}"
@@ -56,7 +52,7 @@
           changed: false
       when: read_from_file | bool
 
-    - name: 4. Display input_filter.stdout_lines
+    - name: 5. Display input_filter.stdout_lines
       ansible.builtin.debug:
         var: input_filter.stdout_lines
 
@@ -77,13 +73,13 @@
       ansible.builtin.debug:
         var: Xinput_filter_msg
 
-    - name: 11. Initialize variables
+    - name: 9. Initialize variables
       set_fact:
         current_name: ""
         failures: []
         test_results: []
 
-    - name: 12. Parse in ONE loop (correct pairing)
+    - name: 9. Parse in ONE loop (correct pairing)
       set_fact:
         current_name: >-
           {{
@@ -107,7 +103,7 @@
       loop_control:
         loop_var: log_line
 
-    - name: 13. Compute summary
+    - name: 10. Compute summary
       set_fact:
         num_failure: "{{ failures | length }}"
         remark: >-
