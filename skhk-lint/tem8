@@ -1,0 +1,17 @@
+{% if remark | length == 0 %}
+  {{ ['None'] | to_json }}
+{% else %}
+  {% set ns_ans = namespace(storage_nok=false, temp_nok=false) %}
+  {% for item in remark %}
+    {% if item.storage_ratio is defined and item.storage_ratio | float >= 0.9 %}
+      {% set ns_ans.storage_nok = true %}
+    {% endif %}
+    {% if item.temperature is defined %}
+      {% set item_t = item.temperature | replace('C', '') | trim | int %}
+      {% if item_t >= 50 %}
+        {% set ns_ans.temp_nok = true %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {{ [(ns_ans.storage_nok | ternary('Storage NOK', 'Storage OK')), (ns_ans.temp_nok | ternary('Temperature NOK', 'Temperature OK'))] | to_json }}
+{% endif %}

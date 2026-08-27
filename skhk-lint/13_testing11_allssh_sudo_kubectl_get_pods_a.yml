@@ -1,0 +1,138 @@
+---
+- name: Importing initialization
+  import_playbook: subr.report_init.yml
+
+- name: Running kubectl get pods -A
+#  hosts: pccvm
+  hosts: calmcvm
+  gather_facts: true
+  serial: 1
+
+  vars:
+    log_local_enabled: false
+    log_ext_enabled: false
+    log_github_enabled: false
+    read_from_file: false
+    logd_enabled: false
+    role_enabled: false
+    log_filesystem_enabled: false
+    description: allssh sudo kubectl get pods -A
+    idx: idx061
+    role: r_allssh_sudo_kubectl_get_pods_a
+    vpc: tbd
+
+  tasks:
+    - name: 1. Set csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 3. Set variables default
+      ansible.builtin.set_fact:
+        remark_list: []
+        answer: "No pod issue"
+
+    # ------------------------------------------------------------
+    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
+    # ------------------------------------------------------------
+    - name: 4. Verify connectivity to the Control CVM
+      ansible.builtin.wait_for_connection:
+        timeout: 5
+      register: control_cvm_status
+
+    # ------------------------------------------------------------
+    # SCENARIO 2: Run 'kubectl get pods -A' and process the output
+    # ------------------------------------------------------------
+    - name: 5. Run sudo kubectl get pods -A
+      ansible.builtin.include_tasks: subr.run_allssh.yml
+      vars:
+        target_cmd: "sudo kubectl get pods -A"
+      when: not (read_from_file | bool)
+
+    - name: 6. Read from hardcoded file
+      ansible.builtin.set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.13_testing11_allssh_sudo_kubectl_get_pods_a.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.13_testing11_allssh_sudo_kubectl_get_pods_a.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 7. Display input_filter 1
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}"
+
+    - name: 8. Process output and calculate pod states
+      ansible.builtin.set_fact:
+        clean_lines: >-
+          {{ input_filter.stdout_lines
+             | reject('search', 'Unable to connect to the server')
+             | select('string')
+             | list }}
+
+    - name: 9. Parse IP blocks and evaluate pods
+      ansible.builtin.set_fact:
+        parsed_data: >-
+          {% set ns = namespace(current_ip='', ip_pods=0, results=[]) %}
+          {% for line in clean_lines if line | trim != '' %}
+            {% if '==========' in line %}
+              {% if ns.current_ip != '' and ns.ip_pods > 0 %}
+                {% set _ = ns.results.append({'ip': ns.current_ip, 'count': ns.ip_pods}) %}
+              {% endif %}
+              {% set ns.current_ip = line | regex_search('([0-9]{1,3}\.){3}[0-9]{1,3}') %}
+              {% set ns.ip_pods = 0 %}
+            {% else %}
+              {% if 'Completed' not in line and 'Running' not in line and 'NAMESPACE' not in line %}
+                {% set ns.ip_pods = ns.ip_pods + 1 %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.current_ip != '' and ns.ip_pods > 0 %}
+            {% set _ = ns.results.append({'ip': ns.current_ip, 'count': ns.ip_pods}) %}
+          {% endif %}
+          {{ ns.results | to_json }}
+
+    - name: 6. Display parsed_data
+      ansible.builtin.debug:
+        msg:
+          - "Answer:\n{{ parsed_data }}"
+
+    - name: 10. Convert parsed data to native structure
+      ansible.builtin.set_fact:
+        structured_data: "{{ parsed_data | from_yaml }}"
+
+    - name: 11. Assign final variables based on pod counts
+      ansible.builtin.set_fact:
+        remark: >-
+          {% set remark_list = [] %}
+          {% for item in structured_data %}
+            {% set _ = remark_list.append(item.ip ~ ': ' ~ item.count) %}
+          {% endfor %}
+          {{ remark_list }}
+        total_issues: "{{ structured_data | map(attribute='count') | map('int') | sum }}"
+
+    - name: 12. Set final answer status
+      ansible.builtin.set_fact:
+        answer: "{{ 'Pod issues' if (total_issues | int > 0) else 'No pod issue' }}"
+
+    - name: 13. Display Results
+      ansible.builtin.debug:
+        msg:
+          - "Answer: {{ answer }}"
+          - "Remark: {{ remark | default('No issues found') }}"
+
+    - name: 97. Log to local
+      ansible.builtin.import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      ansible.builtin.import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+#    - name: 99. Log to github
+#      ansible.builtin.import_tasks: subr.log_github.yml
+#      when: log_github_enabled | bool

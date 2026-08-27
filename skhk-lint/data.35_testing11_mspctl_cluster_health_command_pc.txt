@@ -1,0 +1,9 @@
+COMPONENT      HEALTHYDESCRIPTION                
+
+Core           false   Core is healthy           
+Addons         true   Addons is healthy         
+Extensions     true   Extensions is healthy     
+Node           true   Node is healthy           
+LB             true   LB is healthy             
+ClusterWorkflow true   ClusterWorkflow is healthy
+

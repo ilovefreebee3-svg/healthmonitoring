@@ -35,26 +35,27 @@
   until: git_clone_result is succeeded
 
 - name: Copy generated CSV file to the repository directory
-  copy:
+  ansible.builtin.copy:
     src: "/tmp/{{ csv_filename }}"
     dest: "{{ clone_dir }}/{{ csv_filename }}"
+    mode: '0644'
 
 - name: Configure Git user identity locally for this execution
-  shell: |
+  ansible.builtin.shell: |
     git config user.name "ilovefreebee3-svg"
     git config user.email "ilovefreebee3@gmail.com"
   args:
     chdir: "{{ clone_dir }}"
 
 - name: Check if there are changes to commit
-  shell: git status --porcelain
+  ansible.builtin.shell: git status --porcelain
   args:
     chdir: "{{ clone_dir }}"
   register: git_status
   changed_when: false
 
 - name: Commit and push the CSV file if changes exist
-  shell: |
+  ansible.builtin.shell: |
     git add .
     git commit -m "Automated CSV export update"
     git push https://x-oauth-basic:{{ gh_token }}@{{ repo_url }} HEAD:main
@@ -62,8 +63,9 @@
     chdir: "{{ clone_dir }}"
   when: git_status.stdout | length > 0
   no_log: false
+  changed_when: false
 
-#- name: Commit and push the CSV file if changes exist
+# - name: Commit and push the CSV file if changes exist
 #  shell: |
 #    git add {{ csv_filename }}
 #    git commit -m "Automated update: Uploaded {{ csv_filename }} via AWX"
@@ -73,7 +75,6 @@
 #  when: git_status.stdout | length > 0
 
 - name: Wipe temporary clone directory to keep AWX environment clean
-  file:
+  ansible.builtin.file:
     path: "{{ clone_dir }}"
     state: absent
- 
