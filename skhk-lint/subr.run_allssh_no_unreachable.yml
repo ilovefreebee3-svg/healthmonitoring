@@ -1,7 +1,6 @@
 ---
 # This file contains ONLY the core execution engine logic
 - name: Get list of target IPs
-#  ansible.builtin.shell: svmips
   ansible.builtin.command:
     argv:
       - /bin/bash
@@ -33,11 +32,14 @@
   ignore_errors: true
 
 - name: Execute commands sequentially on remote hosts
-  ansible.builtin.shell: >
-    {% if host_reachable %}
-    /usr/bin/ssh -n {{ ssh_opts | default('-q -o LogLevel=ERROR -o StrictHostKeyChecking=no') }} {{ ssh_user | default('nutanix') }}@{{ target_ip }} 
-    "source /etc/profile; export USE_SAFE_RM=yes; {{ target_cmd }}"
-    {% endif %}
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/ssh
+      - -n
+      - "{{ ssh_opts | default('-q -o LogLevel=ERROR -o StrictHostKeyChecking=no') }}"
+      - "{{ ssh_user | default('nutanix') }}@{{ target_ip }}"
+      - "source /etc/profile; export USE_SAFE_RM=yes; {{ target_cmd }}"
+  when: host_reachable
   loop: "{{ ordered_ips | reject('equalto', '') | list }}"
   loop_control:
     loop_var: target_ip
@@ -61,4 +63,3 @@
       {{ result.stderr }}
       {% endif %}
       {% endfor %}
-

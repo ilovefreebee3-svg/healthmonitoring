@@ -38,7 +38,7 @@
   ansible.builtin.command: >
     /usr/bin/ssh -n {{ ssh_opts | default('-q -o LogLevel=ERROR -o StrictHostKeyChecking=no') }}
     {{ ssh_user | default('nutanix') }}@{{ target_ip }}
-    /usr/bin/target-binary-name --arguments
+    {{ target_cmd }}
   loop: "{{ ordered_ips | reject('equalto', '') | list }}"
   loop_control:
     loop_var: target_ip
