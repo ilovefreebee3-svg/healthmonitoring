@@ -92,7 +92,8 @@
       ansible.builtin.debug:
         msg: "{{ input_result.stdout_lines }}"
 
-    - set_fact:
+    - name: 10. Find active service
+      ansible.builtin.set_fact:
         svc_list: >-
           {{
             input_result.stdout | regex_findall(
@@ -101,26 +102,29 @@
             )
           }}
 
-    - name: 10. Determine svc_list
+    - name: 11. Determine svc_list
       ansible.builtin.debug:
         var: svc_list
 
-    - set_fact:
+    - name: 13. Initialise answer
+      ansible.builtin.set_fact:
         answer: "None"
       when: svc_list | length == 0
 
-    - set_fact:
+    - name: 14. Filter active status
+      ansible.builtin.set_fact:
         inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
       when: svc_list | length > 0
 
-    - set_fact:
+    - name: 15. Check the number of active
+      ansible.builtin.set_fact:
         answer: >-
           {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
         remark: >-
           {{ inactive_list if inactive_list | length > 0 else '' }}
       when: svc_list | length > 0
 
-    - name: 11. Display answer and remark
+    - name: 16. Display answer and remark
       ansible.builtin.debug:
         msg: "{{ answer }} {{ remark }} "
 
@@ -132,7 +136,6 @@
       ansible.builtin.import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
-    - name: 99. Log to local
-      ansible.builtin.import_tasks: subr.log_github.yml
-      when: log_github_enabled | bool
-
+#    - name: 99. Log to local
+#      ansible.builtin.import_tasks: subr.log_github.yml
+#      when: log_github_enabled | bool

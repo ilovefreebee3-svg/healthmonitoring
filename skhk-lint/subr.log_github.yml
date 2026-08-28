@@ -1,7 +1,7 @@
 - name: "1. Declare github variables"
   ansible.builtin.set_fact:
     gh_token: "{{ lookup('env', 'GITHUB_TOKEN') | default(github_token, true) }}"
-    repo_url: "github.com/ilovefreebee3-svg/healthmonitoring.git"
+    repo_url: "github.com/xxxxxxxxxbee3-svg/healthmonitoring.git"
     clone_dir: "/tmp/{{ inventory_hostname}}.healthmonitoring"
 
 - name: Ensure GitHub token is provided
@@ -42,8 +42,8 @@
 
 - name: Configure Git user identity locally for this execution
   ansible.builtin.shell: |
-    git config user.name "ilovefreebee3-svg"
-    git config user.email "ilovefreebee3@gmail.com"
+    git config user.name "xxxxxxxxxbee3-svg"
+    git config user.email "xxxxxxxxxbee3@gmail.com"
   args:
     chdir: "{{ clone_dir }}"
 

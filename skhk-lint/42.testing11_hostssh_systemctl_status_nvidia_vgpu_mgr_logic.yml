@@ -92,7 +92,8 @@
       ansible.builtin.debug:
         msg: "{{ input_result.stdout }}"
 
-    - set_fact:
+    - name: 10. Capture the service
+      ansible.builtin.set_fact:
         svc_list: >-
           {{
             input_result.stdout | regex_findall(
@@ -105,15 +106,18 @@
       ansible.builtin.debug:
         var: svc_list
 
-    - set_fact:
+    - name: Set answer
+      ansible.builtin.set_fact:
         answer: "None"
       when: svc_list | length == 0
 
-    - set_fact:
+    - name: Remove any active
+      ansible.builtin.set_fact:
         inactive_list: "{{ svc_list | rejectattr('2', 'equalto', 'active') | list }}"
       when: svc_list | length > 0
 
-    - set_fact:
+    - name: Count any active
+      ansible.builtin.set_fact:
         answer: >-
           {{ 'All active' if inactive_list | length == 0 else 'Not all active' }}
         remark: >-
@@ -132,7 +136,6 @@
       ansible.builtin.import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
-    - name: 99. Log to local
-      ansible.builtin.import_tasks: subr.log_github.yml
-      when: log_github_enabled | bool
-
+#    - name: 99. Log to local
+#      ansible.builtin.import_tasks: subr.log_github.yml
+#      when: log_github_enabled | bool

@@ -43,5 +43,3 @@
         msg: "{{ input_result_lines_list }}"
 
   when: check_ssh.failed is not defined or not check_ssh.failed
-
-

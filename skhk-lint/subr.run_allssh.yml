@@ -1,7 +1,6 @@
 ---
 # This file contains ONLY the core execution engine logic
 - name: Get list of target IPs
-#  ansible.builtin.shell: svmips
   ansible.builtin.command:
     argv:
       - /bin/bash

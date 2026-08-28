@@ -1,3 +1,4 @@
+# 46.testing11_hostssh_nvidia_smi_logic.yml
 ---
 - name: "Check reachability for {{ current_host }}"
   ansible.builtin.wait_for:
@@ -12,7 +13,8 @@
   when: check_ssh.failed is not defined or not check_ssh.failed
   block:
     - name: "Run systemctl status on {{ current_host }}"
-      ansible.builtin.shell: "ssh -o StrictHostKeyChecking=no {{ remote_user_name }}@{{ current_host }} 'nvidia-smi'"
+    #   ansible.builtin.shell: "ssh -o StrictHostKeyChecking=no {{ remote_user_name }}@{{ current_host }} 'nvidia-smi'"
+      ansible.builtin.command: "ssh -o StrictHostKeyChecking=no {{ remote_user_name }}@{{ current_host }} nvidia-smi"
       register: cmd_output
       changed_when: false
       ignore_errors: true

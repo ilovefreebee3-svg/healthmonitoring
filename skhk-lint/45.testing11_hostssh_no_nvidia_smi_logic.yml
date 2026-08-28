@@ -122,11 +122,11 @@
 
     - name: 10. Display remark
       ansible.builtin.debug:
-          var: remark
+        var: remark
 
     - name: 10. Display answer
       ansible.builtin.debug:
-          var: answer
+        var: answer
 
     - name: 97. Log to local
       ansible.builtin.import_tasks: subr.log_local.yml
@@ -136,7 +136,6 @@
       ansible.builtin.import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
-    - name: 99. Log to local
-      ansible.builtin.import_tasks: subr.log_github.yml
-      when: log_github_enabled | bool
-
+#    - name: 99. Log to local
+#      ansible.builtin.import_tasks: subr.log_github.yml
+#      when: log_github_enabled | bool
