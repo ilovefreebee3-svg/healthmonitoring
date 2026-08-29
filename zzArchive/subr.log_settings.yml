@@ -1,4 +1,0 @@
----
-- name: 0. set csv_filename
-  set_fact:
-     csv_filename: "output.{{ now(fmt='%Y-%m-%d.%H%M') }}.csv"
