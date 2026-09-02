@@ -1,7 +1,6 @@
 ---
 # This file contains ONLY the core execution engine logic
 - name: Get list of target IPs
-#  ansible.builtin.shell: svmips
   ansible.builtin.command:
     argv:
       - /bin/bash
@@ -35,21 +34,18 @@
   ignore_errors: true
 
 - name: Execute commands sequentially on remote hosts
-  ansible.builtin.shell: >
-    {% if host_reachable %}
-    /usr/bin/ssh -n {{ ssh_opts | default('-q -o LogLevel=ERROR -o StrictHostKeyChecking=no') }} {{ ssh_user | default('nutanix') }}@{{ target_ip }} 
+  ansible.builtin.command: >
+    /usr/bin/ssh -n {{ ssh_opts | default('-q -o LogLevel=ERROR -o StrictHostKeyChecking=no') }}
+    {{ ssh_user | default('nutanix') }}@{{ target_ip }}
     "source /etc/profile; export USE_SAFE_RM=yes; {{ target_cmd }}"
-    {% else %}
-    echo "server unreachable"
-    {% endif %}
   loop: "{{ ordered_ips | reject('equalto', '') | list }}"
   loop_control:
     loop_var: target_ip
     index_var: loop_index
   register: ssh_results
   ignore_errors: true
-  vars:
-    host_reachable: "{{ not reachability_results.results[loop_index].failed | default(false) }}"
+  changed_when: false
+  when: not reachability_results.results[loop_index].failed | default(false)
 
 - name: Consolidate and save all CVM outputs to the input_filter register object
   ansible.builtin.set_fact:
@@ -64,4 +60,3 @@
       {{ result.stderr }}
       {% endif %}
       {% endfor %}
-

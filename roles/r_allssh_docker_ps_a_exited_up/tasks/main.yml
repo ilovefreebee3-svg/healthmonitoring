@@ -23,10 +23,10 @@
 #      ignore_errors: true
 
 - name: 3. Read from hardcoded file
-  set_fact:
+  ansible.builtin.set_fact:
     input_filter:
-      stdout: "{{ lookup('file', 'data.10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.txt') }}"
-      stdout_lines: "{{ lookup('file', 'data.10_testing11_allssh_docker_ps_a_exited_up_no_sudo_gg.txt').splitlines() }}"
+      stdout: "{{ lookup('file', 'data.10_allssh_docker_ps_a_exited_up_no_sudo.txt') }}"
+      stdout_lines: "{{ lookup('file', 'data.10_allssh_docker_ps_a_exited_up_no_sudo.txt').splitlines() }}"
       rc: 0
       failed: false
       changed: false
@@ -34,7 +34,7 @@
 
 - name: 4. Display input_filter 1
   ansible.builtin.debug:
-    msg: "{{ input_filter.stdout_lines }}" 
+    msg: "{{ input_filter.stdout_lines }}"
 
 - name: 5. Process cluster container health
   ansible.builtin.set_fact:
@@ -45,7 +45,7 @@
       {%- set current_ip = ['Unknown'] -%}
       {%- set current_containers = [] -%}
       {%- set total_downed = [0] -%}
-      
+
       {%- for line in output -%}
         {%- if '==========' in line -%}
           {%- if current_containers | length > 0 or current_ip[0] != 'Unknown' -%}
@@ -62,13 +62,13 @@
           {%- endif -%}
         {%- endif -%}
       {%- endfor -%}
-      
+
       {%- if current_containers | length > 0 or current_ip[0] != 'Unknown' -%}
         {%- set downed_count = current_containers | length -%}
         {%- set _ = total_downed.append(total_downed.pop() + downed_count) -%}
         {%- set _ = hosts_data.update({current_ip[0]: downed_count}) -%}
       {%- endif -%}
-      
+
       {%- set final_answer = 'Not healthy' if total_downed[0] > 0 else 'Healthy' -%}
       {%- set final_remark = hosts_data if total_downed[0] > 0 else '' -%}
       {{ {'answer': final_answer, 'remark': final_remark} }}
@@ -87,14 +87,13 @@
       - "remark: {{ remark }}"
 
 - name: 97. Log to local
-  import_tasks: subr.log_local.yml
+  ansible.builtin.import_tasks: subr.log_local.yml
   when: log_local_enabled | bool
 
-#- name: 98. Log to external
-#  import_tasks: subr.log_ext.yml
+# - name: 98. Log to external
+#  ansible.builtin.import_tasks: subr.log_ext.yml
 #  when: log_ext_enabled | bool
 
-#- name: 98. Log to local
-#  import_tasks: subr.log_github.yml
+# - name: 98. Log to local
+#  ansible.builtin.import_tasks: subr.log_github.yml
 #  when: log_github_enabled | bool
-

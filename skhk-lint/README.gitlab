@@ -1,0 +1,17 @@
+git clone ssh://git@gitlab.dh.local:2424/group_pg/project_pg.git
+cd project_pg
+git switch --create main
+touch README.md
+git add README.md
+git commit -m "add README"
+git push --set-upstream origin main
+
+
+
+git init --initial-branch=main --object-format=sha1
+git remote add origin ssh://git@gitlab.dh.local:2424/group_pg/project_pg.git
+git add .
+git commit -m "Initial commit"
+git push --set-upstream origin main
+
+

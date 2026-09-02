@@ -1,0 +1,118 @@
+---
+- name: Set variables on an imported playbook
+  ansible.builtin.import_playbook: ./subr.local_init.yml
+
+- name: Running df -kh
+#  hosts: calmcvm
+  hosts: calmcvm
+  gather_facts: true
+  serial: 1
+
+  vars:
+    log_local_enabled: false
+    log_ext_enabled: false
+    log_github_enabled: false
+    read_from_file: false
+    logd_enabled: false
+    role_enabled: false
+    log_filesystem_enabled: false
+    description: allssh 'df -kh | grep -e elastic'
+    idx: idx099
+    role: r_allssh_df_kh_grep_elastic_sdb3
+    vpc: tbd
+
+  tasks:
+    - name: 1. Set csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    # ------------------------------------------------------------
+    # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
+    # ------------------------------------------------------------
+    - name: 3. Verify connectivity to the Control CVM
+      ansible.builtin.wait_for_connection:
+        timeout: 5
+      register: control_cvm_status
+
+    # ------------------------------------------------------------
+    # SCENARIO 2: Run 'df -kh' and process the output
+    # ------------------------------------------------------------
+    - name: 4. Run df -kh and status check across all CVMs
+      ansible.builtin.include_tasks: subr.run_allssh.yml
+      vars:
+        target_cmd: "df -kh"
+      when: not (read_from_file | bool)
+
+    - name: 5. Read from hardcoded file
+      ansible.builtin.set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.14_allssh_df_kh_grep_elastic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.14_allssh_df_kh_grep_elastic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 6. Initialise variables
+      ansible.builtin.set_fact:
+        remark_list: []
+        status_tracker: []
+
+    - name: 7. Display input_filter.stdout_lines
+      ansible.builtin.debug:
+        msg: "{{ input_filter.stdout_lines }}"
+
+    - name: 8. Isolate blocks by delimiter
+      ansible.builtin.set_fact:
+        raw_blocks: "{{ input_filter.stdout.split('==========') }}"
+
+    - name: 9. Process each host block dynamically
+      ansible.builtin.set_fact:
+        current_ip: "{{ raw_blocks[block_idx] | replace('=', '') | trim }}"
+        current_content: "{{ raw_blocks[block_idx + 1] | default('') }}"
+      loop: "{{ range(1, raw_blocks | length, 2) | list }}"
+      loop_control:
+        loop_var: block_idx
+      register: block_results
+
+    - name: 10. Aggregate results into final structures
+      ansible.builtin.set_fact:
+        remark_list: >-
+          {{ remark_list + [
+          registered_result.ansible_facts.current_ip ~ ' --- ' ~
+          ('Elasticsearch function found' if 'elasticsearch' in registered_result.ansible_facts.current_content else 'Elasticsearch function not found')
+          ]}}
+        status_tracker: >-
+          {{ status_tracker + ['found' if 'elasticsearch' in registered_result.ansible_facts.current_content else 'not found'] }}
+      loop: "{{ block_results.results }}"
+      loop_control:
+        loop_var: registered_result
+
+    - name: 11. Finalise scalar answer and remark variables
+      ansible.builtin.set_fact:
+        remark: "{{ remark_list | join('\n') }}"
+        answer: "{{ 'Elasticsearch function not found' if 'not found' in status_tracker else 'Elasticsearch function found' }}"
+
+    - name: 12. Display Results
+      ansible.builtin.debug:
+        msg:
+          - "REMARK:"
+          - "{{ remark }}"
+          - "-----------------------------------"
+          - "ANSWER: {{ answer }}"
+
+    - name: 97. Log to local
+      ansible.builtin.import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      ansible.builtin.import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+#    - name: 99. Log to github
+#      ansible.builtin.import_tasks: subr.log_github.yml
+#      when: log_github_enabled | bool

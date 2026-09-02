@@ -3,7 +3,7 @@
 # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
 # ------------------------------------------------------------
 - name: 0. set disk threshold
-  set_fact:
+  ansible.builtin.set_fact:
     disk_threshold_pct: 80
 
 - name: 0. Verify connectivity to the Control CVM
@@ -14,17 +14,17 @@
 # ------------------------------------------------------------
 # SCENARIO 2: Run 'df -h /dev/sdb3' and process the output
 # ------------------------------------------------------------
-- name: 1. Run df -h 
+- name: 1. Run df -h
   ansible.builtin.include_tasks: subr.run_allssh.yml
   vars:
     target_cmd: "df -h /dev/sdb3"
   when: not ( read_from_file | bool )
 
 - name: 3. Read from hardcoded file
-  set_fact:
+  ansible.builtin.set_fact:
     input_filter:
-      stdout: "{{ lookup('file', 'data.17_testing11_allssh_df_h_sdb3_gg.txt') }}"
-      stdout_lines: "{{ lookup('file', 'data.17_testing11_allssh_df_h_sdb3_gg.txt').splitlines() }}"
+      stdout: "{{ lookup('file', 'data.17_allssh_df_h_sdb3.txt') }}"
+      stdout_lines: "{{ lookup('file', 'data.17_allssh_df_h_sdb3.txt').splitlines() }}"
       rc: 0
       failed: false
       changed: false
@@ -32,7 +32,7 @@
 
 - name: 4. Display input_filter 1
   ansible.builtin.debug:
-    msg: "{{ input_filter.stdout_lines }}" 
+    msg: "{{ input_filter.stdout_lines }}"
 
 - name: 5. Parse and Analyze Disk Usage
   ansible.builtin.set_fact:
@@ -90,14 +90,13 @@
       - "{{ remark.strip() }}"
 
 - name: 97. Log to local
-  import_tasks: subr.log_local.yml
+  ansible.builtin.import_tasks: subr.log_local.yml
   when: log_local_enabled | bool
 
-#- name: 98. Log to external
-#  import_tasks: subr.log_ext.yml
+# - name: 98. Log to external
+#  ansible.builtin.import_tasks: subr.log_ext.yml
 #  when: log_ext_enabled | bool
 
-#- name: 99. Log to local
-#  import_tasks: subr.log_github.yml
+# - name: 99. Log to local
+#  ansible.builtin.import_tasks: subr.log_github.yml
 #  when: log_github_enabled | bool
-

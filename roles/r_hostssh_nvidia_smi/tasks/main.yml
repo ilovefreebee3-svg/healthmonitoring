@@ -1,4 +1,12 @@
 ---
+- name: 1. Set csv_filename
+  ansible.builtin.set_fact:
+    csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+- name: 2. Display csv_filename
+  ansible.builtin.debug:
+    msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
 - name: Process AHV hosts configuration and tracking
   when: not (read_from_file | bool)
   block:
@@ -27,7 +35,7 @@
         input_filter_lines_list: []
 
     - name: 4. Process each AHV host dynamically
-      ansible.builtin.include_tasks: subr.46.testing11_hostssh_nvidia_smi_logic.yml
+      ansible.builtin.include_tasks: subr.46.hostssh_nvidia_smi_logic.yml
       loop: "{{ ahv_hosts }}"
       loop_control:
         loop_var: current_host
@@ -40,10 +48,10 @@
           stdout_lines: "{{ input_filter_lines_list }}"
 
 - name: 6. Mimic 'cat' register output using lookup
-  set_fact:
+  ansible.builtin.set_fact:
     input_filter:
-      stdout: "{{ lookup('file', 'data.46.testing11_hostssh_nvidia_smi_logic.txt') }}"
-      stdout_lines: "{{ lookup('file', 'data.46.testing11_hostssh_nvidia_smi_logic.txt').splitlines() }}"
+      stdout: "{{ lookup('file', 'data.46.hostssh_nvidia_smi_logic.txt') }}"
+      stdout_lines: "{{ lookup('file', 'data.46.hostssh_nvidia_smi_logic.txt').splitlines() }}"
       rc: 0
       failed: false
       changed: false
@@ -51,7 +59,7 @@
 
 - name: 7. Display input_filter.stdout_lines
   ansible.builtin.debug:
-    msg: "{{ input_filter.stdout_lines }}" 
+    msg: "{{ input_filter.stdout_lines }}"
 
 - name: Parse lines sequentially by scanning next-neighbor index lines cleanly
   vars:
@@ -69,7 +77,7 @@
           {% set metrics_tokens = lines[i+1] | replace('|', ' ') | replace('/', ' ') | split() %}
           {% if gpu_tokens | length > 0 and metrics_tokens | length >= 4 and ns.current_ip != '' %}
             {% set gpu_idx = gpu_tokens[0] | trim %}
-            
+
             {# Locate temperature token (ending with C) and memory tokens (ending with MiB) #}
             {% set ns_tokens = namespace(t_val='', u_val=0.0, t_val_mem=1.0) %}
             {% for tok in metrics_tokens %}
@@ -77,7 +85,7 @@
                 {% set ns_tokens.t_val = tok | trim %}
               {% endif %}
             {% endfor %}
-            
+
             {# Extract raw memory strings cleanly via index search loop #}
             {% set m_indices = [] %}
             {% for j in range(metrics_tokens | length) %}
@@ -85,13 +93,13 @@
                 {% set _ = m_indices.append(j) %}
               {% endif %}
             {% endfor %}
-            
+
             {% if m_indices | length >= 2 %}
               {% set used_str = metrics_tokens[m_indices[0]] | replace('MiB', '') | trim %}
               {% set total_str = metrics_tokens[m_indices[1]] | replace('MiB', '') | trim %}
               {% set ratio_val = (used_str | float) / (total_str | float) %}
               {% set rounded_ratio = "%.2f" | format(ratio_val) | float %}
-              
+
               {% set _ = storage_remarks.append({'ip': ns.current_ip, 'gpu_index': gpu_idx, 'storage_ratio': rounded_ratio}) %}
               {% set _ = temp_remarks.append({'ip': ns.current_ip, 'gpu_index': gpu_idx, 'temperature': ns_tokens.t_val}) %}
             {% endif %}
@@ -108,19 +116,19 @@
       {% if remark | length == 0 %}
         {{ ['None'] | to_json }}
       {% else %}
-        {% set ns_ans = namespace(has_storage_nok=false, has_temp_nok=false) %}
+        {% set ns_ans = namespace(storage_nok=false, temp_nok=false) %}
         {% for item in remark %}
           {% if item.storage_ratio is defined and item.storage_ratio | float >= 0.9 %}
-            {% set ns_ans.has_storage_nok = true %}
+            {% set ns_ans.storage_nok = true %}
           {% endif %}
           {% if item.temperature is defined %}
-            {% set item_t = item.temperature | replace('C','') | trim | int %}
+            {% set item_t = item.temperature | replace('C', '') | trim | int %}
             {% if item_t >= 50 %}
-              {% set ns_ans.has_temp_nok = true %}
+              {% set ns_ans.temp_nok = true %}
             {% endif %}
           {% endif %}
         {% endfor %}
-        {{ [ (ns_ans.has_storage_nok | ternary('Storage NOK', 'Storage OK')), (ns_ans.has_temp_nok | ternary('Temperature NOK', 'Temperature OK')) ] | to_json }}
+        {{ [(ns_ans.storage_nok | ternary('Storage NOK', 'Storage OK')), (ns_ans.temp_nok | ternary('Temperature NOK', 'Temperature OK'))] | to_json }}
       {% endif %}
   ansible.builtin.set_fact:
     answer: "{{ raw_answer | from_json }}"
@@ -132,14 +140,5 @@
       - "ANSWER: {{ answer }}"
 
 - name: 97. Log to local
-  import_tasks: subr.log_local.yml
+  ansible.builtin.import_tasks: subr.log_local.yml
   when: log_local_enabled | bool
-
-#- name: 98. Log to external
-#  import_tasks: subr.log_ext.yml
-#  when: log_ext_enabled | bool
-
-#- name: 99. Log to local
-#  import_tasks: subr.log_github.yml
-#  when: log_github_enabled | bool
-

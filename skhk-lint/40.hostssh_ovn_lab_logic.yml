@@ -1,0 +1,111 @@
+---
+- name: Set variables on an imported playbook
+  ansible.builtin.import_playbook: subr.local_init.yml
+
+- name: 1. Run diagnostic commands on all CVMs
+  hosts: corecvm
+#  hosts: engrcvm
+#  hosts: pecvm
+#  hosts: allcvms
+  gather_facts: true
+  serial: 1
+
+  vars:
+    log_local_enabled: false
+    log_ext_enabled: false
+    log_github_enabled: false
+    read_from_file: false
+    logd_enabled: false
+    role_enabled: false
+    log_filesystem_enabled: false
+    description: hostssh sudo ovn_appctl connection-status
+    idx: idx6
+    role: r_hostssh_sudo_ovn_appctl_connection_status
+    vpc: tbd
+
+  tasks:
+    - name: 1. Set csv_filename
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 2. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    - name: 3. Declare variables
+      ansible.builtin.set_fact:
+        cmd_list:
+          - name: hostssh ovn-appctl connection-status
+            argv: ["hostssh", "ovn-appctl", "connection-status"]
+
+    - name: 4. Execute commands
+      ansible.builtin.include_tasks: subr.40.hostssh_ovn_lab_logic.yml
+      loop: "{{ cmd_list }}"
+      loop_control:
+        loop_var: cmd
+      when: not (read_from_file | bool)
+
+    - name: 5. Read from hardcoded file
+      ansible.builtin.set_fact:
+        input_filter:
+          stdout: "{{ lookup('file', 'data.40.hostssh_ovn_lab_logic.txt') }}"
+          stdout_lines: "{{ lookup('file', 'data.40.hostssh_ovn_lab_logic.txt').splitlines() }}"
+          rc: 0
+          failed: false
+          changed: false
+      when: read_from_file | bool
+
+    - name: 6. Display hostssh sudo ovn_appctl connection-status output
+      ansible.builtin.debug:
+        msg: "{{ input_filter }}"
+
+    - name: 7. Split lines
+      ansible.builtin.set_fact:
+        lines: "{{ (input_filter.stdout).split('\n') | map('trim') | reject('equalto','') | list }}"
+
+    - name: 8. Initialize results
+      ansible.builtin.set_fact:
+        num_disconnected: 0
+        remark: ""
+
+    - name: 9. Process IP entries safely
+      ansible.builtin.set_fact:
+        num_disconnected: "{{ (num_disconnected | default(0) | int) + (1 if item_status != 'connected' and is_ip else 0) }}"
+        remark: >-
+          {{
+          remark +
+          (ip ~ ' - ' ~ item_status ~ '; ' if item_status != 'connected' and is_ip else '')
+          }}
+      loop: "{{ range(0, lines | length) | list }}"
+      loop_control:
+        loop_var: ovn_line_index
+      vars:
+        current: "{{ lines[ovn_line_index] }}"
+        next_line: "{{ lines[ovn_line_index + 1] if ovn_line_index + 1 < (lines | length) else '' }}"
+        is_ip: "{{ current is search('=+\\s*[0-9.]+\\s*=+') }}"
+        next_is_ip: "{{ next_line is search('=+') }}"
+        ip: "{{ current | regex_search('([0-9.]+)') }}"
+        item_status: "{{ next_line | trim if (is_ip and not next_is_ip) else 'unknown' }}"
+
+    - name: 10. Show answer
+      ansible.builtin.set_fact:
+        answer: "{{ 'Disconnected' if (num_disconnected | int) > 0 else 'Connected' }}"
+
+    - name: 11. Show answer and result
+      ansible.builtin.debug:
+        msg:
+          num_disconnected: "{{ num_disconnected }}"
+          remark: "{{ remark }}"
+          answer: "{{ answer }}"
+
+    - name: 97. Log to local
+      ansible.builtin.import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      ansible.builtin.import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+#    - name: 99. Log to local
+#      ansible.builtin.import_tasks: subr.log_github.yml
+#      when: log_github_enabled | bool

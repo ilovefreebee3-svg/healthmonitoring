@@ -1,13 +1,21 @@
 ---
-- name: 0. Set variables default
-  set_fact:
+- name: 1. Set csv_filename
+  ansible.builtin.set_fact:
+    csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+- name: 2. Display csv_filename
+  ansible.builtin.debug:
+    msg: "{{ hostvars['localhost']['csv_filename'] }}"
+
+- name: 3. Set variables default
+  ansible.builtin.set_fact:
     remark_list: []
     answer: "No pod issue"
 
 # ------------------------------------------------------------
 # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
 # ------------------------------------------------------------
-- name: 0. Verify connectivity to the Control CVM
+- name: 4. Verify connectivity to the Control CVM
   ansible.builtin.wait_for_connection:
     timeout: 5
   register: control_cvm_status
@@ -15,35 +23,35 @@
 # ------------------------------------------------------------
 # SCENARIO 2: Run 'kubectl get pods -A' and process the output
 # ------------------------------------------------------------
-- name: 1. Run sudo kubectl get pods -A 
+- name: 5. Run sudo kubectl get pods -A
   ansible.builtin.include_tasks: subr.run_allssh.yml
   vars:
     target_cmd: "sudo kubectl get pods -A"
-  when: not ( read_from_file | bool )
+  when: not (read_from_file | bool)
 
-- name: 3. Read from hardcoded file
-  set_fact:
+- name: 6. Read from hardcoded file
+  ansible.builtin.set_fact:
     input_filter:
-      stdout: "{{ lookup('file', 'data.13_testing11_allssh_sudo_kubectl_get_pods_a_gg.txt') }}"
-      stdout_lines: "{{ lookup('file', 'data.13_testing11_allssh_sudo_kubectl_get_pods_a_gg.txt').splitlines() }}"
+      stdout: "{{ lookup('file', 'data.13_allssh_sudo_kubectl_get_pods_a.txt') }}"
+      stdout_lines: "{{ lookup('file', 'data.13_allssh_sudo_kubectl_get_pods_a.txt').splitlines() }}"
       rc: 0
       failed: false
       changed: false
   when: read_from_file | bool
 
-- name: 4. Display input_filter 1
+- name: 7. Display input_filter 1
   ansible.builtin.debug:
-    msg: "{{ input_filter.stdout_lines }}" 
+    msg: "{{ input_filter.stdout_lines }}"
 
-- name: Process output and calculate pod states
+- name: 8. Process output and calculate pod states
   ansible.builtin.set_fact:
     clean_lines: >-
-      {{ input_filter.stdout_lines 
-         | reject('search', 'Unable to connect to the server') 
-         | select('string') 
+      {{ input_filter.stdout_lines
+         | reject('search', 'Unable to connect to the server')
+         | select('string')
          | list }}
 
-- name: 5. Parse IP blocks and evaluate pods
+- name: 9. Parse IP blocks and evaluate pods
   ansible.builtin.set_fact:
     parsed_data: >-
       {% set ns = namespace(current_ip='', ip_pods=0, results=[]) %}
@@ -70,11 +78,11 @@
     msg:
       - "Answer:\n{{ parsed_data }}"
 
-- name: 7. Convert parsed data to native structure
+- name: 10. Convert parsed data to native structure
   ansible.builtin.set_fact:
     structured_data: "{{ parsed_data | from_yaml }}"
 
-- name: 8. Assign final variables based on pod counts
+- name: 11. Assign final variables based on pod counts
   ansible.builtin.set_fact:
     remark: >-
       {% set remark_list = [] %}
@@ -84,25 +92,16 @@
       {{ remark_list }}
     total_issues: "{{ structured_data | map(attribute='count') | map('int') | sum }}"
 
-- name: 9. Set final answer status
+- name: 12. Set final answer status
   ansible.builtin.set_fact:
     answer: "{{ 'Pod issues' if (total_issues | int > 0) else 'No pod issue' }}"
 
-- name: 10. Display Results
+- name: 13. Display Results
   ansible.builtin.debug:
     msg:
       - "Answer: {{ answer }}"
       - "Remark: {{ remark | default('No issues found') }}"
 
 - name: 97. Log to local
-  import_tasks: subr.log_local.yml
+  ansible.builtin.import_tasks: subr.log_local.yml
   when: log_local_enabled | bool
-
-#- name: 98. Log to external
-#  import_tasks: subr.log_ext.yml
-#  when: log_ext_enabled | bool
-
-#- name: 99. Log to local
-#  import_tasks: subr.log_github.yml
-#  when: log_github_enabled | bool
-

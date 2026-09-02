@@ -1,9 +1,5 @@
 ---
-- name: 1. Display csv_filename
-  ansible.builtin.debug:
-    msg: "{{ hostvars['localhost']['csv_filename'] }}"
-
-- name: Display csv_filename
+- name: 1. Set csv_filename
   ansible.builtin.set_fact:
     csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
@@ -18,6 +14,7 @@
   ansible.builtin.wait_for_connection:
     timeout: 5
   register: control_cvm_status
+  changed_when: false
 
 # ------------------------------------------------------------
 # SCENARIO 2: Run curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k
@@ -27,13 +24,13 @@
   ansible.builtin.include_tasks: subr.run_allssh_x.yml
   vars:
     target_cmd: "curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k"
-  when: not ( read_from_file | bool )
+  when: not (read_from_file | bool)
 
 - name: 5. Read from hardcoded file
-  set_fact:
+  ansible.builtin.set_fact:
     input_filter:
-      stdout: "{{ lookup('file', 'data.15_testing11_allssh_curl_get_catalog_k_P1ASEC018.txt') }}"
-      stdout_lines: "{{ lookup('file', 'data.15_testing11_allssh_curl_get_catalog_k_P1ASEC018.txt').splitlines() }}"
+      stdout: "{{ lookup('file', 'data.15_allssh_curl_get_catalog_k_P1ASEC018.txt') }}"
+      stdout_lines: "{{ lookup('file', 'data.15_allssh_curl_get_catalog_k_P1ASEC018.txt').splitlines() }}"
       rc: 0
       failed: false
       changed: false
@@ -41,10 +38,10 @@
 
 - name: 6. Display input_filter.stdout_lines
   ansible.builtin.debug:
-    msg: "{{ input_filter.stdout_lines }}" 
+    msg: "{{ input_filter.stdout_lines }}"
 
 - name: 7. Initialize variables
-  set_fact:
+  ansible.builtin.set_fact:
     remark_list: []
     status_tracker: []
     current_ip: ""
@@ -54,56 +51,22 @@
     answer: ""
 
 - name: 8. Process input line by line
-  set_fact:
+  ansible.builtin.set_fact:
     # Finalize previous block BEFORE changing IP
     remark: >-
       {{
       remark
       +
       (
-      [ current_ip ~ ' - No connection to repository' ]
-      if (
-      curl_line is match('^=+')
-      and current_ip != ''
-      and (num_repository | int) == 0
-      )
-      else []
-      )
-      }}
+      [ current_ip ~ ' - No connection to repository' ] if ( curl_line is match('^=+') and current_ip != '' and (num_repository | int) == 0) else []) }}
     repository_error_found: >-
-      {{
-      true
-      if (
-      curl_line is match('^=+')
-      and current_ip != ''
-      and (num_repository | int) == 0
-      )
-      else repository_error_found
-      }}
+      {{ true if (curl_line is match('^=+') and current_ip != '' and (num_repository | int) == 0) else repository_error_found }}
     # Update current IP
     current_ip: >-
-      {{
-      (
-      curl_line
-      | regex_replace('^=+', '')
-      | regex_replace('=+$', '')
-      | trim
-      )
-      if curl_line is match('^=+')
-      else current_ip
-      }}
+      {{ (curl_line | regex_replace('^=+', '') | regex_replace('=+$', '') | trim) if curl_line is match('^=+') else current_ip }}
     # Reset or increment counter
     num_repository: >-
-      {{
-      0
-      if curl_line is match('^=+')
-      else
-      (
-      (num_repository | int) + 1
-      if curl_line is search('repositories')
-      else (num_repository | int)
-      )
-      }}
+      {{ 0 if curl_line is match('^=+') else ((num_repository | int) + 1 if curl_line is search('repositories') else (num_repository | int)) }}
   loop: "{{ input_filter.stdout.split('\n') }}"
   loop_control:
     loop_var: curl_line
@@ -111,7 +74,7 @@
     - curl_line is match('^=+') or curl_line is search('repositories')
 
 - name: 9. Finalize last block
-  set_fact:
+  ansible.builtin.set_fact:
     remark: >-
       {{
         remark
@@ -131,7 +94,7 @@
       }}
 
 - name: 10. Set final answer
-  set_fact:
+  ansible.builtin.set_fact:
     answer: >-
       {{
         'CVM - repository connection error'
@@ -139,13 +102,12 @@
         else 'ALL CVMs to repository ok'
       }}
 
-- name: 11. Show remark and answer
-  debug:
+- name: 11. Show result
+  ansible.builtin.debug:
     msg:
       - "remark = {{ remark }}"
       - "answer = {{ answer }}"
 
 - name: 97. Log to local
-  import_tasks: subr.log_local.yml
+  ansible.builtin.import_tasks: subr.log_local.yml
   when: log_local_enabled | bool
-
