@@ -1,0 +1,51 @@
+---
+- name: Generate Report and Pipe to Splunk
+  hosts: localhost
+  gather_facts: false
+  vars:
+    # Managed securely via AAP Custom Credentials
+    splunk_url: "{{ lookup('ansible.builtin.env', 'SPLUNK_HEC_URL') }}"
+#    splunk_token: "{{ lookup('ansible.builtin.env', 'SPLUNK_HEC_TOKEN') }}"
+    splunk_token: "c73f1ef3-3529-4e57-b3b0-f34df0ab9ada"
+    
+    # Use the local container's temporary directory for safe execution
+    runtime_csv_path: "/tmp/dynamic_report.csv"
+
+  tasks:
+    # -------------------------------------------------------------
+    # STEP 1: Your Existing Generation Tasks
+    # -------------------------------------------------------------
+    - name: Generate the dynamic CSV report
+      ansible.builtin.copy:
+        dest: "{{ runtime_csv_path }}"
+        content: |
+          timestamp,server_name,status,issue_count
+          {{ ansible_date_time.iso8601 }},web-prod-01,UP,0
+          {{ ansible_date_time.iso8601 }},db-prod-01,WARN,3
+          {{ ansible_date_time.iso8601 }},api-prod-01,DOWN,12
+      # Note: Replace this placeholder block with your actual report generation logic
+
+    # -------------------------------------------------------------
+    # STEP 2: Slurp and Pipe to Splunk
+    # -------------------------------------------------------------
+    - name: Read the freshly generated CSV file
+      ansible.builtin.slurp:
+        src: "{{ runtime_csv_path }}"
+      register: slurped_csv
+
+    - name: Push raw CSV payload to Splunk HEC
+      ansible.builtin.uri:
+        url: "{{ splunk_url }}/services/collector/raw?channel={{ ansible_job_id | default('aap-single-job') }}"
+        method: POST
+        headers:
+          Authorization: "Splunk {{ splunk_token }}"
+        body: "{{ slurped_csv.content | b64decode }}"
+        body_format: raw
+        status_code: 200
+        validate_certs: true
+      register: splunk_api_response
+
+    - name: Confirm transmission success
+      ansible.builtin.debug:
+        msg: "Piped CSV to Splunk successfully. HEC Status Code: {{ splunk_api_response.status }}"
+

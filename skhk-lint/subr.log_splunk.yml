@@ -1,0 +1,24 @@
+---
+- name: Send CSV file to Splunk once
+  ansible.builtin.set_fact:
+    splunk_host: "130.8.20.112"
+    splunk_port: "8088"
+    csv_file_path: "/tmp/{{ csv_filename }}"
+    splunk_token: "c73f1ef3-3529-4e57-b3b0-f34df0ab9ada"
+
+- name: Read CSV file content
+  ansible.builtin.slurp:
+    src: "/tmp/{{ csv_filename }}"
+  register: csv_file
+  delegate_to: localhost
+
+- name: Send raw CSV data to Splunk HEC
+  ansible.builtin.uri:
+    url: "https://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw?source={{ csv_file_path | basename }}"
+    method: "POST"
+    headers:
+      Authorization: "Splunk {{ splunk_token }}"
+    body: "{{ csv_file.content | b64decode }}"
+    body_format: raw
+    status_code: 200
+    validate_certs: false

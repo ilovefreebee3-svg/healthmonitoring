@@ -3,14 +3,15 @@
   ansible.builtin.import_playbook: ./subr.local_init.yml
 
 - name: Fetch and process Nutanix NCC health check log
-  hosts: corecvm
+#  hosts: corecvm
+  hosts: allcvms
   gather_facts: true
   serial: 1
 
   vars:
     log_local_enabled: false
     log_ext_enabled: false
-    log_github_enabled: false
+    log_splunk_enabled: false
     read_from_file: false
     logd_enabled: false
     role_enabled: false
@@ -133,6 +134,6 @@
       ansible.builtin.import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
-#    - name: 99. Log to local
-#      ansible.builtin.import_tasks: subr.log_github.yml
-#      when: log_github_enabled | bool
+    - name: 99. Log to Splunk
+      ansible.builtin.import_tasks: subr.log_splunk.yml
+      when: log_splunk_enabled | bool

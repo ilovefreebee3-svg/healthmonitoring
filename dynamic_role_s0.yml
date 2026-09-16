@@ -3,7 +3,7 @@
   ansible.builtin.import_playbook: subr.role_init.yml
 
 - name: Run roles dynamically
-  hosts: "{{ server | default('calmcvm') }}"
+  hosts: "{{ server | default('server_1') }}"
   gather_facts: false            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 
@@ -40,6 +40,10 @@
             name: "{{ item }}"
           loop: "{{ host_roles }}"
 
+        - name: 97. Log to local
+          ansible.builtin.import_tasks: subr.log_local.yml
+          when: log_local_enabled | bool
+
         - name: 98. Log to external
           ansible.builtin.import_tasks: subr.log_ext.yml
           when: log_ext_enabled | bool
@@ -62,6 +66,10 @@
           ansible.builtin.meta: clear_host_errors
 
   post_tasks:
-    - name: 98. Log to external
-      ansible.builtin.import_tasks: subr.log_ext.yml
-      when: log_ext_enabled | bool
+#    - name: 98. Log to external
+#      ansible.builtin.import_tasks: subr.log_ext.yml
+#      when: log_ext_enabled | bool
+
+    - name: 99. Log to Splunk
+      ansible.builtin.import_tasks: subr.log_splunk.yml
+      when: log_splunk_enabled | bool

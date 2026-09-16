@@ -3,7 +3,7 @@
   ansible.builtin.import_playbook: subr.role_init.yml
 
 - name: Run roles dynamically
-  hosts: server_10
+  hosts: pccvm
   gather_facts: false            # We turn this off at first to prevent dead hosts from crashing the play
   serial: 1
 

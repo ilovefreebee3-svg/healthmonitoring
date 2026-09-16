@@ -1,5 +1,5 @@
 ---
-# defaults file for Role r_cs_grep_v_up_gg
+# defaults file for Role r_cs_grep_v_up
 description: cs | grep -v UP
 idx: idx059
-role: r_cs_grep_v_up_gg
+role: r_cs_grep_v_up
