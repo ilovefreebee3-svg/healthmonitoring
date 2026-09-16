@@ -1,0 +1,4 @@
+
+    - name: 99. Log to Splunk
+      ansible.builtin.import_tasks: subr.log_splunk.yml
+      when: log_splunk_enabled | bool
