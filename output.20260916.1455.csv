@@ -1,6 +1,0 @@
-calmcvm, r_allssh_df_kh_grep_elastic_sdb3, tbd, allssh 'df -kh | grep -e elastic', idx099, Elasticsearch function found, 111.222.12.1 --- Elasticsearch function found
-111.222.12.2 --- Elasticsearch function found
-111.222.12.3 --- Elasticsearch function found 
-calmcvm, r_allssh_df_kh_grep_elastic_sdb3, tbd, allssh 'df -kh | grep -e elastic', idx099, Elasticsearch function found, 111.222.12.1 --- Elasticsearch function found
-111.222.12.2 --- Elasticsearch function found
-111.222.12.3 --- Elasticsearch function found 

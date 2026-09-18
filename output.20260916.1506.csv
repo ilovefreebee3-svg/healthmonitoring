@@ -1,2 +1,0 @@
-corecvm, r_hostssh_systemctl_status_nvidia-vgpu-mgr, tbd, hostssh sudo systemctl status nvidia-vgpu-mgr, idx015, Not all active, [['222.111.10.4', 'nvidia-vgpu-mgr.service', 'inactive']] 
-corecvm, r_hostssh_systemctl_status_nvidia-vgpu-mgr, tbd, hostssh sudo systemctl status nvidia-vgpu-mgr, idx015, Not all active, [['222.111.10.4', 'nvidia-vgpu-mgr.service', 'inactive']] 

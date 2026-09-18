@@ -1,2 +1,0 @@
-engrcvm, r_allssh_ls_larth_iam_backup, tbd, allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, No iam-backup found, ['111.222.14.1 cannot access', '111.222.14.2 cannot access', '111.222.14.3 cannot access'] 
-engrcvm, r_allssh_ls_larth_iam_backup, tbd, allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, No iam-backup found, ['111.222.14.1 cannot access', '111.222.14.2 cannot access', '111.222.14.3 cannot access'] 

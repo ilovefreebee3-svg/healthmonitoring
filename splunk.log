@@ -1,0 +1,132 @@
+
+Using inventory inventory.ini in the local folder
+
+ansible-playbook -i /home/git/proj/hm/healthmonitoring/inventory.ini dynamic_role.yml -e log_local_enabled=true -e read_from_file=true -e log_ext_enabled=true -e log_splunk_enabled=true -e splunk_host=130.8.20.112 -e splunk_port=8088 -e splunk_token=c73f1ef3-3529-4e57-b3b0-f34df0ab9ada
+
+PLAY [Initialize report] *******************************************************
+
+TASK [Generate CSV filename once] **********************************************
+ok: [localhost]
+
+TASK [Reset CSV report] ********************************************************
+changed: [localhost]
+
+TASK [Display CSV filename] ****************************************************
+ok: [localhost] => {
+    "msg": "CSV filename = output.20260918.1542.csv"
+}
+
+TASK [Touch /tmp/unreachable_hosts.log] ****************************************
+ok: [localhost]
+
+PLAY [Run roles dynamically] ***************************************************
+
+TASK [0. Declare variables] ****************************************************
+ok: [engrcvm]
+
+TASK [1. Display csv_filename] *************************************************
+ok: [engrcvm] => {
+    "msg": "output.20260918.1542.csv"
+}
+
+TASK [2. Display csv_filename] *************************************************
+ok: [engrcvm]
+
+TASK [3. Display csv_filename] *************************************************
+ok: [engrcvm] => {
+    "msg": "output.20260918.1542.csv"
+}
+
+TASK [Check network/SSH responsiveness] ****************************************
+ok: [engrcvm]
+
+TASK [Gather facts dynamically for live hosts] *********************************
+ok: [engrcvm]
+
+TASK [Display csv_filename] ****************************************************
+ok: [engrcvm] => {
+    "msg": "output.20260918.1542.csv"
+}
+
+TASK [Include roles per host] **************************************************
+
+TASK [r_ncc_health_checks_run_all : 1. Set csv_filename] ***********************
+ok: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 2. Display csv_filename] *******************
+ok: [engrcvm] => {
+    "msg": "output.20260918.1542.csv"
+}
+
+TASK [r_ncc_health_checks_run_all : 3. Declare variables] **********************
+ok: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 4. Check if the log file exists] ***********
+ok: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 5. Handle missing log file] ****************
+skipping: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 6a. Fetch the log file to the Ansible control node] ***
+ok: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 6b. Isolate the last TIMESTAMP block using awk] ***
+ok: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 6c. Parse and cast the trimmed log counters strictly] ***
+ok: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 6d. Evaluate final cluster health parameters] ***
+ok: [engrcvm]
+
+TASK [r_ncc_health_checks_run_all : 7. Ensure CSV report directory exists on control node] ***
+ok: [engrcvm -> localhost]
+
+TASK [r_ncc_health_checks_run_all : 8. Ensure CSV header line is present on control node] ***
+ok: [engrcvm -> localhost]
+
+TASK [r_ncc_health_checks_run_all : 9. Append current host status summary to CSV file] ***
+ok: [engrcvm -> localhost]
+
+TASK [r_ncc_health_checks_run_all : 10. Show answer and remark] ****************
+ok: [engrcvm] => {
+    "msg": [
+        "Answer: Unhealthy",
+        "Remark: Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 3, Errors: 5)"
+    ]
+}
+
+TASK [r_ncc_health_checks_run_all : Append result to CSV] **********************
+changed: [engrcvm -> localhost]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+ok: [engrcvm -> user1@130.8.20.76]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+changed: [engrcvm -> user1@130.8.20.76]
+
+TASK [2c. Copy file from container to the AWX host filesystem] *****************
+ok: [engrcvm -> user1@130.8.20.76]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+ok: [engrcvm -> user1@130.8.20.76]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+ok: [engrcvm -> user1@130.8.20.76]
+
+TASK [2c. Copy file from container to the AWX host filesystem] *****************
+ok: [engrcvm -> user1@130.8.20.76]
+
+TASK [Send CSV file to Splunk once] ********************************************
+ok: [engrcvm]
+
+TASK [Read CSV file content] ***************************************************
+ok: [engrcvm -> localhost]
+
+TASK [Send raw CSV data to Splunk HEC] *****************************************
+ok: [engrcvm]
+
+PLAY RECAP *********************************************************************
+engrcvm                    : ok=29   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+localhost                  : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

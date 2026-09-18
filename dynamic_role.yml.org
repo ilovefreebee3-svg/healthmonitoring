@@ -44,13 +44,17 @@
             name: "{{ item }}"
           loop: "{{ host_roles }}"
 
+        - name: 97. Log to local
+          ansible.builtin.import_tasks: subr.log_local.yml
+          when: log_local_enabled | bool
+
         - name: 98. Log to external
           ansible.builtin.import_tasks: subr.log_ext.yml
           when: log_ext_enabled | bool
 
-        - name: 99. Log to Splunk
-          ansible.builtin.import_tasks: subr.log_splunk.yml
-          when: log_splunk_enabled | bool
+#        - name: 99. Log to local
+#          ansible.builtin.import_tasks: subr.log_github.yml
+#          when: log_github_enabled | bool
 
       rescue:
 
@@ -70,6 +74,6 @@
       ansible.builtin.import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool
 
-    - name: 99. Log to Splunk
-      ansible.builtin.import_tasks: subr.log_splunk.yml
-      when: log_splunk_enabled | bool
+#    - name: 99. Log to Splunk
+#      ansible.builtin.import_tasks: subr.log_splunk.yml
+#      when: log_splunk_enabled | bool
