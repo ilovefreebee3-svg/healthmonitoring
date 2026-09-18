@@ -13,7 +13,7 @@ changed: [localhost]
 
 TASK [Display CSV filename] ****************************************************
 ok: [localhost] => {
-    "msg": "CSV filename = output.20260918.1542.csv"
+    "msg": "CSV filename = output.20260918.2110.csv"
 }
 
 TASK [Touch /tmp/unreachable_hosts.log] ****************************************
@@ -26,7 +26,7 @@ ok: [engrcvm]
 
 TASK [1. Display csv_filename] *************************************************
 ok: [engrcvm] => {
-    "msg": "output.20260918.1542.csv"
+    "msg": "output.20260918.2110.csv"
 }
 
 TASK [2. Display csv_filename] *************************************************
@@ -34,7 +34,7 @@ ok: [engrcvm]
 
 TASK [3. Display csv_filename] *************************************************
 ok: [engrcvm] => {
-    "msg": "output.20260918.1542.csv"
+    "msg": "output.20260918.2110.csv"
 }
 
 TASK [Check network/SSH responsiveness] ****************************************
@@ -45,7 +45,7 @@ ok: [engrcvm]
 
 TASK [Display csv_filename] ****************************************************
 ok: [engrcvm] => {
-    "msg": "output.20260918.1542.csv"
+    "msg": "output.20260918.2110.csv"
 }
 
 TASK [Include roles per host] **************************************************
@@ -55,7 +55,7 @@ ok: [engrcvm]
 
 TASK [r_ncc_health_checks_run_all : 2. Display csv_filename] *******************
 ok: [engrcvm] => {
-    "msg": "output.20260918.1542.csv"
+    "msg": "output.20260918.2110.csv"
 }
 
 TASK [r_ncc_health_checks_run_all : 3. Declare variables] **********************
@@ -108,6 +108,15 @@ changed: [engrcvm -> user1@130.8.20.76]
 TASK [2c. Copy file from container to the AWX host filesystem] *****************
 ok: [engrcvm -> user1@130.8.20.76]
 
+TASK [Send CSV file to Splunk once] ********************************************
+ok: [engrcvm]
+
+TASK [Read CSV file content] ***************************************************
+ok: [engrcvm -> localhost]
+
+TASK [Send raw CSV data to Splunk HEC] *****************************************
+ok: [engrcvm]
+
 TASK [2a. Force create destination directory structure in home folder] *********
 ok: [engrcvm -> user1@130.8.20.76]
 
@@ -127,6 +136,6 @@ TASK [Send raw CSV data to Splunk HEC] *****************************************
 ok: [engrcvm]
 
 PLAY RECAP *********************************************************************
-engrcvm                    : ok=29   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+engrcvm                    : ok=32   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
 localhost                  : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 

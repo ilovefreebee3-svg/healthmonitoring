@@ -3,8 +3,8 @@
   ansible.builtin.import_playbook: ./subr.local_init.yml
 
 - name: Fetch and process Nutanix NCC health check log
-#  hosts: corecvm
-  hosts: allcvms
+  hosts: engrcvm
+#  hosts: allcvms
   gather_facts: true
   serial: 1
 
