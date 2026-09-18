@@ -1,0 +1,2 @@
+corecvm, r_hostssh_systemctl_status_dbus-mgr, tbd, hostssh sudo systemctl status dbus, idx015, Not all active, [['111.222.10.2', 'dbus.service', 'inactive'], ['111.222.10.3', 'dbus.service', 'inactive']] 
+corecvm, r_hostssh_systemctl_status_dbus-mgr, tbd, hostssh sudo systemctl status dbus, idx015, Not all active, [['111.222.10.2', 'dbus.service', 'inactive'], ['111.222.10.3', 'dbus.service', 'inactive']] 

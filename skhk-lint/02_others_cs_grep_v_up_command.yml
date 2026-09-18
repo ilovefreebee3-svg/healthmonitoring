@@ -16,7 +16,7 @@
     log_filesystem_enabled: false
     description: "cs | grep -v UP"
     idx: idx059
-    role: r_cs_grep_v_up
+    role_name: r_cs_grep_v_up
     vpc: tbd
   tasks:
     - name: Setting csv_filename

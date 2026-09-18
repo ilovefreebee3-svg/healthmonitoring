@@ -1,0 +1,2 @@
+corecvm, r_allssh_curl_get_catalog_k_P1SMG025, tbd, allssh 'curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k', idx102, CVM - repository connection error, ['192.168.2.2 - No connection to repository'] 
+corecvm, r_allssh_curl_get_catalog_k_P1SMG025, tbd, allssh 'curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k', idx102, CVM - repository connection error, ['192.168.2.2 - No connection to repository'] 

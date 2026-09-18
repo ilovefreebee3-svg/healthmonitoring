@@ -17,7 +17,7 @@
     log_filesystem_enabled: false
     description: hostssh sudo systemctl status nvidia-vgpu-mgr
     idx: idx015
-    role: r_hostssh_systemctl_status_nvidia-vgpu-mgr
+    role_name: r_hostssh_systemctl_status_nvidia-vgpu-mgr
     vpc: tbd
 
   tasks:

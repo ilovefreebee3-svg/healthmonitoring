@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     description: allssh sudo kubectl get pods -A
     idx: idx061
-    role: r_allssh_sudo_kubectl_get_pods_a
+    role_name: r_allssh_sudo_kubectl_get_pods_a
     vpc: tbd
 
   tasks:

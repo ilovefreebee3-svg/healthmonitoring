@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     description: allssh 'ls -l /home/nutanix/tmp/calm-bkup'
     idx: idx100
-    role: r_allssh_ll_calm_backup
+    role_name: r_allssh_ll_calm_backup
     vpc: tbd
 
   tasks:

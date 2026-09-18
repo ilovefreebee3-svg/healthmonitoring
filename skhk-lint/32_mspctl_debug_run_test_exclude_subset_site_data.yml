@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     description: mspctl debug run --test_exclude_subset=hosting_pe
     idx: idx098
-    role: r_mspctl_debug_run_test_exclude_subset
+    role_name: r_mspctl_debug_run_test_exclude_subset
     vpc: tbd
 
   tasks:

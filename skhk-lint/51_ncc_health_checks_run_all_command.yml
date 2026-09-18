@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     idx: idx3
     description: ncc health_checks run_all (non-role)
-    role: r_ncc_health_checks_run_all
+    role_name: r_ncc_health_checks_run_all
     vpc: tbd
 
   tasks:

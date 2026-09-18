@@ -1,0 +1,2 @@
+corecvm, r_cs_grep_v_up, tbd, cs | grep -v UP, idx059, CVM service(s) down, [{'ip': '123.234.14.2', 'status': 'Down'}] 
+corecvm, r_cs_grep_v_up, tbd, cs | grep -v UP, idx059, CVM service(s) down, [{'ip': '123.234.14.2', 'status': 'Down'}] 

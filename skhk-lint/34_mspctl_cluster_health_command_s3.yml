@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     description: mspctl cluster health s3
     idx: idx057
-    role: r_mspctl_cluster_health_s3
+    role_name: r_mspctl_cluster_health_s3
     vpc: tbd
 
   tasks:

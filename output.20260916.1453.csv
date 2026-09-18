@@ -1,0 +1,2 @@
+calmcvm, r_allssh_sudo_kubectl_get_pods_a, tbd, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['222.111.14.1: 1', '222.111.14.3: 2'] 
+calmcvm, r_allssh_sudo_kubectl_get_pods_a, tbd, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['222.111.14.1: 1', '222.111.14.3: 2'] 

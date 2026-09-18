@@ -20,7 +20,7 @@
     log_filesystem_enabled: false
     description: hostssh sudo ovn_appctl connection-status
     idx: idx6
-    role: r_hostssh_sudo_ovn_appctl_connection_status
+    role_name: r_hostssh_sudo_ovn_appctl_connection_status
     vpc: tbd
 
   tasks:

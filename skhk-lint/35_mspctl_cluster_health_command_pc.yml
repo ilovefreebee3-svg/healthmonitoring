@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     description: mspctl cluster health pc
     idx: idx057
-    role: r_mspctl_cluster_health_pc
+    role_name: r_mspctl_cluster_health_pc
     vpc: tbd
 
   tasks:

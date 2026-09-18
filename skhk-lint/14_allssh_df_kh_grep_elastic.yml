@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     description: allssh 'df -kh | grep -e elastic'
     idx: idx099
-    role: r_allssh_df_kh_grep_elastic_sdb3
+    role_name: r_allssh_df_kh_grep_elastic_sdb3
     vpc: tbd
 
   tasks:

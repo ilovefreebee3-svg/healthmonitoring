@@ -18,7 +18,7 @@
     log_filesystem_enabled: false
     description: mspctl debug run
     idx: idx058
-    role: r_mspctl_debug_run
+    role_name: r_mspctl_debug_run
     vpc: tbd
 
   tasks:

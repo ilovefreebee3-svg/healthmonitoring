@@ -1,0 +1,24 @@
+calmcvm, r_mspctl_cluster_health_s3, tbd, mspctl cluster health s3, idx057, Unhealthy, Node:false  
+calmcvm, r_mspctl_cluster_health_msp, tbd, mspctl cluster health msp, idx057, Unhealthy, Core:false Extensions:false Node:false LB:false ClusterWorkflow:false  
+calmcvm, r_mspctl_cluster_health_msp, tbd, mspctl cluster health msp, idx057, Unhealthy, Core:false Extensions:false Node:false LB:false ClusterWorkflow:false  
+calmcvm, r_mspctl_debug_run_test_exclude_subset, tbd, mspctl debug run --test_exclude_subset=hosting_pe, idx098, STATUS Not Success, TEST_PING_REGISTRY_WITHIN_MSP -> xUCCESS -- TEST_PING_REGISTRY_FROM_PC -> FAIL -- TEST_MSP_NETWORK_SEGMENTATION_CONFIG -> FAIL -- TEST_SANITY_MSP_CLUSTER_HEALTH -> FAIL 
+calmcvm, r_mspctl_debug_run_test_exclude_subset, tbd, mspctl debug run --test_exclude_subset=hosting_pe, idx098, STATUS Not Success, TEST_PING_REGISTRY_WITHIN_MSP -> xUCCESS -- TEST_PING_REGISTRY_FROM_PC -> FAIL -- TEST_MSP_NETWORK_SEGMENTATION_CONFIG -> FAIL -- TEST_SANITY_MSP_CLUSTER_HEALTH -> FAIL 
+calmcvm, r_mspctl_debug_run, tbd, mspctl debug run, idx058, STATUS Not Success, TEST_MSP_CONTROLLER_RUNNING -> xUCCESS -- TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
+calmcvm, r_mspctl_debug_run, tbd, mspctl debug run, idx058, STATUS Not Success, TEST_MSP_CONTROLLER_RUNNING -> xUCCESS -- TEST_IPTABLES_ENABLED -> sUCCESS -- TEST_ISCSI_RECORD_LEN -> sUCCESS 
+calmcvm, r_allssh_df_sdb3, tbd, allssh 'df -h /dev/sdb3', idx062, Disk space /dev/sdb3 exceeded,   IP: 338.325.14.2 Filesystem: /dev/sdb3 Use%: 83%    
+calmcvm, r_allssh_df_sdb3, tbd, allssh 'df -h /dev/sdb3', idx062, Disk space /dev/sdb3 exceeded,   IP: 338.325.14.2 Filesystem: /dev/sdb3 Use%: 83%    
+corecvm, r_allssh_curl_get_catalog_k_P1SMG025, tbd, allssh 'curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k', idx102, CVM - repository connection error, ['192.168.2.2 - No connection to repository'] 
+corecvm, r_allssh_curl_get_catalog_k_P1SMG025, tbd, allssh 'curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k', idx102, CVM - repository connection error, ['192.168.2.2 - No connection to repository'] 
+calmcvm, r_allssh_curl_get_catalog_k_P1ASEC018, tbd, allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
+calmcvm, r_allssh_curl_get_catalog_k_P1ASEC018, tbd, allssh 'curl -X GET https://P1OSISMZ018.ocloudsvc.gov.sg:5000/v2/_catalog -k', idx102, ALL CVMs to repository ok, [] 
+calmcvm, r_allssh_df_kh_grep_elastic_sdb3, tbd, allssh 'df -kh | grep -e elastic', idx099, Elasticsearch function found, 111.222.12.1 --- Elasticsearch function found
+111.222.12.2 --- Elasticsearch function found
+111.222.12.3 --- Elasticsearch function found 
+calmcvm, r_allssh_df_kh_grep_elastic_sdb3, tbd, allssh 'df -kh | grep -e elastic', idx099, Elasticsearch function found, 111.222.12.1 --- Elasticsearch function found
+111.222.12.2 --- Elasticsearch function found
+111.222.12.3 --- Elasticsearch function found 
+calmcvm, r_allssh_sudo_kubectl_get_pods_a, tbd, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['222.111.14.1: 1', '222.111.14.3: 2'] 
+calmcvm, r_allssh_sudo_kubectl_get_pods_a, tbd, allssh sudo kubectl get pods -A, idx061, Pod issues,       ['222.111.14.1: 1', '222.111.14.3: 2'] 
+engrcvm, r_allssh_ls_larth_iam_backup, tbd, allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, No iam-backup found, ['111.222.14.1 cannot access', '111.222.14.2 cannot access', '111.222.14.3 cannot access'] 
+engrcvm, r_allssh_ls_larth_iam_backup, tbd, allssh 'ls -larth /usr/local/nutanix/iam-backup', idx101, No iam-backup found, ['111.222.14.1 cannot access', '111.222.14.2 cannot access', '111.222.14.3 cannot access'] 
+calmcvm, r_allssh_ll_calm_backup, tbd, allssh 'ls -l /home/nutanix/tmp/calm-bkup', idx100, Incomplete backup, \192.52.129.1 - cannot access --- 192.52.11.2 - incomplete backup 
