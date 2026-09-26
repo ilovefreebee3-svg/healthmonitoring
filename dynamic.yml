@@ -18,6 +18,23 @@
 
     # ... [Your Process host connectivity safely block goes here] ...
 
+#    - name: 3. Simulated  variables
+#      ansible.builtin.set_fact:
+#        vpc: "VPC"
+#        description: "DESCRIPT"
+#        idx: "IDX"
+#        answer: "ANSWER"
+#        remark: "REMARK"
+
+
+    - name: Append result to CSV
+      delegate_to: localhost
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ csv_filename }}"
+        create: true
+        line: "{{ inventory_hostname }}, {{ vpc }}, {{ description }}, {{ idx }}, {{ answer }}, {{ remark }} "
+        mode: '0644'
+
     - name: 98. Log to external
       ansible.builtin.import_tasks: subr.log_ext.yml
       when: log_ext_enabled | bool

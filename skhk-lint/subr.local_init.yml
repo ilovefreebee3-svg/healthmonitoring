@@ -19,8 +19,3 @@
       ansible.builtin.debug:
         msg: "CSV filename = {{ csv_filename }}"
 
-#    - name: Touch /tmp/unreachable_hosts.log
-#      ansible.builtin.copy:
-#        content: ""
-#        dest: "/tmp/unreachable_hosts.log"
-#        mode: '0644'

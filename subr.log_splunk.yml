@@ -6,19 +6,42 @@
     csv_file_path: "/tmp/{{ csv_filename }}"
     splunk_token: "c73f1ef3-3529-4e57-b3b0-f34df0ab9ada"
 
+- name: 1. Debug CSV Content size
+  ansible.builtin.debug:
+    var: csv_file_path
+
 - name: Read CSV file content
   ansible.builtin.slurp:
+    # Use playbook_dir to force the lookup context to the root of your project execution
+#    src: "{{ csv_file_path }}"
     src: "/tmp/{{ csv_filename }}"
-  register: csv_file
   delegate_to: localhost
+  register: csv_file
 
-- name: Send raw CSV data to Splunk HEC
+- name: 4a. Display csv_file
+  ansible.builtin.debug:
+    var: csv_file
+
+- name: 4b. Debug CSV Content size
+  ansible.builtin.debug:
+    msg: "Raw file content length is {{ csv_file.content | b64decode | length }}"
+
+- name: 5. Send raw CSV data to Splunk HEC
   ansible.builtin.uri:
     url: "https://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw?source={{ csv_file_path | basename }}"
     method: "POST"
     headers:
-      Authorization: "Splunk {{ splunk_token }}"
+      Authorization: "Splunk c73f1ef3-3529-4e57-b3b0-f34df0ab9ada"
     body: "{{ csv_file.content | b64decode }}"
     body_format: raw
     status_code: 200
     validate_certs: false
+  # Hardcoding these local task variables stops the role from overriding them
+  vars:
+    splunk_host: "130.8.20.112"
+    splunk_port: "8088"
+  register: splunk_response
+
+- name: 6. Show Splunk HEC Response Status Code
+  ansible.builtin.debug:
+    var: splunk_response.status  # <-- Prints out the HTTP status code (e.g., 200)
