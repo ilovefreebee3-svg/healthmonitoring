@@ -1,4 +1,1 @@
-host_roles:
   - r_hostssh_sudo_ovn_appctl_connection_status
-
-vpc: "Infra PE"

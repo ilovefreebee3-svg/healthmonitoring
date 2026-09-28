@@ -3,7 +3,7 @@
   ansible.builtin.import_playbook: subr.role_init.yml
 
 - name: Run roles dynamically
-  hosts: engrcvm
+  hosts: calmcvm
   gather_facts: false
   serial: 1
   tasks:
