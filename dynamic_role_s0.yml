@@ -4,7 +4,7 @@
 
 - name: Run roles dynamically
   hosts: "{{ server | default('server_1') }}"
-  gather_facts: false            # We turn this off at first to prevent dead hosts from crashing the play
+  gather_facts: false    # Turn this off at first so dead hosts can't crash the play
   serial: 1
 
   tasks:
@@ -66,10 +66,10 @@
           ansible.builtin.meta: clear_host_errors
 
   post_tasks:
-#    - name: 98. Log to external
-#      ansible.builtin.import_tasks: subr.log_ext.yml
-#      when: log_ext_enabled | bool
+    - name: 98. Log to external
+      ansible.builtin.import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
 
     - name: 99. Log to Splunk
       ansible.builtin.import_tasks: subr.log_splunk.yml
-      when: log_splunk_enabled | bool
+      when: log_splunk_enabled | default(true) | bool
