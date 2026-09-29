@@ -8,4 +8,4 @@ host_roles:
   - r_allssh_sudo_kubectl_get_pods_a
   - r_allssh_df_h_sdb3
 
-vpc: "Infra PC"
+vpc: "Infra PC Tenant"
