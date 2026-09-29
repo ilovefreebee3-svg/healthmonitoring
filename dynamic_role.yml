@@ -3,11 +3,12 @@
   ansible.builtin.import_playbook: subr.role_init.yml
 
 - name: Run roles dynamically
-  hosts: engrcvm
+  hosts: "{{ server | default('server_1') }}"
   gather_facts: false 
   serial: 1
+
   tasks:
-    - name: 0. Declare variables
+    - name: 1. Declare variables
       ansible.builtin.set_fact:
         awx_host_ip: "user1@130.8.20.76"
         awx_host_dir: /home/user1/awx_exports/
@@ -17,14 +18,6 @@
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
     # ... [Your Process host connectivity safely block goes here] ...
-
-#    - name: 3. Simulated  variables
-#      ansible.builtin.set_fact:
-#        vpc: "VPC"
-#        description: "DESCRIPT"
-#        idx: "IDX"
-#        answer: "ANSWER"
-#        remark: "REMARK"
 
     - name: 97. Log to local
       ansible.builtin.import_tasks: subr.log_local.yml

@@ -13,7 +13,7 @@
         awx_host_ip: "user1@130.8.20.76"
         awx_host_dir: /home/user1/awx_exports/
 
-    - name: 2. Display csv_filename
+    - name: 2. Map csv_filename to host
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 

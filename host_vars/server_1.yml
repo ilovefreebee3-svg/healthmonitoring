@@ -1,4 +1,4 @@
 host_roles:
-  - r_hostssh_sudo_ovn_appctl_connection_status
+  - r_ncc_health_checks_run_all
 
-vpc: "Infra PE"
+vpc: "IKCS Tenant 1 PE"

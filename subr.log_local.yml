@@ -4,5 +4,5 @@
   ansible.builtin.lineinfile:
     path: "/tmp/{{ csv_filename }}"
     create: true
-    line: "{{ inventory_hostname }}, {{ vpc }}, {{ description }}, {{ idx }}, {{ answer }}, {{ remark }} "
+    line: "{{ inventory_hostname }}, {{ role }}, {{ vpc }}, {{ description }}, {{ idx }}, {{ answer }}, {{ remark }} "
     mode: '0644'
