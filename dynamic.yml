@@ -55,9 +55,9 @@
 
   post_tasks:
 
-    - name: 95. Log to external
-      ansible.builtin.import_tasks: subr.deduplicate_csv.yml
-      when: dedup_enabled | default(true) | bool
+#    - name: 95. Log to external
+#      ansible.builtin.import_tasks: subr.deduplicate_csv.yml
+#      when: dedup_enabled | default(true) | bool
 
     - name: 98. Log to external
       ansible.builtin.import_tasks: subr.log_ext.yml
