@@ -3,11 +3,12 @@
   ansible.builtin.import_playbook: subr.role_init.yml
 
 - name: Run roles dynamically
-  hosts: engrcvm
-  gather_facts: false 
+  hosts: "{{ server | default('server_1') }}"
+  gather_facts: false    # Turn this off at first so dead hosts can't crash the play
   serial: 1
+
   tasks:
-    - name: 0. Declare variables
+    - name: 1. Declare variables
       ansible.builtin.set_fact:
         awx_host_ip: "user1@130.8.20.76"
         awx_host_dir: /home/user1/awx_exports/
@@ -16,41 +17,52 @@
       ansible.builtin.set_fact:
         csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
 
-    # ... [Your Process host connectivity safely block goes here] ...
+    - name: 3. Display csv_filename
+      ansible.builtin.debug:
+        msg: "{{ csv_filename }}"
 
-#    - name: 3. Simulated  variables
-#      ansible.builtin.set_fact:
-#        vpc: "VPC"
-#        description: "DESCRIPT"
-#        idx: "IDX"
-#        answer: "ANSWER"
-#        remark: "REMARK"
+    - name: 4. Process host connectivity safely
+      block:
 
+        - name: 4a. Check network/SSH responsiveness
+          ansible.builtin.wait_for_connection:
+            timeout: 15
 
-    - name: Append result to CSV
-      delegate_to: localhost
-      ansible.builtin.lineinfile:
-        path: "/tmp/{{ csv_filename }}"
-        create: true
-        line: "{{ inventory_hostname }}, {{ vpc }}, {{ description }}, {{ idx }}, {{ answer }}, {{ remark }} "
-        mode: '0644'
+        - name: 4b. Gather facts dynamically for live hosts
+          ansible.builtin.setup: # This is the manual equivalent of gather_facts: yes
 
-    - name: 98. Log to external
-      ansible.builtin.import_tasks: subr.log_ext.yml
-      when: log_ext_enabled | bool
+        - name: 4c. display csv_filename
+          ansible.builtin.debug:
+            msg: "{{ csv_filename }}"
+
+        - name: 4d. Include roles per host
+          ansible.builtin.include_role:
+            name: "{{ item }}"
+          loop: "{{ host_roles }}"
+
+      rescue:
+
+        - name: Log unreachable host status to a local file
+          ansible.builtin.lineinfile:
+            path: "/tmp/unreachable_hosts.log"
+            line: "{{ now(fmt='%Y-%m-%d %H:%M:%S') }} - Host {{ inventory_hostname }} is down or unreachable."
+            create: true
+            mode: '0644'
+          delegate_to: localhost
+
+        - name: Clear host error to move onto the next host in serial queue
+          ansible.builtin.meta: clear_host_errors
 
   post_tasks:
+
+    - name: 95. Log to external
+      ansible.builtin.import_tasks: subr.deduplicate_csv.yml
+      when: dedup_enabled | default(true) | bool
+
     - name: 98. Log to external
       ansible.builtin.import_tasks: subr.log_ext.yml
-      when: log_ext_enabled | bool
-    # NOTE: "99. Log to Splunk" has been completely REMOVED from this entire play
+      when: log_ext_enabled | default(false) | bool
 
-# NEW PLAY: This runs ONLY AFTER all hosts have completely finished writing to the CSV
-- name: Finalize and upload master CSV to Splunk
-  hosts: localhost
-  gather_facts: false
-  tasks:
     - name: 99. Log to Splunk
       ansible.builtin.import_tasks: subr.log_splunk.yml
       when: log_splunk_enabled | default(true) | bool
-

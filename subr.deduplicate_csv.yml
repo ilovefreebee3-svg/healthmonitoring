@@ -1,0 +1,5 @@
+- name: Remove duplicate rows from CSV
+  delegate_to: localhost
+  ansible.builtin.command:
+    cmd: >
+      sort -u "/tmp/{{ csv_filename }}" -o "/tmp/{{ csv_filename }}"
