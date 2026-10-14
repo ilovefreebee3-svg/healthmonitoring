@@ -71,7 +71,8 @@
 
 - name: 11. Finalise scalar answer and remark variables
   ansible.builtin.set_fact:
-    remark: "{{ remark_list | join('\n') }}"
+#    remark: "{{ remark_list | join('\n') }}"
+    remark: "{{ remark_list | join(' -- ') }}"
     answer: "{{ 'Elasticsearch function not found' if 'not found' in status_tracker else 'Elasticsearch function found' }}"
 
 - name: 12. Display Results

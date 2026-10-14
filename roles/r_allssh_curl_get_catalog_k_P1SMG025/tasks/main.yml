@@ -2,6 +2,7 @@
 - name: 1. Set csv_filename
   ansible.builtin.set_fact:
     csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+#    p1smg_url: "https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog"
 
 - name: 2. Display csv_filename
   ansible.builtin.debug:
@@ -15,13 +16,10 @@
     timeout: 5
   register: control_cvm_status
 
-# ------------------------------------------------------------
-# SCENARIO 2: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
-# ------------------------------------------------------------
-- name: 4. Run "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+- name: 4. Run "curl -X GET https://XXXXX025"
   ansible.builtin.include_tasks: subr.run_allssh_x.yml
   vars:
-    target_cmd: "curl -X GET https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog -k"
+    target_cmd: "{{ curl -X -k p1smg_url }}"
   when: not (read_from_file | bool)
 
 - name: 5. Read from hardcoded file

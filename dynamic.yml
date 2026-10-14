@@ -54,15 +54,18 @@
           ansible.builtin.meta: clear_host_errors
 
   post_tasks:
-
-#    - name: 95. Log to external
-#      ansible.builtin.import_tasks: subr.deduplicate_csv.yml
-#      when: dedup_enabled | default(true) | bool
-
     - name: 98. Log to external
       ansible.builtin.import_tasks: subr.log_ext.yml
       when: log_ext_enabled | default(false) | bool
 
+# ==========================================
+# PLAY 2: Runs EXACTLY ONCE at the very end
+# ==========================================
+- name: Final Global Logging
+  hosts: localhost
+  gather_facts: false
+  tasks:
     - name: 99. Log to Splunk
       ansible.builtin.import_tasks: subr.log_splunk.yml
       when: log_splunk_enabled | default(true) | bool
+
