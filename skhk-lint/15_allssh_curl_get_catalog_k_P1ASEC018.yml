@@ -42,7 +42,6 @@
     # SCENARIO 2: Run curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k
     # ------------------------------------------------------------
     - name: 4. Run "curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k"
-      # ansible.builtin.include_tasks: subr.run_allssh.yml
       ansible.builtin.include_tasks: subr.run_allssh_x.yml
       vars:
         target_cmd: "curl -X GET https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog -k"

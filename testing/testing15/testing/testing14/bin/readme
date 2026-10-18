@@ -1,0 +1,44 @@
+ 1071  2026-08-06 14:30:54 git status
+ 1072  2026-08-06 14:32:38 git clone https://github.com/ilovefreebee3-svg/healthmonitoring.git
+ 1073  2026-08-06 14:32:43 ll
+ 1074  2026-08-06 14:32:48 cat try
+ 1075  2026-08-06 14:33:02 ls -al
+ 1076  2026-08-06 14:33:16 cd healthmonitoring/
+ 1077  2026-08-06 14:33:18 ls -al
+ 1078  2026-08-06 14:33:28 vi hw.txt
+ 1079  2026-08-06 14:33:37 git status
+ 1080  2026-08-06 14:33:42 git add .
+ 1081  2026-08-06 14:33:52 git commit -m 'my first update'
+ 1082  2026-08-06 14:33:56 git push
+ 1083  2026-08-06 14:35:18 git remote -v
+ 1084  2026-08-06 14:36:01 ssh -T git@github.com
+ 1085  2026-08-06 14:40:08 git remote set-url origin https://github.com
+ 1086  2026-08-06 14:40:18 git push -u origin main
+ 1087  2026-08-06 14:41:12 git remote set-url origin  https://github.com/ilovefreebee3-svg
+ 1088  2026-08-06 14:41:14 git push -u origin main
+ 1089  2026-08-06 14:41:24 git remote set-url origin   https://github.com/ilovefreebee3-svg/healthmonitoring.git
+ 1090  2026-08-06 14:41:26 git push -u origin main
+ 1091  2026-08-06 14:47:00 git status
+ 1092  2026-08-06 14:47:11 ll
+ 1093  2026-08-06 14:47:16 git add .
+ 1094  2026-08-06 14:47:18 git status
+ 1095  2026-08-06 14:47:49 vi hw.txt 
+ 1096  2026-08-06 14:48:01 git status
+ 1097  2026-08-06 14:48:04 git add .
+ 1098  2026-08-06 14:48:13 git commit -m 'update again'
+ 1099  2026-08-06 14:48:15 git push
+ 1100  2026-08-06 14:50:01 git remote -v
+ 1101  2026-08-06 14:50:39 git push -u origin main
+ 1102  2026-08-06 14:51:40 git push
+ 1103  2026-08-06 14:52:14 ll
+ 1104  2026-08-06 14:52:52 git remote set-url origin https://github.com
+ 1105  2026-08-06 14:52:57 git push
+ 1106  2026-08-06 14:53:25 git remote set-url origin https://github.com/ilovefreebee3-svg/healthmonitoring.git
+ 1107  2026-08-06 14:53:26 git push
+ 1109  2026-08-06 14:56:55 git config --global credential.helper cache
+ 1110  2026-08-06 14:57:23 git push
+ 1111  2026-08-06 14:57:42 ll
+ 1112  2026-08-06 14:57:43 git push
+ 1113  2026-08-06 14:58:47 cd ..
+ 1114  2026-08-06 14:58:47 ll
+ 1115  2026-08-06 14:59:00 history >> readme

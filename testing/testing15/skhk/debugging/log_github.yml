@@ -1,0 +1,6 @@
+---
+- name: 3. Export file to github
+  ansible.builtin.include_tasks: subr.gitexport.yml
+  vars:
+    csv_filename: csv_filename
+

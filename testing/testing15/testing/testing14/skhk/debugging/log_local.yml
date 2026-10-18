@@ -1,0 +1,8 @@
+---
+- name: Append result to CSV (role)
+  delegate_to: localhost
+  lineinfile:
+    path: "/tmp/{{ csv_filename }}"
+    create: yes
+    line: "{{ inventory_hostname }}, {{ role }}, {{ vpc }}, {{ description }}, {{ idx }}, {{ answer }}, {{ remark }} "
+

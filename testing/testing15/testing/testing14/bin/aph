@@ -1,0 +1,36 @@
+echo
+echo Using inventory inventory.ini in the local folder
+echo
+
+. hm
+
+#opt1='-e log_local_enabled=false'
+opt1='-e log_local_enabled=true'
+
+opt2='-e read_from_file=false'
+opt2='-e read_from_file=true'
+
+opt3='-e log_ext_enabled=false'
+opt3='-e log_ext_enabled=true'
+
+
+opt4='-e log_splunk_enabled=false'
+opt4='-e log_splunk_enabled=true -e splunk_host=130.8.20.112 -e splunk_port=8088 -e splunk_token=c73f1ef3-3529-4e57-b3b0-f34df0ab9ada'
+
+opt5='-e p1smg_url=https://P1SMG025.dcloudsvc.gov.sg:5000/v2/_catalog'
+opt6='-e p1a_url=https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog'
+
+#opt7='-e dedup_enabled=false'
+
+allopts="${opt1} ${opt2} ${opt3} ${opt4} ${opt5} ${opt6}"
+
+basedir=/home/git/proj/hm/healthmonitoring/
+
+if [ $# -eq 0 ]; then 
+  echo Provide some  arguments!
+  echo
+else
+   echo ansible-playbook -i ${basedir}inventory.ini "$@" ${allopts}
+   ansible-playbook -i ${basedir}inventory.ini "$@" ${allopts}
+fi
+

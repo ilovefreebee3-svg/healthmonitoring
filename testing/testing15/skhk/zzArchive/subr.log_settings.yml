@@ -1,0 +1,6 @@
+---
+- name: 0. set csv_filename
+  set_fact:
+#     csv_filename: "output.{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}{{ ansible_date_time.hour     }}{{ ansible_date_time.minute }}.csv"
+    csv_filename: "output.{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}.csv"
+

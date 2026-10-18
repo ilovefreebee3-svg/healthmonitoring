@@ -1,0 +1,110 @@
+
+Using inventory inventory.ini in the local folder
+
+ansible-playbook -i /home/git/proj/hm/healthmonitoring/inventory.ini 51_ncc_health_checks_run_all_command.yml -e log_local_enabled=true -e read_from_file=true -e log_ext_enabled=true -e log_splunk_enabled=true -e splunk_host=130.8.20.112 -e splunk_port=8088 -e splunk_token=c73f1ef3-3529-4e57-b3b0-f34df0ab9ada
+
+PLAY [Initialize report] *******************************************************
+
+TASK [Generate CSV filename once] **********************************************
+ok: [localhost]
+
+TASK [Reset CSV report] ********************************************************
+changed: [localhost]
+
+TASK [Display CSV filename] ****************************************************
+ok: [localhost] => {
+    "msg": "CSV filename = output.20260926.1450.csv"
+}
+
+PLAY [Fetch and process Nutanix NCC health check log] **************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [engrcvm]
+
+TASK [1. Set csv_filename] *****************************************************
+ok: [engrcvm]
+
+TASK [2. Display csv_filename] *************************************************
+ok: [engrcvm] => {
+    "msg": "output.20260926.1450.csv"
+}
+
+TASK [3. Declare variables] ****************************************************
+ok: [engrcvm]
+
+TASK [4. Check if the log file exists] *****************************************
+ok: [engrcvm]
+
+TASK [5. Handle missing log file] **********************************************
+skipping: [engrcvm]
+
+TASK [6a. Fetch the log file to the Ansible control node] **********************
+ok: [engrcvm]
+
+TASK [6b. Isolate the last TIMESTAMP block using awk] **************************
+ok: [engrcvm]
+
+TASK [6c. Parse and cast the trimmed log counters strictly] ********************
+ok: [engrcvm]
+
+TASK [6d. Evaluate final cluster health parameters] ****************************
+ok: [engrcvm]
+
+TASK [7. Ensure CSV report directory exists on control node] *******************
+ok: [engrcvm -> localhost]
+
+TASK [8. Ensure CSV header line is present on control node] ********************
+ok: [engrcvm -> localhost]
+
+TASK [9. Append current host status summary to CSV file] ***********************
+ok: [engrcvm -> localhost]
+
+TASK [10. Show answer and remark] **********************************************
+ok: [engrcvm] => {
+    "msg": [
+        "Answer: Unhealthy",
+        "Remark: Last updated: : Fri Jul 03 16:02:55 2026 (UTC +0800) (Fails: 3, Errors: 5)"
+    ]
+}
+
+TASK [Append result to CSV] ****************************************************
+changed: [engrcvm -> localhost]
+
+TASK [0. Declare variables] ****************************************************
+ok: [engrcvm]
+
+TASK [2a. Force create destination directory structure in home folder] *********
+ok: [engrcvm -> user1@130.8.20.76]
+
+TASK [2b. Copy file from container to the AWX host filesystem] *****************
+ok: [engrcvm -> user1@130.8.20.76]
+
+TASK [Send CSV file to Splunk once] ********************************************
+ok: [engrcvm]
+
+TASK [Read CSV file content] ***************************************************
+ok: [engrcvm -> localhost]
+
+TASK [4a. Display csv_file] ****************************************************
+ok: [engrcvm] => {
+    "csv_file": {
+        "changed": false,
+        "content": "ZW5ncmN2bSwgcl9uY2NfaGVhbHRoX2NoZWNrc19ydW5fYWxsLCB0YmQsIG5jYyBoZWFsdGhfY2hlY2tzIHJ1bl9hbGwgKG5vbi1yb2xlKSwgaWR4MywgVW5oZWFsdGh5LCBMYXN0IHVwZGF0ZWQ6IDogRnJpIEp1bCAwMyAxNjowMjo1NSAyMDI2IChVVEMgKzA4MDApIChGYWlsczogMywgRXJyb3JzOiA1KSAK",
+        "encoding": "base64",
+        "failed": false,
+        "source": "/tmp/output.20260926.1450.csv"
+    }
+}
+
+TASK [4b. Debug CSV Content size] **********************************************
+ok: [engrcvm] => {
+    "msg": "Raw file content length is 174"
+}
+
+TASK [5. Send raw CSV data to Splunk HEC] **************************************
+ok: [engrcvm]
+
+PLAY RECAP *********************************************************************
+engrcvm                    : ok=22   changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+localhost                  : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

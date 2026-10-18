@@ -1,0 +1,11 @@
+---
+- name: Remove cron job for hostname logging
+  hosts: calmcvm
+  become: true
+  tasks:
+
+    - name: Delete the hostname logging cron job
+      ansible.builtin.cron:
+        name: "Log hostname to output file"
+        state: absent
+

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Define the list of files
+
+files=(
+"dynamic_role_s1.yml"
+"dynamic_role_s2.yml"
+"dynamic_role_s3.yml"
+"dynamic_role_s4.yml"
+"dynamic_role_s5.yml"
+"dynamic_role_s6.yml"
+"dynamic_role_s7.yml"
+"dynamic_role_s8.yml"
+"dynamic_role_s9.yml"
+"dynamic_role_s10.yml"
+"dynamic_role_s11.yml"
+"dynamic_role_s12.yml"
+"dynamic_role_s13.yml"
+"dynamic_role_s14.yml"
+"dynamic_role_s15.yml"
+"dynamic_role_s16.yml"
+"dynamic_role_s17.yml"
+"dynamic_role_s18.yml"
+"dynamic_role_s19.yml"
+)
+
+#post=$(( ( $(date +%H) * 60 + $(date +%M) ) * 60 + $(date +%S) ))
+#post=$((  $(date +%H) * 60 + $(date +%M) + 0 ))
+
+todaydate=$(( $(date +%d) ))
+post1=$(printf "%02d" $todaydate)
+post=$post1.$(( 10#$(date +%H) * 60 + 10#$(date +%M) ))
+
+
+
+
+for file in "${files[@]}"; do
+    if [ -f "$file" ]; then
+        
+        outfile=output."$file"."$post"
+
+        echo Processing "$file" started
+        echo "" > $outfile
+        echo "---------------------------------" >> $outfile
+        echo "$file" >> $outfile
+        echo "---------------------------------" >> $outfile
+        echo "" >> $outfile
+
+        echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" >> $outfile
+        cat "$file" >> $outfile
+        echo "------------------------------------------------------------------" >> $outfile
+
+
+        if [[ ${file:0:4} != 'subr' ]]; then
+           echo "" >> $outfile
+           echo "" >> $outfile
+           echo aphe "$file" >> $outfile
+           echo "" >> $outfile
+           aphe "$file" >> $outfile
+           echo Processing "$file" finished
+           echo
+#           sleep 1
+        fi
+    else
+        echo "Error: $file not found."
+    fi
+done
+
+

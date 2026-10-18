@@ -1,0 +1,12 @@
+---
+- name: Configure cron job for hostname logging at 11:30 PM
+  hosts: calmcvm
+  become: true
+  tasks:
+
+    - name: Create a cron job to log hostname daily at 23:30
+      ansible.builtin.cron:
+        name: "Log hostname to output file"
+        minute: "30"
+        hour: "23"
+        job: "ncc health_checks run_all" 

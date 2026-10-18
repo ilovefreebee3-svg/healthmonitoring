@@ -1,0 +1,24 @@
+---
+- name: Create timestamped output CSV
+  hosts: localhost
+  gather_facts: true
+
+  tasks:
+
+    - name: Generate output CSV filename
+      ansible.builtin.set_fact:
+        output_csv: "output.{{ ansible_date_time.year }}.{{ ansible_date_time.month }}.{{ ansible_date_time.day }}.{{ ansible_date_time.hour }}.{{ ansible_date_time.minute }}.csv"
+
+    - name: Delete output CSV if it already exists
+      ansible.builtin.file:
+        path: "{{ output_csv }}"
+        state: absent
+
+    - name: Create output CSV with placeholder in first row
+      ansible.builtin.copy:
+        dest: "{{ output_csv }}"
+        content: "PLACEHOLDER\n"
+
+    - name: Display output CSV filename
+      ansible.builtin.debug:
+        msg: "Output CSV: {{ output_csv }}"

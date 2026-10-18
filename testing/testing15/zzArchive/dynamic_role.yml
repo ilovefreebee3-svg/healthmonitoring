@@ -1,0 +1,44 @@
+---
+- name: Initialize report
+  ansible.builtin.import_playbook: subr.role_init.yml
+
+- name: Run roles dynamically
+  hosts: "{{ server | default('server_1') }}"
+  gather_facts: false 
+  serial: 1
+
+  tasks:
+    - name: 1. Declare variables
+      ansible.builtin.set_fact:
+        awx_host_ip: "user1@130.8.20.76"
+        awx_host_dir: /home/user1/awx_exports/
+
+    - name: 2. Map csv_filename to host
+      ansible.builtin.set_fact:
+        csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
+
+    # ... [Your Process host connectivity safely block goes here] ...
+
+    - name: 97. Log to local
+      ansible.builtin.import_tasks: subr.log_local.yml
+      when: log_local_enabled | bool
+
+    - name: 98. Log to external
+      ansible.builtin.import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+
+  post_tasks:
+    - name: 98. Log to external
+      ansible.builtin.import_tasks: subr.log_ext.yml
+      when: log_ext_enabled | bool
+    # NOTE: "99. Log to Splunk" has been completely REMOVED from this entire play
+
+# NEW PLAY: This runs ONLY AFTER all hosts have completely finished writing to the CSV
+- name: Finalize and upload master CSV to Splunk
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: 99. Log to Splunk
+      ansible.builtin.import_tasks: subr.log_splunk.yml
+      when: log_splunk_enabled | default(true) | bool
+

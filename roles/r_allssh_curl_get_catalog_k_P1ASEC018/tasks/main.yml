@@ -2,7 +2,6 @@
 - name: 1. Set csv_filename
   ansible.builtin.set_fact:
     csv_filename: "{{ hostvars['localhost']['csv_filename'] }}"
-#    p1a_url: "https://P1ASEC018.dcloudsvc.gov.sg:5000/v2/_catalog"
 
 - name: 2. Display csv_filename
   ansible.builtin.debug:

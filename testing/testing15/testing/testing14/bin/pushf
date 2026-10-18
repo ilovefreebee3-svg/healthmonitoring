@@ -1,0 +1,4 @@
+
+cd "/home/user1/proj/hm/healthmonitoring"
+git add . && git commit -m 'update' 
+git push -f https://x-oauth-basic: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@github.com/ilovefreebee3-svg/healthmonitoring.git HEAD:main
