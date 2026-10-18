@@ -1,0 +1,117 @@
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+---
+- name: Send CSV file to Splunk once
+  hosts: localhost
+  gather_facts: false
+  vars:
+    splunk_host: "130.8.20.112"
+    splunk_port: "8088"
+    splunk_token: "02f12928-31e7-49af-a97a-ac1dc9f95189"
+    csv_file_path: "./file.2026.09.13.csv"
+  tasks:
+    - name: Read CSV file content
+      ansible.builtin.slurp:
+        src: "{{ csv_file_path }}"
+      register: csv_file
+#    - name: Send raw CSV data to Splunk HEC
+#      ansible.builtin.uri:
+#        url: "http://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw"
+#        method: "POST"
+#        headers:
+#          Authorization: "Splunk {{ splunk_token }}"
+#        body: "{{ csv_file.content | b64decode }}"
+#        body_format: raw
+#        status_code: 200
+    - name: Send raw CSV data to Splunk HEC
+      ansible.builtin.uri:
+        url: "https://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw?source={{ csv_file_path | basename }}"
+        method: "POST"
+        headers:
+          Authorization: "Splunk {{ lookup('ansible.builtin.env', 'SPLUNK_TOKEN') }}"
+        body: "{{ csv_file.content | b64decode }}"
+        body_format: raw
+        status_code: 200
+        validate_certs: false
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+---
+- name: Send CSV file to Splunk once
+  hosts: localhost
+  gather_facts: false
+  vars:
+    splunk_host: "130.8.20.112"
+    splunk_port: "8088"
+    splunk_token: "02f12928-31e7-49af-a97a-ac1dc9f95189"
+    csv_file_path: "./file.2026.09.13.csv"
+  tasks:
+    - name: Read CSV file content
+      ansible.builtin.slurp:
+        src: "{{ csv_file_path }}"
+      register: csv_file
+#    - name: Send raw CSV data to Splunk HEC
+#      ansible.builtin.uri:
+#        url: "http://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw"
+#        method: "POST"
+#        headers:
+#          Authorization: "Splunk {{ splunk_token }}"
+#        body: "{{ csv_file.content | b64decode }}"
+#        body_format: raw
+#        status_code: 200
+    - name: Send raw CSV data to Splunk HEC
+      ansible.builtin.uri:
+        url: "https://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw?source={{ csv_file_path | basename }}"
+        method: "POST"
+        headers:
+          Authorization: "Splunk {{ lookup('ansible.builtin.env', 'SPLUNK_TOKEN') }}"
+        body: "{{ csv_file.content | b64decode }}"
+        body_format: raw
+        status_code: 200
+        validate_certs: false
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+The quick brown fox jumps over the lazy fox in 13 Sept
+---
+- name: Send CSV file to Splunk once
+  hosts: localhost
+  gather_facts: false
+  vars:
+    splunk_host: "130.8.20.112"
+    splunk_port: "8088"
+    splunk_token: "02f12928-31e7-49af-a97a-ac1dc9f95189"
+    csv_file_path: "./file.2026.09.13.csv"
+  tasks:
+    - name: Read CSV file content
+      ansible.builtin.slurp:
+        src: "{{ csv_file_path }}"
+      register: csv_file
+#    - name: Send raw CSV data to Splunk HEC
+#      ansible.builtin.uri:
+#        url: "http://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw"
+#        method: "POST"
+#        headers:
+#          Authorization: "Splunk {{ splunk_token }}"
+#        body: "{{ csv_file.content | b64decode }}"
+#        body_format: raw
+#        status_code: 200
+    - name: Send raw CSV data to Splunk HEC
+      ansible.builtin.uri:
+        url: "https://{{ splunk_host }}:{{ splunk_port }}/services/collector/raw?source={{ csv_file_path | basename }}"
+        method: "POST"
+        headers:
+          Authorization: "Splunk {{ lookup('ansible.builtin.env', 'SPLUNK_TOKEN') }}"
+        body: "{{ csv_file.content | b64decode }}"
+        body_format: raw
+        status_code: 200
+        validate_certs: false

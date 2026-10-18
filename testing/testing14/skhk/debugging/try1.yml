@@ -1,0 +1,22 @@
+---
+- name: Generate and copy report to RHEL 9 target
+  hosts: corecvm
+  gather_facts: false
+
+  tasks:
+    - name: Generate the report content inside the AWX container
+      ansible.builtin.copy:
+        content: |
+          Report Generated on {{ ansible_date_time.iso8601 if ansible_date_time is defined else '2026-08-17' }}
+          Status: Successful
+          Target: {{ inventory_hostname }}
+        dest: /tmp/my_report.txt
+      delegate_to: localhost
+
+    - name: Copy the report from AWX container to RHEL 9 target
+      ansible.builtin.copy:
+        src: /tmp/my_report.txt
+        dest: /home/nutanix/my_report.txt
+        mode: '0644'
+      become: true  # <-- This runs the copy operation as root via sudo
+

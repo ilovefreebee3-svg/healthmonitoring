@@ -1,0 +1,12 @@
+---
+- name: Configure cron job for hostname logging
+  hosts: server_12
+  become: true
+  tasks:
+
+    - name: Create a cron job to log hostname every 5 minutes
+      ansible.builtin.cron:
+        name: "Log hostname to output file"
+        minute: "*/5"
+        job: "hostname >> /tmp/output.txt"
+

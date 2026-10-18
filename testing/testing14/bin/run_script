@@ -1,0 +1,56 @@
+#!/bin/bash
+
+basedir=/home/user1/proj/hm/healthmonitoring/
+
+todaydate=$(( $(date +%d) ))
+post1=$(printf "%02d" $todaydate)
+post=$post1.$(( 10#$(date +%H) * 60 + 10#$(date +%M) ))
+
+for file1 in "${PWD}"/*.yml; do
+  if [ -f "$file1" ]; then
+
+    file=$(basename "$file1")
+    outfile=output."$file"."$post"
+
+    if [[ ${file:0:4} != 'logd' ]]; then
+
+      echo Processing "$file" started
+      echo "" > $outfile
+      echo "---------------------------------" >> $outfile
+      echo "$file" >> $outfile
+      echo "---------------------------------" >> $outfile
+      echo "" >> $outfile
+
+      echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" >> $outfile
+      cat "$file" >> $outfile
+      echo "------------------------------------------------------------------" >> $outfile
+
+      if [[ ${file:0:4} != 'subr' && ${file:0:4} != 'incl' ]]; then
+        echo "" >> $outfile
+        echo "" >> $outfile
+        echo aph "$file" >> $outfile
+
+        echo "" >> $outfile
+        echo ansible-playbook -i ${basedir}inventory.ini $file "$@" 
+#        read
+
+        ansible-playbook -i ${basedir}inventory.ini $file "$@" >> $outfile
+
+        echo
+        echo Processing "$file" finished
+        echo
+        echo ansible-playbook -i ${basedir}inventory.ini "$@" 
+        echo
+        echo Use the following flag if necessary
+        echo -e "read_from_file=true"
+        echo -e "logd_enabled=true"
+        echo -e "log_filesystem_enabled=true"
+        echo -e "log_github_enabled=true"
+        echo
+
+      fi
+    fi
+  else
+      echo "Error: $file not found."
+  fi
+done

@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+echo
+echo find *.yml -print0 -exec cp {} {}.org \;
+echo
+find *.yml -print0 -exec cp {} {}.org \;
+#clear

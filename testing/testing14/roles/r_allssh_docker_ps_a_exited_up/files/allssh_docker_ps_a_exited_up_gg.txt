@@ -1,0 +1,26 @@
+============== 130.8.20.20 ==============
+CONTAINER ID   IMAGE           COMMAND            CREATED      STATUS                         PORTS     NAMES
+5fd3e14ba14d   alpine:latest   "sh -c 'exit 0'"   4 days ago   Exited (0) 4 days ago                    state_exited
+1c639503be6d   alpine:latest   "sh -c 'exit 1'"   4 days ago   Restarting (1) 2 seconds ago             state_restarting
+a678f4a76898   alpine:latest   "sleep 3600"       4 days ago   Exited (0) 4 days ago                    state_paused
+608fa5a906ee   alpine:latest   "sleep 3600"       4 days ago   Exited (0) 4 days ago                    state_running
+f67126762629   alpine:latest   "sleep 3600"       4 days ago   Created                                  state_created
+32ea16a19d78   alpine          "sh -c 'exit 1'"   5 days ago   Exited (1) 5 days ago                    crashed-container
+46a37351eb64   hello-world     "/hello"           5 days ago   Exited (0) 5 days ago                    great_jones
+============== 130.8.20.21 ==============
+CONTAINER ID   IMAGE                                                        COMMAND                  CREATED      STATUS                          PORTS     NAMES
+31e664644900   alpine:latest                                                "sh -c 'exit 0'"         4 days ago   Exited (0) 4 days ago                     state_exited
+0ee50e77eb53   alpine:latest                                                "sh -c 'exit 1'"         4 days ago   Restarting (1) 1 second ago               state_restarting
+1b051371e78d   alpine:latest                                                "sleep 3600"             4 days ago   Exited (0) 4 days ago                     state_paused
+3f39aaa70d6f   alpine:latest                                                "sleep 3600"             4 days ago   Exited (0) 4 days ago                     state_running
+78310de9d603   alpine:latest                                                "sleep 3600"             4 days ago   Created                                   state_created
+123b8dbc8c4e   couchbase:enterprise-7.0.3                                   "/entrypoint.sh couc…"   5 days ago   Exited (0) 5 days ago                     couchbase-2.0.4-Release7
+9f0e770855ca   jfrog.dev.saf/docker-armyc3/marik/webserver:2.0.5-Release7   "container-entrypoin…"   5 days ago   Restarting (1) 27 seconds ago             marik-webserverDB
+============== 130.8.20.22 ==============
+CONTAINER ID   IMAGE           COMMAND            CREATED      STATUS                                  PORTS     NAMES
+0333803a40ac   alpine:latest   "sh -c 'exit 0'"   4 days ago   Exited (0) 4 days ago                             state_exited
+060b4deecaa8   alpine:latest   "sh -c 'exit 1'"   4 days ago   Restarting (1) Less than a second ago             state_restarting
+d1767d5e9918   alpine:latest   "sleep 3600"       4 days ago   Exited (0) 4 days ago                             state_paused
+25a94094ef6f   alpine:latest   "sleep 3600"       4 days ago   Exited (0) 4 days ago                             state_running
+8aebfda36b28   alpine:latest   "sleep 3600"       4 days ago   Created                                           state_created
+
