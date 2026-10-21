@@ -4,6 +4,7 @@
     msg:
       - "Host    : {{ inventory_hostname }}"
       - "Command : {{ cmd.name }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 12. Run command
   ansible.builtin.command:
@@ -35,14 +36,17 @@
 - name: 15. Return code
   ansible.builtin.debug:
     var: input_filter.rc
+  when: debug_enabled | default(false) | bool
 
 - name: 16. Debug the captured output
   ansible.builtin.debug:
     var: input_filter.stdout_lines
+  when: debug_enabled | default(false) | bool
 
 - name: 17. Display the captured output
   ansible.builtin.debug:
     var: input_filter.stdout
+  when: debug_enabled | default(false) | bool
 
 - name: "18. Display command output"
   ansible.builtin.debug:
@@ -58,6 +62,7 @@
       STDERR:
       {{ input_filter.stderr | default('') }}
       ==================================================
+  when: debug_enabled | default(false) | bool
 
 # - name: 19. Log output on control node
 #  ansible.builtin.blockinfile:

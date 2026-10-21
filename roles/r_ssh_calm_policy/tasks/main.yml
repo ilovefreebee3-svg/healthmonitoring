@@ -6,6 +6,7 @@
 - name: 2. Display csv_filename
   ansible.builtin.debug:
     msg: "{{ hostvars['localhost']['csv_filename'] }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 3. Set default variables
   ansible.builtin.set_fact:
@@ -31,6 +32,7 @@
 - name: 6. Display input_result.stdout_lines
   ansible.builtin.debug:
     msg: "{{ input_result.stdout_lines }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 7. Process Disk Data
   ansible.builtin.set_fact:
@@ -66,6 +68,7 @@
       - "Threshold: {{ threshold }}"
       - "Count: {{ num_over75 }}"
       - "Details: {{ remark }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 97. Log to local
   ansible.builtin.import_tasks: subr.log_local.yml

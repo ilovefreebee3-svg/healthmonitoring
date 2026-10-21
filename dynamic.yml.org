@@ -59,7 +59,7 @@
       when: log_ext_enabled | default(false) | bool
 
 # ==========================================
-# PLAY 2: Runs EXACTLY ONCE at the very end
+# PLAY: Runs EXACTLY ONCE at the very end
 # ==========================================
 - name: Final Global Logging
   hosts: localhost

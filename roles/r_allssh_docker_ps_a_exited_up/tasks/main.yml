@@ -35,6 +35,7 @@
 - name: 4. Display input_filter 1
   ansible.builtin.debug:
     msg: "{{ input_filter.stdout_lines }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 5. Process cluster container health
   ansible.builtin.set_fact:
@@ -85,15 +86,9 @@
       - "Breakdown per IP (remark): {{ remark }}"
       - "answer: {{ answer }}"
       - "remark: {{ remark }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 97. Log to local
   ansible.builtin.import_tasks: subr.log_local.yml
   when: log_local_enabled | bool
 
-# - name: 98. Log to external
-#  ansible.builtin.import_tasks: subr.log_ext.yml
-#  when: log_ext_enabled | bool
-
-# - name: 98. Log to local
-#  ansible.builtin.import_tasks: subr.log_github.yml
-#  when: log_github_enabled | bool

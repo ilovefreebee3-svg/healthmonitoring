@@ -6,6 +6,7 @@
 - name: 2. Display csv_filename
   ansible.builtin.debug:
     msg: "{{ hostvars['localhost']['csv_filename'] }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 3. Set variables default
   ansible.builtin.set_fact:
@@ -42,6 +43,7 @@
 - name: 7. Display input_filter 1
   ansible.builtin.debug:
     msg: "{{ input_filter.stdout_lines }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 8. Process output and calculate pod states
   ansible.builtin.set_fact:
@@ -77,6 +79,7 @@
   ansible.builtin.debug:
     msg:
       - "Answer:\n{{ parsed_data }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 10. Convert parsed data to native structure
   ansible.builtin.set_fact:
@@ -101,6 +104,7 @@
     msg:
       - "Answer: {{ answer }}"
       - "Remark: {{ remark | default('No issues found') }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 97. Log to local
   ansible.builtin.import_tasks: subr.log_local.yml

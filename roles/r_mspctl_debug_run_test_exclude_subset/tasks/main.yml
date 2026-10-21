@@ -6,6 +6,7 @@
 - name: 2. Display csv_filename
   ansible.builtin.debug:
     msg: "{{ hostvars['localhost']['csv_filename'] }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 3. Run mspctl debug run --test_exclude_subset
   ansible.builtin.command:
@@ -33,14 +34,17 @@
 - name: 5. Display the raw script output
   ansible.builtin.debug:
     var: input_filter.stdout_lines
+  when: debug_enabled | default(false) | bool
 
 - name: 6. Display the raw script output
   ansible.builtin.debug:
     var: input_filter.stdout
+  when: debug_enabled | default(false) | bool
 
 - name: 7. Display the stderr
   ansible.builtin.debug:
     var: input_filter.stderr
+  when: debug_enabled | default(false) | bool
 
 - name: 8. Remove ANSI color codes
   ansible.builtin.set_fact:
@@ -54,16 +58,19 @@
 - name: 9. Display cleaned output
   ansible.builtin.debug:
     var: xinput_filter_msg
+  when: debug_enabled | default(false) | bool
 
 - name: 10. Display input_filter.stdout_lines
   ansible.builtin.debug:
     msg:
       - "V: {{ input_filter.stdout_lines }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 11. Display Xinput_Result msg
   ansible.builtin.debug:
     msg:
       - "X: {{ xinput_filter_msg }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 12. Initialize variables
   ansible.builtin.set_fact:
@@ -114,6 +121,7 @@
       - "Failures: {{ num_failure }}"
       - "Remark: {{ remark }}"
       - "Answer: {{ answer }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 97. Log to local
   ansible.builtin.import_tasks: subr.log_local.yml

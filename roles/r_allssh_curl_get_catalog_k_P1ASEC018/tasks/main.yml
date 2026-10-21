@@ -6,6 +6,7 @@
 - name: 2. Display csv_filename
   ansible.builtin.debug:
     msg: "{{ hostvars['localhost']['csv_filename'] }}"
+  when: debug_enabled | default(false) | bool
 
 # ------------------------------------------------------------
 # UPFRONT REACHABILITY: Ensures the target control CVM itself is online
@@ -37,6 +38,7 @@
 - name: 6. Display input_filter.stdout_lines
   ansible.builtin.debug:
     msg: "{{ input_filter.stdout_lines }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 7. Initialize variables
   ansible.builtin.set_fact:
@@ -105,6 +107,7 @@
     msg:
       - "remark = {{ remark }}"
       - "answer = {{ answer }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 97. Log to local
   ansible.builtin.import_tasks: subr.log_local.yml

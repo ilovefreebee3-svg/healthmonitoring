@@ -20,6 +20,7 @@
     - name: 3. Display csv_filename
       ansible.builtin.debug:
         msg: "{{ csv_filename }}"
+      when: debug_enabled | default(false) | bool
 
     - name: 4. Process host connectivity safely
       block:
@@ -34,6 +35,7 @@
         - name: 4c. display csv_filename
           ansible.builtin.debug:
             msg: "{{ csv_filename }}"
+          when: debug_enabled | default(false) | bool
 
         - name: 4d. Include roles per host
           ansible.builtin.include_role:

@@ -6,6 +6,7 @@
 - name: Display csv_filename
   ansible.builtin.debug:
     msg: "{{ csv_filename }}"
+  when: debug_enabled | default(false) | bool
 
 - name: Declare variables
   ansible.builtin.set_fact:
@@ -31,6 +32,7 @@
 - name: Display input_filter stdout lines
   ansible.builtin.debug:
     msg: "{{ input_filter.stdout_lines }}"
+  when: debug_enabled | default(false) | bool
 
 - name: Parse output and evaluate status
   ansible.builtin.set_fact:
@@ -58,6 +60,7 @@
     msg:
       - "Answer: {{ answer }}"
       - "Remark: {{ remark }}"
+  when: debug_enabled | default(false) | bool
 
 - name: 97. Log to local
   ansible.builtin.import_tasks: subr.log_local.yml
